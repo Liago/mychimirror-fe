@@ -11,7 +11,9 @@ import {
   NavbarMenuToggle,
   Image,
 } from "@nextui-org/react";
-import { openSans } from "../assets/fonts";
+
+import { openSans } from "@/assets/fonts";
+import "./Header.scss";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,10 +46,11 @@ const Header = () => {
       return (
         <NavbarItem key={`${item}-${index}`} className={openSans.className}>
           <Link
-            className="hidden text-black uppercase text-sm tracking-wider md:block"
+            className="hidden text-fake-black font-semibold uppercase text-xs tracking-widest md:block"
             href={item.path}
           >
             {item.label}
+            <span rel="menu-border"></span>
           </Link>
         </NavbarItem>
       );
@@ -58,7 +61,7 @@ const Header = () => {
     return menuItems.map((item, index) => (
       <NavbarMenuItem key={`${item}-${index}`} className={openSans.className}>
         <Link
-          className="w-full text-black uppercase text-sm tracking-wider sm:hidden"
+          className="w-full text-fake-black font-semibold uppercase text-xs tracking-widest sm:hidden"
           href="#"
           size="lg"
         >
@@ -69,8 +72,13 @@ const Header = () => {
   };
 
   return (
-    <Navbar onMenuOpenChange={setIsMenuOpen}>
-      <NavbarContent>
+    <Navbar
+      onMenuOpenChange={setIsMenuOpen}
+      height="100px"
+      maxWidth="full"
+      isBordered={true}
+    >
+      <NavbarContent className="w-full">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"
@@ -83,7 +91,7 @@ const Header = () => {
           />
         </NavbarBrand>
       </NavbarContent>
-      <NavbarContent justify="end">{renderMainMenu()}</NavbarContent>
+      <NavbarContent rel="main-menu">{renderMainMenu()}</NavbarContent>
       <NavbarMenu>{renderBurgerMenu()}</NavbarMenu>
     </Navbar>
   );
