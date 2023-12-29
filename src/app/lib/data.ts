@@ -5,15 +5,21 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export async function fetchPosts() {
+export async function fetchRecentPosts() {
   const { data } = await client.query({
     query: gql`
-      query Posts {
-        posts {
+      query RecentPosts {
+        posts(first: 3) {
           nodes {
             id
             title
-            content
+			date
+            commentCount
+            featuredImage {
+              node {
+                mediaItemUrl
+              }
+            }
           }
         }
       }
