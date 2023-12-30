@@ -4,7 +4,8 @@ import { cinzel } from "@/assets/fonts";
 import LastPostContainer from "@/components/ui/LastPostContainer";
 import Divider from "./components/hoc/Divider";
 import Image from "next/image";
-import PressContainer from "./components/Press/PressContainer";
+import PressContainer from "./components/ui/PressContainer";
+import InterviewContainer from "./components/ui/InterviewContainer";
 
 export default async function Home() {
   const data = await fetchRecentPosts();
@@ -36,6 +37,9 @@ export default async function Home() {
         </section>
         <section className="relative block w-full py-6">
           <PressContainer />
+        </section>
+        <section className="relative block w-full py-6">
+          <InterviewContainer />
         </section>
       </main>
     </>

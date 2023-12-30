@@ -13,7 +13,7 @@ export async function fetchRecentPosts() {
           nodes {
             id
             title
-			date
+            date
             commentCount
             featuredImage {
               node {
@@ -29,6 +29,28 @@ export async function fetchRecentPosts() {
   return {
     props: {
       posts: data.posts.nodes,
+    },
+  };
+}
+
+export async function getYouTubeData() {
+  if (!process.env.YOUTUBE_VIDEO_DATA) {
+    throw new Error("YOUTUBE_VIDEO_DATA environment variable is not defined");
+  }
+
+  const res = await fetch(process.env.YOUTUBE_VIDEO_DATA);
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    const errorMessage = errorData.message || "Failed to fetch data";
+    throw new Error(errorMessage);
+  }
+
+  const data = await res.json();
+
+  return {
+    props: {
+      videos: data,
     },
   };
 }

@@ -1,4 +1,4 @@
-import {Cinzel, Open_Sans } from 'next/font/google'
+import {Cinzel, Open_Sans, Cormorant_Garamond } from 'next/font/google'
  
  
 export const openSans = Open_Sans({
@@ -15,4 +15,11 @@ export const cinzel = Cinzel({
     subsets: ['latin'],
     display: 'swap',
     variable: '--font-cinzel',
+  })
+export const cormorantGaramond = Cormorant_Garamond({
+    weight: ['400', '600', '700'],
+    style: ['normal'],
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-cormorant-garamond',
   })
