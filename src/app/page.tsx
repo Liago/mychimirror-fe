@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <>
       <Header />
-      <main className="block">
+      <main className="block bg-nocciola">
         <section className="relative block w-full">
           <Image
             alt="Melissa Cecchini per MyChicMirror"
@@ -29,7 +29,7 @@ export default async function Home() {
           <div className="z-10 max-w-7xl w-full items-center">
             <div className={cinzel.className}>
               <Divider border="10">
-                <h1 className="text-4xl uppercase text-center">Pillole</h1>
+                <h1 className="text-4xl text-fake-black uppercase text-center">Pillole</h1>
               </Divider>
               <LastPostContainer posts={props.posts} />
             </div>

@@ -18,7 +18,7 @@ export default async function InterviewContainer() {
   return (
     <div
       rel="component-container"
-      className="flex min-h-screen flex-col items-center justify-between"
+      className="flex min-h-screen flex-col items-center justify-between bg-nocciola"
     >
       <div rel="card-container" className="flex flex-col md:flex-row flex-wrap justify-center">
         {renderCards()}

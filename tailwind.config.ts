@@ -20,6 +20,7 @@ const config: Config = {
       },
       colors: {
         "fake-black": "#6a5921",
+        "nocciola": "#FAF2ED"
       },
     },
   },
