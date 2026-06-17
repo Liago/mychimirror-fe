@@ -4,6 +4,7 @@ import CardContainer from "@/components/Cards/Cards";
 
 type PostCard = {
   id: string;
+  slug: string;
   title: string;
   date: string;
   tags: string;
@@ -21,6 +22,7 @@ const LastPostContainer: React.FC<Props> = ({ posts }) => {
     return posts.map((post) => (
       <CardContainer
         key={post.id}
+        slug={post.slug}
         title={post.title}
         postedOn={post.date}
         tags={post.tags}

@@ -1,10 +1,12 @@
 import React from "react";
 import { Card, CardHeader, CardBody } from "@nextui-org/react";
+import NextLink from "next/link";
 
 import { formatDateTime } from "@/utility/utils";
 import Divider from "../hoc/Divider";
 
 type Props = {
+  slug: string;
   title: string;
   postedOn: string;
   tags: string;
@@ -12,12 +14,18 @@ type Props = {
   imageUrl: string;
 };
 const CardContainer = (props: Props) => {
-  const { postedOn, title, tags, comments, imageUrl } = props;
+  const { slug, postedOn, title, tags, comments, imageUrl } = props;
 
   let postedDate = formatDateTime(postedOn);
 
   return (
-    <Card className="p-4 mx-4" shadow="sm" isPressable>
+    <Card
+      as={NextLink}
+      href={`/posts/${slug}`}
+      className="p-4 mx-4"
+      shadow="sm"
+      isPressable
+    >
       <CardHeader
         className="overflow-visible p-0"
         style={{
