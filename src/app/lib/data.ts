@@ -12,6 +12,7 @@ export async function fetchRecentPosts() {
         posts(first: 3) {
           nodes {
             id
+            slug
             title
             date
             commentCount
@@ -31,6 +32,31 @@ export async function fetchRecentPosts() {
       posts: data.posts.nodes,
     },
   };
+}
+
+export async function fetchPostBySlug(slug: string) {
+  const { data } = await client.query({
+    query: gql`
+      query PostBySlug($slug: ID!) {
+        post(id: $slug, idType: SLUG) {
+          id
+          slug
+          title
+          date
+          content
+          commentCount
+          featuredImage {
+            node {
+              mediaItemUrl
+            }
+          }
+        }
+      }
+    `,
+    variables: { slug },
+  });
+
+  return data.post;
 }
 
 export async function getYouTubeData() {
