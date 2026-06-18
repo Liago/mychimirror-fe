@@ -52,7 +52,7 @@ export default async function PostPage({ params }: PageProps) {
               {formatDateTime(post.date)}
             </p>
             <div
-              className="prose max-w-none mt-8"
+              className="post-content prose max-w-none mt-8"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
             <Comments

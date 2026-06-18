@@ -13,6 +13,7 @@ type CreateCommentInput = {
   parentId?: string | null;
   author: string;
   authorEmail: string;
+  authorUrl?: string;
   content: string;
   postSlug: string;
 };
@@ -26,10 +27,11 @@ export async function createCommentAction(
 ): Promise<CreateCommentResult> {
   const author = input.author.trim();
   const authorEmail = input.authorEmail.trim();
+  const authorUrl = input.authorUrl?.trim() || undefined;
   const content = input.content.trim();
 
   if (!author || !authorEmail || !content) {
-    return { ok: false, error: "Compila tutti i campi." };
+    return { ok: false, error: "Compila tutti i campi obbligatori." };
   }
 
   try {
@@ -51,6 +53,7 @@ export async function createCommentAction(
           parent: input.parentId ?? null,
           author,
           authorEmail,
+          authorUrl,
           content,
         },
       },

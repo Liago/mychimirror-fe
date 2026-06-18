@@ -1,5 +1,6 @@
 import { cinzel, cormorantGaramond } from "@/assets/fonts";
 import CommentReplyAction from "./CommentReplyAction";
+import LeaveCommentForm from "./LeaveCommentForm";
 
 type CommentAuthorNode = {
   name?: string | null;
@@ -113,6 +114,10 @@ const Comments = ({ comments, postDatabaseId, postSlug }: Props) => {
           ))}
         </ul>
       )}
+      <LeaveCommentForm
+        postDatabaseId={postDatabaseId}
+        postSlug={postSlug}
+      />
     </section>
   );
 };

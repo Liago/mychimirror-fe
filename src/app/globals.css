@@ -25,3 +25,9 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.post-content p {
+  margin: 10px 0;
+  font-size: 19px;
+  line-height: 1.31579em;
+}
