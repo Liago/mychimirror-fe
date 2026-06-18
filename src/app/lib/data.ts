@@ -50,6 +50,20 @@ export async function fetchPostBySlug(slug: string) {
               mediaItemUrl
             }
           }
+          comments(first: 100, where: { order: ASC, orderby: COMMENT_DATE }) {
+            nodes {
+              id
+              databaseId
+              parentDatabaseId
+              date
+              content
+              author {
+                node {
+                  name
+                }
+              }
+            }
+          }
         }
       }
     `,

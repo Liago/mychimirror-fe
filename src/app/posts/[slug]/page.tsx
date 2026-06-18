@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 
 import { fetchPostBySlug } from "@/lib/data";
-import { cinzel } from "@/assets/fonts";
+import { cinzel, cormorantGaramond } from "@/assets/fonts";
 import Header from "@/components/ui/header/Header";
 import Divider from "@/components/hoc/Divider";
+import Comments from "@/components/ui/Comments";
 import { formatDateTime } from "@/utility/utils";
 
 type PageProps = {
@@ -37,7 +38,9 @@ export default async function PostPage({ params }: PageProps) {
           </section>
         )}
         <section className="flex flex-col items-center">
-          <article className="z-10 max-w-4xl w-full px-6 py-10">
+          <article
+            className={`${cormorantGaramond.className} z-10 max-w-4xl w-full px-6 py-10`}
+          >
             <div className={cinzel.className}>
               <Divider border="10">
                 <h1 className="text-4xl text-fake-black uppercase text-center">
@@ -52,6 +55,7 @@ export default async function PostPage({ params }: PageProps) {
               className="prose max-w-none mt-8"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
+            <Comments comments={post.comments?.nodes ?? []} />
           </article>
         </section>
       </main>
