@@ -40,6 +40,7 @@ export async function fetchPostBySlug(slug: string) {
       query PostBySlug($slug: ID!) {
         post(id: $slug, idType: SLUG) {
           id
+          databaseId
           slug
           title
           date
@@ -60,6 +61,9 @@ export async function fetchPostBySlug(slug: string) {
               author {
                 node {
                   name
+                  ... on User {
+                    username
+                  }
                 }
               }
             }

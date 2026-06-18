@@ -1,4 +1,10 @@
 import { cinzel, cormorantGaramond } from "@/assets/fonts";
+import CommentReplyAction from "./CommentReplyAction";
+
+type CommentAuthorNode = {
+  name?: string | null;
+  username?: string | null;
+};
 
 type CommentNode = {
   id: string;
@@ -7,9 +13,7 @@ type CommentNode = {
   date: string;
   content: string;
   author: {
-    node: {
-      name: string;
-    };
+    node: CommentAuthorNode;
   };
 };
 
@@ -17,7 +21,13 @@ type TreeNode = CommentNode & { children: TreeNode[] };
 
 type Props = {
   comments: CommentNode[];
+  postDatabaseId: number;
+  postSlug: string;
 };
+
+function resolveAuthorName(node: CommentAuthorNode): string {
+  return node.username || node.name || "Anonimo";
+}
 
 function buildTree(comments: CommentNode[]): TreeNode[] {
   const map = new Map<number, TreeNode>();
@@ -35,7 +45,17 @@ function buildTree(comments: CommentNode[]): TreeNode[] {
   return roots;
 }
 
-const CommentItem = ({ node, depth }: { node: TreeNode; depth: number }) => {
+const CommentItem = ({
+  node,
+  depth,
+  postDatabaseId,
+  postSlug,
+}: {
+  node: TreeNode;
+  depth: number;
+  postDatabaseId: number;
+  postSlug: string;
+}) => {
   const isReply = depth > 0;
   return (
     <li
@@ -43,16 +63,27 @@ const CommentItem = ({ node, depth }: { node: TreeNode; depth: number }) => {
       style={{ marginLeft: depth * 32 }}
     >
       <p className={`${cinzel.className} text-xl text-fake-black`}>
-        {node.author.node.name}
+        {resolveAuthorName(node.author.node)}
       </p>
       <div
         className={`${cormorantGaramond.className} text-lg text-fake-black mt-2`}
         dangerouslySetInnerHTML={{ __html: node.content }}
       />
+      <CommentReplyAction
+        postDatabaseId={postDatabaseId}
+        postSlug={postSlug}
+        parentId={node.id}
+      />
       {node.children.length > 0 && (
         <ul>
           {node.children.map((child) => (
-            <CommentItem key={child.id} node={child} depth={depth + 1} />
+            <CommentItem
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+              postDatabaseId={postDatabaseId}
+              postSlug={postSlug}
+            />
           ))}
         </ul>
       )}
@@ -60,7 +91,7 @@ const CommentItem = ({ node, depth }: { node: TreeNode; depth: number }) => {
   );
 };
 
-const Comments = ({ comments }: Props) => {
+const Comments = ({ comments, postDatabaseId, postSlug }: Props) => {
   const tree = buildTree(comments);
   const count = comments.length;
 
@@ -72,7 +103,13 @@ const Comments = ({ comments }: Props) => {
       {count === 0 ? null : (
         <ul>
           {tree.map((node) => (
-            <CommentItem key={node.id} node={node} depth={0} />
+            <CommentItem
+              key={node.id}
+              node={node}
+              depth={0}
+              postDatabaseId={postDatabaseId}
+              postSlug={postSlug}
+            />
           ))}
         </ul>
       )}

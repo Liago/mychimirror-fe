@@ -24,7 +24,7 @@ export default async function PostPage({ params }: PageProps) {
   return (
     <>
       <Header />
-      <main className="block bg-nocciola">
+      <main className="block bg-white">
         {cover && (
           <section className="relative block w-full">
             <Image
@@ -55,7 +55,11 @@ export default async function PostPage({ params }: PageProps) {
               className="prose max-w-none mt-8"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
-            <Comments comments={post.comments?.nodes ?? []} />
+            <Comments
+              comments={post.comments?.nodes ?? []}
+              postDatabaseId={post.databaseId}
+              postSlug={post.slug}
+            />
           </article>
         </section>
       </main>
