@@ -27,7 +27,7 @@ export default async function PostPage({ params }: PageProps) {
       <main className="block bg-white">
         {cover && (
           <section className="block w-full px-6 pt-10">
-            <div className="mx-auto w-full max-w-[553px]">
+            <div className="mx-auto w-full max-w-[553px] border border-fake-black/30 p-3">
               <Image
                 alt={post.title}
                 src={cover}
