@@ -26,15 +26,18 @@ export default async function PostPage({ params }: PageProps) {
       <Header />
       <main className="block bg-white">
         {cover && (
-          <section className="relative block w-full">
-            <Image
-              alt={post.title}
-              src={cover}
-              sizes="100vw"
-              style={{ width: "100%", height: "auto" }}
-              width={500}
-              height={300}
-            />
+          <section className="block w-full px-6 pt-10">
+            <div className="mx-auto w-full max-w-[553px]">
+              <Image
+                alt={post.title}
+                src={cover}
+                sizes="(max-width: 553px) 100vw, 553px"
+                style={{ width: "100%", height: "auto" }}
+                width={553}
+                height={784}
+                priority
+              />
+            </div>
           </section>
         )}
         <section className="flex flex-col items-center">
