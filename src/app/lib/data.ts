@@ -51,6 +51,12 @@ export async function fetchPostBySlug(slug: string) {
               mediaItemUrl
             }
           }
+          categories {
+            nodes {
+              name
+              link
+            }
+          }
           comments(first: 100, where: { order: ASC, orderby: COMMENT_DATE }) {
             nodes {
               id
@@ -75,6 +81,50 @@ export async function fetchPostBySlug(slug: string) {
   });
 
   return data.post;
+}
+
+export async function fetchAdjacentPosts(date: string) {
+  const d = new Date(date);
+  const year = d.getUTCFullYear();
+  const month = d.getUTCMonth() + 1;
+  const day = d.getUTCDate();
+
+  const { data } = await client.query({
+    query: gql`
+      query AdjacentPosts($year: Int!, $month: Int!, $day: Int!) {
+        previous: posts(
+          first: 1
+          where: {
+            orderby: [{ field: DATE, order: DESC }]
+            dateQuery: { before: { year: $year, month: $month, day: $day } }
+          }
+        ) {
+          nodes {
+            slug
+            title
+          }
+        }
+        next: posts(
+          first: 1
+          where: {
+            orderby: [{ field: DATE, order: ASC }]
+            dateQuery: { after: { year: $year, month: $month, day: $day } }
+          }
+        ) {
+          nodes {
+            slug
+            title
+          }
+        }
+      }
+    `,
+    variables: { year, month, day },
+  });
+
+  return {
+    previous: data.previous?.nodes?.[0] ?? null,
+    next: data.next?.nodes?.[0] ?? null,
+  };
 }
 
 export async function getYouTubeData() {

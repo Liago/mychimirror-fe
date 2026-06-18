@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
-import { fetchPostBySlug } from "@/lib/data";
+import { fetchPostBySlug, fetchAdjacentPosts } from "@/lib/data";
 import { cinzel, cormorantGaramond } from "@/assets/fonts";
 import Header from "@/components/ui/header/Header";
 import Divider from "@/components/hoc/Divider";
 import Comments from "@/components/ui/Comments";
+import PostCategories from "@/components/ui/PostCategories";
+import PostNavigation from "@/components/ui/PostNavigation";
 import { formatDateTime } from "@/utility/utils";
 
 type PageProps = {
@@ -18,6 +20,8 @@ export default async function PostPage({ params }: PageProps) {
   if (!post) {
     notFound();
   }
+
+  const { previous, next } = await fetchAdjacentPosts(post.date);
 
   const cover = post.featuredImage?.node?.mediaItemUrl;
 
@@ -58,6 +62,8 @@ export default async function PostPage({ params }: PageProps) {
               className="post-content prose max-w-none mt-8"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
+            <PostCategories categories={post.categories?.nodes ?? []} />
+            <PostNavigation previous={previous} next={next} />
             <Comments
               comments={post.comments?.nodes ?? []}
               postDatabaseId={post.databaseId}
