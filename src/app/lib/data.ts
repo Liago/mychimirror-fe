@@ -1,8 +1,8 @@
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_WORDPRESS_API_URL,
-  cache: new InMemoryCache(),
+	uri: process.env.NEXT_PUBLIC_WORDPRESS_API_URL,
+	cache: new InMemoryCache(),
 });
 
 export async function fetchRecentPosts() {
@@ -27,11 +27,11 @@ export async function fetchRecentPosts() {
     `,
   });
 
-  return {
-    props: {
-      posts: data.posts.nodes,
-    },
-  };
+	return {
+		props: {
+			posts: data.posts.nodes,
+		},
+	};
 }
 
 export async function fetchPostBySlug(slug: string) {
@@ -128,23 +128,71 @@ export async function fetchAdjacentPosts(date: string) {
 }
 
 export async function getYouTubeData() {
-  if (!process.env.YOUTUBE_VIDEO_DATA) {
-    throw new Error("YOUTUBE_VIDEO_DATA environment variable is not defined");
-  }
+	if (!process.env.YOUTUBE_VIDEO_DATA) {
+		throw new Error(
+			"YOUTUBE_VIDEO_DATA environment variable is not defined"
+		);
+	}
 
-  const res = await fetch(process.env.YOUTUBE_VIDEO_DATA);
-  
-  if (!res.ok) {
-    const errorData = await res.json();
-    const errorMessage = errorData.message || "Failed to fetch data";
-    throw new Error(errorMessage);
-  }
+	const res = await fetch(process.env.YOUTUBE_VIDEO_DATA);
 
-  const data = await res.json();
+	if (!res.ok) {
+		const errorData = await res.json();
+		const errorMessage = errorData.message || "Failed to fetch data";
+		throw new Error(errorMessage);
+	}
 
-  return {
-    props: {
-      videos: data,
-    },
-  };
+	const data = await res.json();
+
+	return {
+		props: {
+			videos: data,
+		},
+	};
+}
+export async function getBooksData() {
+	if (!process.env.BOOKS_EDITED_DATA) {
+		throw new Error(
+			"BOOKS_EDITED_DATA environment variable is not defined"
+		);
+	}
+
+	const res = await fetch(process.env.BOOKS_EDITED_DATA);
+
+	if (!res.ok) {
+		const errorData = await res.json();
+		const errorMessage = errorData.message || "Failed to fetch data";
+		throw new Error(errorMessage);
+	}
+
+	const data = await res.json();
+
+	return {
+		props: {
+			books: data,
+		},
+	};
+}
+export async function getBooksReviews() {
+	if (!process.env.BOOKS_REVIEWS_DATA) {
+		throw new Error(
+			"BOOKS_REVIEWS_DATA environment variable is not defined"
+		);
+	}
+
+	const res = await fetch(process.env.BOOKS_REVIEWS_DATA);
+
+	if (!res.ok) {
+		const errorData = await res.json();
+		const errorMessage = errorData.message || "Failed to fetch data";
+		throw new Error(errorMessage);
+	}
+
+	const data = await res.json();
+
+	return {
+		props: {
+			reviews: data,
+		},
+	};
 }

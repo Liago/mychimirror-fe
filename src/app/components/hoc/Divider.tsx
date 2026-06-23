@@ -1,10 +1,11 @@
 const Divider = ({
-  children, border
+	children,
+	border,
 }: {
-  children: React.ReactNode;
-  border: string;
+	children: React.ReactNode;
+	border: string;
 }) => {
-  return <div className={`bordered border-b-${border} my-6`}>{children}</div>;
+	return <div className={`bordered border-b-${border} my-6`}>{children}</div>;
 };
 
 export default Divider;

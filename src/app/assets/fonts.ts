@@ -2,20 +2,20 @@ import {Cinzel, Open_Sans, Cormorant_Garamond, Montserrat } from 'next/font/goog
  
  
 export const openSans = Open_Sans({
-  weight: ['400', '600', '800'],
-  style: ['normal'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-open-sans',
-})
+	weight: ["400", "600", "800"],
+	style: ["normal"],
+	subsets: ["latin"],
+	display: "swap",
+	variable: "--font-open-sans",
+});
 
 export const cinzel = Cinzel({
-    weight: ['400', '600', '800'],
-    style: ['normal'],
-    subsets: ['latin'],
-    display: 'swap',
-    variable: '--font-cinzel',
-  })
+	weight: ["400", "600", "800"],
+	style: ["normal"],
+	subsets: ["latin"],
+	display: "swap",
+	variable: "--font-cinzel",
+});
 export const cormorantGaramond = Cormorant_Garamond({
     weight: ['400', '600', '700'],
     style: ['normal'],
