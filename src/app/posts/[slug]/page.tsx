@@ -44,9 +44,9 @@ export default async function PostPage({ params }: PageProps) {
             </div>
           </section>
         )}
-        <section className="flex flex-col items-center">
+        <section className="block w-full">
           <article
-            className={`${cormorantGaramond.className} z-10 max-w-4xl w-full px-6 py-10`}
+            className={`${cormorantGaramond.className} qodef-content-grid z-10 py-10`}
           >
             <div className={cinzel.className}>
               <Divider border="10">
