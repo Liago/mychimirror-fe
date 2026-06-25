@@ -10,6 +10,12 @@ const nextConfig = {
             port: '',
             pathname: '/wp-content/uploads/**',
           },
+          {
+            protocol: 'https',
+            hostname: 'www.mychicmirror.com',
+            port: '',
+            pathname: '/assets/**',
+          },
         ],
       },
       sassOptions: {
