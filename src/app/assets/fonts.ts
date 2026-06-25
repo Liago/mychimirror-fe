@@ -1,4 +1,4 @@
-import {Cinzel, Open_Sans, Cormorant_Garamond, Montserrat } from 'next/font/google'
+import {Cinzel, Open_Sans, Cormorant_Garamond, Montserrat, Playfair_Display } from 'next/font/google'
  
  
 export const openSans = Open_Sans({
@@ -29,4 +29,11 @@ export const montserrat = Montserrat({
     subsets: ['latin'],
     display: 'swap',
     variable: '--font-montserrat',
+  })
+export const playfairDisplay = Playfair_Display({
+    weight: ['400', '600', '700'],
+    style: ['normal', 'italic'],
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-playfair-display',
   })
