@@ -13,23 +13,10 @@ type PostCard = {
 };
 
 type Props = {
-	posts: PostCard[];
+  posts: PostCard[];
 };
 
 const LastPostContainer: React.FC<Props> = ({ posts }) => {
-	const renderCards = () => {
-		return posts.map((post) => (
-			<CardContainer
-				key={post.id}
-				title={post.title}
-				postedOn={post.date}
-				tags={post.tags}
-				comments={post.commentCount || 0}
-				imageUrl={post.featuredImage.node.mediaItemUrl}
-			/>
-		));
-	};
-
   const renderCards = () => {
     return posts.map((post) => (
       <CardContainer
