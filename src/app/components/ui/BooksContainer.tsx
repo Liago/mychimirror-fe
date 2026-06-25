@@ -6,7 +6,6 @@ import Books from "../Book/Books";
 import BookReview from "../BookReview/BookReview";
 
 import { getBooksData, getBooksReviews } from "@/lib/data";
-import { filter } from "lodash";
 
 export default async function BooksContainer() {
 	const bookData = await getBooksData();
@@ -19,7 +18,7 @@ export default async function BooksContainer() {
 		if (!books || !reviews) return;
 
 		return books.data.map((book: any) => {
-			const review = filter(reviews.data, ["bookId", book.id]);
+			const review = reviews.data.filter((r: any) => r.bookId === book.id);
 			console.log('================================================================')
 			console.log("🚀 ~ returnbooks.data.map ~ book.plot:", book.plot)
 
