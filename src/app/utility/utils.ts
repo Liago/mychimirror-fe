@@ -1,15 +1,9 @@
-import { filter } from "lodash";
-
 const formatDateTime = (inputDateTime: string) => {
-	const options = {
+	const options: Intl.DateTimeFormatOptions = {
 		year: "numeric",
 		month: "long",
 		day: "numeric",
-		hour: "numeric",
-		minute: "numeric",
-		second: "numeric",
-		hour12: false,
-		timeZone: "UTC", // Imposta il fuso orario desiderato
+		timeZone: "UTC",
 	};
 
 	const formattedDate = new Intl.DateTimeFormat("it-IT", options).format(
