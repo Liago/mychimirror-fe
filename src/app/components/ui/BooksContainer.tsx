@@ -1,11 +1,27 @@
 import React from "react";
-import { Divider } from "@nextui-org/react";
 import { cinzel, cormorantGaramond, playfairDisplay } from "@/assets/fonts";
 
 import Books from "../Book/Books";
 import BookReview from "../BookReview/BookReview";
 
 import { getBooksData, getBooksReviews } from "@/lib/data";
+
+type Book = {
+	id: number;
+	title: string;
+	author: string;
+	pages: number;
+	plot: string;
+	coverArt: string;
+};
+
+type Review = {
+	id: number;
+	user: string;
+	review: string;
+	rating: number;
+	bookId: number;
+};
 
 export default async function BooksContainer() {
 	const bookData = await getBooksData();
@@ -14,58 +30,57 @@ export default async function BooksContainer() {
 	const bookReview = await getBooksReviews();
 	const { reviews } = bookReview.props;
 
-	const renderBooks = () => {
-		if (!books || !reviews) return;
-
-		return books.data.map((book: any) => {
-			const review = reviews.data.filter((r: any) => r.bookId === book.id);
-			console.log('================================================================')
-			console.log("🚀 ~ returnbooks.data.map ~ book.plot:", book.plot)
-
-			return (
-				<div
-					key={book.id}
-					className="flex flex-col md:flex-row justify-between items-start"
-				>
-					<div className="w-1/2 flex items-start">
-						<Books {...book} />
-					</div>
-					<div className="flex flex-col w-1/2">
-						<h5
-							className={`text-lg text-fake-black ${playfairDisplay.className}`}
-						>
-							le recensioni
-						</h5>
-						<h1
-							className={`text-6xl text-black tracking-tight ${cinzel.className}`}
-						>
-							{book.title}
-						</h1>
-						<Divider />
-						<h2
-							className={`text-book-description text-2xl ${cormorantGaramond.className}`}
-						>
-							<span dangerouslySetInnerHTML={{ __html: book.plot }} />
-							
-						</h2>
-						<Divider />
-						<BookReview
-							user={review.user}
-							review={review.review}
-							rating={review.rating}
-						/>
-					</div>
-				</div>
-			);
-		});
-	};
+	if (!books?.data?.length) return null;
 
 	return (
-		<div
-			rel="component-container"
-			className="flex min-h-screen flex-col items-center justify-between bg-nocciola"
-		>
-			{renderBooks()}
+		<div className="bg-nocciola py-16">
+			{books.data.map((book: Book) => {
+				const bookReviews: Review[] = reviews?.data?.filter(
+					(r: Review) => r.bookId === book.id
+				) ?? [];
+
+				return (
+					<section
+						key={book.id}
+						className="qodef-content-grid mb-24 last:mb-0"
+					>
+						<div className="flex flex-col md:flex-row gap-10 items-start">
+							<div className="w-full md:w-[48%]">
+								<Books
+									title={book.title}
+									pages={book.pages}
+									plot={book.plot}
+									coverArt={book.coverArt}
+								/>
+							</div>
+							<div className="w-full md:w-[52%] flex flex-col">
+								<h5
+									className={`${playfairDisplay.className} italic text-lg text-fake-black`}
+								>
+									Le recensioni
+								</h5>
+								<h1
+									className={`${cinzel.className} text-5xl md:text-6xl text-black mt-2`}
+								>
+									{book.title}
+								</h1>
+								<div
+									className={`${cormorantGaramond.className} text-lg text-fake-black mt-6 whitespace-pre-line`}
+								>
+									{book.plot}
+								</div>
+								{bookReviews.length > 0 && (
+									<div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+										{bookReviews.map((review) => (
+											<BookReview key={review.id} review={review} />
+										))}
+									</div>
+								)}
+							</div>
+						</div>
+					</section>
+				);
+			})}
 		</div>
 	);
 }

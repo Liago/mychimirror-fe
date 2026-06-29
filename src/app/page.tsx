@@ -45,10 +45,8 @@ export default async function Home() {
 				<section className="relative block w-full py-6">
 					<InterviewContainer />
 				</section>
-				<section className="relative block w-full py-6">
-					<div className="relative block w-full p-6">
-						<BooksContainer />
-					</div>
+				<section className="relative block w-full">
+					<BooksContainer />
 				</section>
 			</main>
 		</>
