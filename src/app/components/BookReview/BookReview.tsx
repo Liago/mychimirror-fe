@@ -1,3 +1,7 @@
+"use client";
+
+import { useLayoutEffect, useRef, useState } from "react";
+
 import { cormorantGaramond, playfairDisplay } from "@/assets/fonts";
 
 type Review = {
@@ -5,16 +9,22 @@ type Review = {
 	user: string;
 	review: string;
 	rating: number;
+	link?: string | null;
 };
 
 type Props = {
 	review: Review;
 };
 
+const CLAMP_LINES = 4;
+
 const Stars = ({ rating }: { rating: number }) => {
 	const max = 5;
 	return (
-		<div className="flex gap-1 text-black" aria-label={`${rating} di ${max} stelle`}>
+		<div
+			className="flex gap-1 text-black"
+			aria-label={`${rating} di ${max} stelle`}
+		>
 			{Array.from({ length: max }).map((_, i) => (
 				<svg
 					key={i}
@@ -33,12 +43,51 @@ const Stars = ({ rating }: { rating: number }) => {
 	);
 };
 
+const ExternalLinkIcon = () => (
+	<svg
+		aria-hidden="true"
+		width="12"
+		height="12"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+	>
+		<path d="M14 3h7v7" />
+		<path d="M21 3l-9 9" />
+		<path d="M21 13v7a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1h7" />
+	</svg>
+);
+
 const BookReview = ({ review }: Props) => {
+	const [expanded, setExpanded] = useState(false);
+	const [isTruncatable, setIsTruncatable] = useState(false);
+	const textRef = useRef<HTMLParagraphElement>(null);
+
+	useLayoutEffect(() => {
+		const el = textRef.current;
+		if (!el) return;
+		setIsTruncatable(el.scrollHeight > el.clientHeight + 1);
+	}, [review.review]);
+
+	const clampStyle: React.CSSProperties = expanded
+		? {}
+		: {
+				display: "-webkit-box",
+				WebkitLineClamp: CLAMP_LINES,
+				WebkitBoxOrient: "vertical",
+				overflow: "hidden",
+		  };
+
 	return (
 		<div className="flex flex-col">
 			<Stars rating={review.rating} />
 			<p
-				className={`${cormorantGaramond.className} mt-4 text-lg text-fake-black`}
+				ref={textRef}
+				style={clampStyle}
+				className={`${cormorantGaramond.className} mt-4 text-lg text-fake-black whitespace-pre-line`}
 			>
 				{review.review}
 			</p>
@@ -47,12 +96,30 @@ const BookReview = ({ review }: Props) => {
 			>
 				{review.user}
 			</p>
-			<a
-				href="#"
-				className={`${playfairDisplay.className} mt-3 inline-block italic text-fake-black/80 hover:text-fake-black hover:underline`}
-			>
-				Leggi Di Più
-			</a>
+
+			<div className="mt-3 flex items-center gap-4">
+				{isTruncatable && (
+					<button
+						type="button"
+						onClick={() => setExpanded((v) => !v)}
+						className={`${playfairDisplay.className} italic text-fake-black/80 hover:text-fake-black hover:underline`}
+					>
+						{expanded ? "Leggi Di Meno" : "Leggi Di Più"}
+					</button>
+				)}
+				{review.link && (
+					<a
+						href={review.link}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Apri la recensione originale in una nuova scheda"
+						className={`${playfairDisplay.className} inline-flex items-center gap-1 italic text-fake-black/80 hover:text-fake-black hover:underline`}
+					>
+						Originale
+						<ExternalLinkIcon />
+					</a>
+				)}
+			</div>
 		</div>
 	);
 };

@@ -21,6 +21,7 @@ type Review = {
 	review: string;
 	rating: number;
 	bookId: number;
+	link?: string | null;
 };
 
 export default async function BooksContainer() {
