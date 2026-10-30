@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardHeader, CardBody } from "@nextui-org/react";
 import NextLink from "next/link";
 
 import { formatDateTime } from "@/utility/utils";
@@ -19,15 +18,12 @@ const CardContainer = (props: Props) => {
   let postedDate = formatDateTime(postedOn);
 
   return (
-    <Card
-      as={NextLink}
+    <NextLink
       href={`/posts/${slug}`}
-      className="p-4 mx-4"
-      shadow="sm"
-      isPressable
+      className="relative mx-4 flex flex-col overflow-hidden rounded-large bg-white p-4 text-foreground shadow-small transition-transform active:scale-[0.97]"
     >
-      <CardHeader
-        className="overflow-visible p-0"
+      <div
+        className="w-full shrink-0 rounded-t-large"
         style={{
           width: "350px",
           height: "292px",
@@ -37,14 +33,14 @@ const CardContainer = (props: Props) => {
           backgroundPosition: "center center",
         }}
       />
-      <CardBody className="overflow-visible pt-6">
+      <div className="flex w-full flex-auto flex-col break-words px-3 pb-3 pt-6 text-left">
         <Divider border="1">
           <p className="text-tiny uppercase">{postedDate}</p>
           <h2 className="text-3xl my-2">{title}</h2>
         </Divider>
         <h4 className="text-small text-right">{comments} comments</h4>
-      </CardBody>
-    </Card>
+      </div>
+    </NextLink>
   );
 };
 

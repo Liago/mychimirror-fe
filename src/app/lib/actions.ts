@@ -1,14 +1,9 @@
 "use server";
 
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { getDbPool } from "./db";
-
-const client = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_WORDPRESS_API_URL,
-  cache: new InMemoryCache(),
-});
+import { mutateGraphQL } from "./wordpress";
 
 type CreateCommentInput = {
   postDatabaseId: number;
@@ -37,8 +32,8 @@ export async function createCommentAction(
   }
 
   try {
-    const { data } = await client.mutate({
-      mutation: gql`
+    const data = await mutateGraphQL<any>(
+      /* GraphQL */ `
         mutation CreateComment($input: CreateCommentInput!) {
           createComment(input: $input) {
             success
@@ -49,7 +44,7 @@ export async function createCommentAction(
           }
         }
       `,
-      variables: {
+      {
         input: {
           commentOn: input.postDatabaseId,
           parent: input.parentId ?? null,
@@ -58,8 +53,8 @@ export async function createCommentAction(
           authorUrl,
           content,
         },
-      },
-    });
+      }
+    );
 
     const success = data?.createComment?.success;
     if (!success) {
@@ -72,7 +67,6 @@ export async function createCommentAction(
     return { ok: true, pending: !approved };
   } catch (err: any) {
     const message =
-      err?.graphQLErrors?.[0]?.message ||
       err?.message ||
       "Errore durante l'invio del commento.";
     return { ok: false, error: message };
@@ -164,6 +158,8 @@ export async function bulkCreateReviewsAction(
       "SELECT DATABASE() AS db, (SELECT COUNT(*) FROM reviews) AS total"
     );
     const info = (dbInfoRows as any[])[0] ?? {};
+
+    updateTag("reviews");
 
     return {
       ok: true,

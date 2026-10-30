@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
 import { cormorantGaramond } from "@/assets/fonts";
 
 type Props = {
@@ -15,11 +14,15 @@ const VideoCard = ({ title, description, date, ytId }: Props) => {
   const iframeRef = useRef(null);
 
   const cardBodyClassName = [
+    "flex",
+    "w-full",
+    "flex-auto",
+    "flex-col",
+    "items-start",
+    "break-words",
     "pb-0",
     "pt-10",
     "px-4",
-    "flex-col",
-    "items-start",
     cormorantGaramond.className,
   ].join(" ");
 
@@ -38,8 +41,8 @@ const VideoCard = ({ title, description, date, ytId }: Props) => {
   }, []);
 
   return (
-      <Card className="py-4 pt-0 m-4 max-w-[360px] md:max-w-lg">
-        <CardHeader className="overflow-visible p-0">
+      <div className="relative m-4 flex max-w-[360px] flex-col overflow-hidden rounded-large bg-white py-4 pt-0 text-foreground shadow-medium md:max-w-lg">
+        <div className="flex w-full items-center rounded-t-large">
           <div className="w-full">
             <iframe
               ref={iframeRef}
@@ -49,14 +52,14 @@ const VideoCard = ({ title, description, date, ytId }: Props) => {
               src={`https://www.youtube.com/embed/${ytId}`}
             ></iframe>
           </div>
-        </CardHeader>
-        <CardBody className={cardBodyClassName}>
+        </div>
+        <div className={cardBodyClassName}>
           <h4 className="font-bold text-2xl">{title}</h4>
           <p className="text-md uppercase font-bold">{date}</p>
-          <Divider className="my-4" />
+          <hr className="my-4 h-px w-full shrink-0 border-none bg-divider" />
           <small className="text-lg text-default-500">{description}</small>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
   );
 };
 

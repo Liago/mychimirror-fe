@@ -1,13 +1,8 @@
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-
-const client = new ApolloClient({
-	uri: process.env.NEXT_PUBLIC_WORDPRESS_API_URL,
-	cache: new InMemoryCache(),
-});
+import { fetchGraphQL, fetchJSON } from "./wordpress";
 
 export async function fetchRecentPosts() {
-  const { data } = await client.query({
-    query: gql`
+  const data = await fetchGraphQL<any>(
+    /* GraphQL */ `
       query RecentPosts {
         posts(first: 3) {
           nodes {
@@ -25,7 +20,9 @@ export async function fetchRecentPosts() {
         }
       }
     `,
-  });
+    undefined,
+    { tags: ["posts"] }
+  );
 
 	return {
 		props: {
@@ -35,8 +32,8 @@ export async function fetchRecentPosts() {
 }
 
 export async function fetchPostBySlug(slug: string) {
-  const { data } = await client.query({
-    query: gql`
+  const data = await fetchGraphQL<any>(
+    /* GraphQL */ `
       query PostBySlug($slug: ID!) {
         post(id: $slug, idType: SLUG) {
           id
@@ -77,8 +74,9 @@ export async function fetchPostBySlug(slug: string) {
         }
       }
     `,
-    variables: { slug },
-  });
+    { slug },
+    { tags: ["posts", `post:${slug}`] }
+  );
 
   return data.post;
 }
@@ -89,8 +87,8 @@ export async function fetchAdjacentPosts(date: string) {
   const month = d.getUTCMonth() + 1;
   const day = d.getUTCDate();
 
-  const { data } = await client.query({
-    query: gql`
+  const data = await fetchGraphQL<any>(
+    /* GraphQL */ `
       query AdjacentPosts($year: Int!, $month: Int!, $day: Int!) {
         previous: posts(
           first: 1
@@ -118,8 +116,9 @@ export async function fetchAdjacentPosts(date: string) {
         }
       }
     `,
-    variables: { year, month, day },
-  });
+    { year, month, day },
+    { tags: ["posts"] }
+  );
 
   return {
     previous: data.previous?.nodes?.[0] ?? null,
@@ -128,21 +127,11 @@ export async function fetchAdjacentPosts(date: string) {
 }
 
 export async function getYouTubeData() {
-	if (!process.env.YOUTUBE_VIDEO_DATA) {
-		throw new Error(
-			"YOUTUBE_VIDEO_DATA environment variable is not defined"
-		);
-	}
-
-	const res = await fetch(process.env.YOUTUBE_VIDEO_DATA);
-
-	if (!res.ok) {
-		const errorData = await res.json();
-		const errorMessage = errorData.message || "Failed to fetch data";
-		throw new Error(errorMessage);
-	}
-
-	const data = await res.json();
+	const data = await fetchJSON<any>(
+		process.env.YOUTUBE_VIDEO_DATA,
+		"YOUTUBE_VIDEO_DATA",
+		{ tags: ["videos"] }
+	);
 
 	return {
 		props: {
@@ -151,21 +140,11 @@ export async function getYouTubeData() {
 	};
 }
 export async function getBooksData() {
-	if (!process.env.BOOKS_EDITED_DATA) {
-		throw new Error(
-			"BOOKS_EDITED_DATA environment variable is not defined"
-		);
-	}
-
-	const res = await fetch(process.env.BOOKS_EDITED_DATA);
-
-	if (!res.ok) {
-		const errorData = await res.json();
-		const errorMessage = errorData.message || "Failed to fetch data";
-		throw new Error(errorMessage);
-	}
-
-	const data = await res.json();
+	const data = await fetchJSON<any>(
+		process.env.BOOKS_EDITED_DATA,
+		"BOOKS_EDITED_DATA",
+		{ tags: ["books"] }
+	);
 
 	return {
 		props: {
@@ -174,21 +153,11 @@ export async function getBooksData() {
 	};
 }
 export async function getBooksReviews() {
-	if (!process.env.BOOKS_REVIEWS_DATA) {
-		throw new Error(
-			"BOOKS_REVIEWS_DATA environment variable is not defined"
-		);
-	}
-
-	const res = await fetch(process.env.BOOKS_REVIEWS_DATA);
-
-	if (!res.ok) {
-		const errorData = await res.json();
-		const errorMessage = errorData.message || "Failed to fetch data";
-		throw new Error(errorMessage);
-	}
-
-	const data = await res.json();
+	const data = await fetchJSON<any>(
+		process.env.BOOKS_REVIEWS_DATA,
+		"BOOKS_REVIEWS_DATA",
+		{ tags: ["reviews"] }
+	);
 
 	return {
 		props: {

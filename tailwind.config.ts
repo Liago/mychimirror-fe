@@ -1,12 +1,11 @@
 import type { Config } from "tailwindcss";
-const { nextui } = require("@nextui-org/react");
+import aspectRatio from "@tailwindcss/aspect-ratio";
 
 const config: Config = {
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
 		"./src/components/**/*.{js,ts,jsx,tsx,mdx}",
 		"./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-		"./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
 	],
 	theme: {
 		letterSpacing: {
@@ -22,10 +21,26 @@ const config: Config = {
 				"fake-black": "#6A5921",
 				nocciola: "#FAF2ED",
 				"book-description": "#7A7A78",
+				// Valori ereditati dal tema NextUI (rimosso), per non cambiare l'aspetto
+				foreground: "#11181C",
+				"default-500": "#71717A",
+				divider: "rgba(17, 17, 17, 0.15)",
+			},
+			fontSize: {
+				tiny: ["0.75rem", { lineHeight: "1rem" }],
+				small: ["0.875rem", { lineHeight: "1.25rem" }],
+			},
+			borderRadius: {
+				large: "14px",
+			},
+			boxShadow: {
+				small:
+					"0px 0px 5px 0px rgb(0 0 0 / 0.02), 0px 2px 10px 0px rgb(0 0 0 / 0.06), 0px 0px 1px 0px rgb(0 0 0 / 0.3)",
+				medium:
+					"0px 0px 15px 0px rgb(0 0 0 / 0.03), 0px 2px 30px 0px rgb(0 0 0 / 0.08), 0px 0px 1px 0px rgb(0 0 0 / 0.3)",
 			},
 		},
 	},
-	darkMode: "class",
-	plugins: [nextui(), require("@tailwindcss/aspect-ratio")],
+	plugins: [aspectRatio],
 };
 export default config;

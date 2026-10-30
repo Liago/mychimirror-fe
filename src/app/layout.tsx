@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Providers } from "./provider";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 
 import "./globals.css";
@@ -17,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <body>
-        <Providers>{children}</Providers>
+        {children}
         <ScrollToTop />
       </body>
     </html>

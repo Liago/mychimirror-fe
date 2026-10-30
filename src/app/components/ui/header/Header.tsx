@@ -1,19 +1,9 @@
 "use client";
 import { useState } from "react";
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Link,
-  NavbarMenu,
-  NavbarMenuItem,
-  NavbarMenuToggle,
-  Image,
-} from "@nextui-org/react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { openSans } from "@/assets/fonts";
-import "./Header.scss";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,56 +34,83 @@ const Header = () => {
   const renderMainMenu = () => {
     return menuItems.map((item, index) => {
       return (
-        <NavbarItem key={`${item}-${index}`} className={openSans.className}>
+        <li key={`${item.path}-${index}`} className={openSans.className}>
           <Link
-            className="hidden text-fake-black font-semibold uppercase text-xs tracking-widest md:block"
+            className="hidden whitespace-nowrap text-fake-black font-semibold uppercase text-xs tracking-widest transition-opacity hover:opacity-80 md:block"
             href={item.path}
           >
-            {item.label}
-            <span rel="menu-border"></span>
+            <span
+              className={`px-[22px] pl-[25px] leading-loose ${
+                index < menuItems.length - 1 ? "border-r border-[#9e9e9e]" : ""
+              }`}
+            >
+              {item.label}
+            </span>
           </Link>
-        </NavbarItem>
+        </li>
       );
     });
   };
 
   const renderBurgerMenu = () => {
     return menuItems.map((item, index) => (
-      <NavbarMenuItem key={`${item}-${index}`} className={openSans.className}>
+      <li key={`${item.path}-${index}`} className={openSans.className}>
         <Link
-          className="w-full text-fake-black font-semibold uppercase text-xs tracking-widest sm:hidden"
-          href="#"
-          size="lg"
+          className="block w-full py-2 text-fake-black font-semibold uppercase text-xs tracking-widest"
+          href={item.path}
+          onClick={() => setIsMenuOpen(false)}
         >
           {item.label}
         </Link>
-      </NavbarMenuItem>
+      </li>
     ));
   };
 
   return (
-    <Navbar
-      onMenuOpenChange={setIsMenuOpen}
-      height="100px"
-      maxWidth="full"
-      isBordered={true}
-    >
-      <NavbarContent className="w-full">
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="sm:hidden"
-        />
-        <NavbarBrand>
-          <Image
-            width={300}
-            alt="MyChicMirror Logo"
-            src="https://www.mychicmirror.com/wp-content/uploads/MCM-TITLE_thin_whit_strawberries.png"
-          />
-        </NavbarBrand>
-      </NavbarContent>
-      <NavbarContent rel="main-menu">{renderMainMenu()}</NavbarContent>
-      <NavbarMenu>{renderBurgerMenu()}</NavbarMenu>
-    </Navbar>
+    <>
+    <nav className="sticky inset-x-0 top-0 z-40 flex h-[100px] w-full items-center justify-center border-b border-divider bg-white/70 backdrop-blur-lg backdrop-saturate-150">
+      <header className="relative flex h-full w-full max-w-full flex-row flex-nowrap items-center justify-between gap-4 px-6">
+        <div className="flex h-full w-full flex-row flex-nowrap items-center gap-4">
+          <button
+            type="button"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen((v) => !v)}
+            className="flex h-6 w-6 flex-col items-center justify-center gap-1.5 md:hidden"
+          >
+            <span
+              className={`block h-px w-6 bg-current transition-transform ${
+                isMenuOpen ? "translate-y-[3.5px] rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`block h-px w-6 bg-current transition-transform ${
+                isMenuOpen ? "-translate-y-[3.5px] -rotate-45" : ""
+              }`}
+            />
+          </button>
+          <Link href="/" className="flex flex-grow basis-0 items-center">
+            <Image
+              width={300}
+              height={48}
+              alt="MyChicMirror Logo"
+              src="https://www.mychicmirror.com/wp-content/uploads/MCM-TITLE_thin_whit_strawberries.png"
+              priority
+            />
+          </Link>
+        </div>
+        <ul className="flex h-full flex-row flex-nowrap items-center justify-end">
+          {renderMainMenu()}
+        </ul>
+      </header>
+    </nav>
+    {/* Fuori dal <nav>: il backdrop-filter farebbe da contenitore al position: fixed */}
+    {isMenuOpen && (
+      <ul className="fixed inset-x-0 bottom-0 top-[100px] z-30 flex flex-col gap-2 overflow-y-auto bg-white/90 px-6 pt-2 backdrop-blur-xl backdrop-saturate-150 md:hidden">
+        {renderBurgerMenu()}
+      </ul>
+    )}
+    </>
   );
 };
 export default Header;

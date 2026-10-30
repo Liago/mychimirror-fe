@@ -11,11 +11,12 @@ import PostNavigation from "@/components/ui/PostNavigation";
 import { formatDateTime } from "@/utility/utils";
 
 type PageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export default async function PostPage({ params }: PageProps) {
-  const post = await fetchPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = await fetchPostBySlug(slug);
 
   if (!post) {
     notFound();

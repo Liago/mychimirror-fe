@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-const path = require('path')
 
 const nextConfig = {
     images: {
@@ -17,9 +16,6 @@ const nextConfig = {
             pathname: '/assets/**',
           },
         ],
-      },
-      sassOptions: {
-        includePaths: [path.join(__dirname, 'styles')],
       },
 }
 
