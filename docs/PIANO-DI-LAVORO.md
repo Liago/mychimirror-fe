@@ -38,7 +38,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Token tipografici e colori, componenti base (Container, Section title, Button, Card)
 - Pagina 404 e stati di errore/caricamento
 
-### F2 — Contenuti (≈5-7 gg)
+### F2 — Contenuti ✅ (30/10/2026, tranne rifinitura home)
 - Catch-all `[...uri]` → post / pagina / categoria / tag
 - Lista blog `/blog/` paginata, archivi categoria/tag
 - Pagine Elementor rifatte: About, Contatti (form → REST di Contact Form 7), Pillole/Pillole emotive, I libri, I racconti di Fragola + capitoli, Tematiche, Press (portfolio-item)

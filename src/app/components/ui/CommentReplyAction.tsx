@@ -3,15 +3,16 @@
 import { useState, useTransition } from "react";
 
 import { createCommentAction } from "@/lib/actions";
-import { cinzel } from "@/assets/fonts";
+import Button from "./Button";
+import { inputClassName, textareaClassName } from "./commentFormStyles";
 
 type Props = {
   postDatabaseId: number;
-  postSlug: string;
+  postUri: string;
   parentId: string;
 };
 
-const CommentReplyAction = ({ postDatabaseId, postSlug, parentId }: Props) => {
+const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
   const [open, setOpen] = useState(false);
   const [author, setAuthor] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -27,7 +28,7 @@ const CommentReplyAction = ({ postDatabaseId, postSlug, parentId }: Props) => {
     startTransition(async () => {
       const result = await createCommentAction({
         postDatabaseId,
-        postSlug,
+        postUri,
         parentId,
         author,
         authorEmail,
@@ -51,21 +52,22 @@ const CommentReplyAction = ({ postDatabaseId, postSlug, parentId }: Props) => {
   };
 
   return (
-    <div className="mt-3">
+    <div className="mt-1">
       <button
         type="button"
         onClick={() => {
           setOpen((v) => !v);
           setFeedback(null);
         }}
-        className={`${cinzel.className} text-xs uppercase tracking-wider text-fake-black hover:underline`}
+        className="font-open-sans text-[11px] font-medium uppercase leading-[25px] tracking-[0.4em] text-black transition-colors hover:text-fake-black"
       >
         {open ? "Annulla" : "Reply"}
       </button>
 
       {feedback && (
         <p
-          className={`mt-2 text-sm ${
+          role="status"
+          className={`mt-2 ${
             feedback.type === "success" ? "text-green-700" : "text-red-700"
           }`}
         >
@@ -74,38 +76,39 @@ const CommentReplyAction = ({ postDatabaseId, postSlug, parentId }: Props) => {
       )}
 
       {open && (
-        <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2 max-w-xl">
+        <form onSubmit={handleSubmit} className="mt-4 max-w-xl">
+          <textarea
+            required
+            placeholder="Your Comment *"
+            aria-label="Risposta"
+            rows={4}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className={textareaClassName}
+          />
           <input
             type="text"
             required
-            placeholder="Nome"
+            placeholder="Your Name *"
+            aria-label="Nome"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
-            className="border border-fake-black/30 rounded px-3 py-2 text-sm"
+            className={inputClassName}
           />
           <input
             type="email"
             required
-            placeholder="Email"
+            placeholder="Your Email *"
+            aria-label="Email"
             value={authorEmail}
             onChange={(e) => setAuthorEmail(e.target.value)}
-            className="border border-fake-black/30 rounded px-3 py-2 text-sm"
+            className={inputClassName}
           />
-          <textarea
-            required
-            placeholder="Scrivi una risposta..."
-            rows={4}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="border border-fake-black/30 rounded px-3 py-2 text-sm"
-          />
-          <button
-            type="submit"
-            disabled={pending}
-            className={`${cinzel.className} self-start text-xs uppercase tracking-wider bg-fake-black text-white px-4 py-2 rounded disabled:opacity-50`}
-          >
-            {pending ? "Invio..." : "Invia"}
-          </button>
+          <div className="mt-6">
+            <Button type="submit" variant="outlined" disabled={pending}>
+              {pending ? "Invio..." : "Invia"}
+            </Button>
+          </div>
         </form>
       )}
     </div>

@@ -3,14 +3,15 @@
 import { useState, useTransition } from "react";
 
 import { createCommentAction } from "@/lib/actions";
-import { cinzel, cormorantGaramond } from "@/assets/fonts";
+import Button from "./Button";
+import { inputClassName, textareaClassName } from "./commentFormStyles";
 
 type Props = {
   postDatabaseId: number;
-  postSlug: string;
+  postUri: string;
 };
 
-const LeaveCommentForm = ({ postDatabaseId, postSlug }: Props) => {
+const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -26,7 +27,7 @@ const LeaveCommentForm = ({ postDatabaseId, postSlug }: Props) => {
     startTransition(async () => {
       const result = await createCommentAction({
         postDatabaseId,
-        postSlug,
+        postUri,
         author,
         authorEmail,
         authorUrl,
@@ -49,62 +50,57 @@ const LeaveCommentForm = ({ postDatabaseId, postSlug }: Props) => {
     });
   };
 
-  const underlineInput =
-    "w-full border-0 border-b border-fake-black/40 bg-transparent px-1 py-3 text-base focus:border-fake-black focus:outline-none placeholder:text-fake-black/60";
-
   return (
     <section className="mt-16">
-      <h2
-        className={`${cinzel.className} text-3xl text-fake-black uppercase`}
-      >
+      <h4 className="mb-px font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-black">
         Lascia un commento
-      </h2>
-      <p
-        className={`${cormorantGaramond.className} text-lg text-fake-black mt-2`}
-      >
+      </h4>
+      <p className="mb-[41px]">
         Il tuo indirizzo email non sarà pubblicato. I campi obbligatori sono
         contrassegnati *
       </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className={`${cormorantGaramond.className} mt-8 flex flex-col gap-6`}
-      >
+      <form onSubmit={handleSubmit}>
         <textarea
           required
           rows={6}
           placeholder="Your Comment *"
+          aria-label="Commento"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full border border-fake-black/40 bg-transparent px-4 py-3 text-base focus:border-fake-black focus:outline-none placeholder:text-fake-black/60"
+          className={textareaClassName}
         />
         <input
           type="text"
           required
           placeholder="Your Name *"
+          aria-label="Nome"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
-          className={underlineInput}
+          className={inputClassName}
         />
         <input
           type="email"
           required
           placeholder="Your Email *"
+          aria-label="Email"
           value={authorEmail}
           onChange={(e) => setAuthorEmail(e.target.value)}
-          className={underlineInput}
+          className={inputClassName}
         />
         <input
           type="url"
           placeholder="Website"
+          aria-label="Sito web"
           value={authorUrl}
           onChange={(e) => setAuthorUrl(e.target.value)}
-          className={underlineInput}
+          className={inputClassName}
         />
 
         {feedback && (
           <p
-            className={`text-sm ${
+            role="status"
+            className={`mt-4 ${
               feedback.type === "success" ? "text-green-700" : "text-red-700"
             }`}
           >
@@ -112,13 +108,11 @@ const LeaveCommentForm = ({ postDatabaseId, postSlug }: Props) => {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={pending}
-          className={`${cinzel.className} self-start text-sm uppercase tracking-wider border border-fake-black text-fake-black px-6 py-3 hover:bg-fake-black hover:text-white transition disabled:opacity-50`}
-        >
-          {pending ? "Invio..." : "Invia commento"}
-        </button>
+        <div className="mt-8">
+          <Button type="submit" variant="outlined" disabled={pending}>
+            {pending ? "Invio..." : "Invia commento"}
+          </Button>
+        </div>
       </form>
     </section>
   );

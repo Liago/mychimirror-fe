@@ -7,11 +7,6 @@ body {
   @apply bg-white font-cormorant text-[19px] leading-[25px] text-body-text;
 }
 
-.post-content p {
-  margin: 10px 0;
-  font-size: 19px;
-  line-height: 1.31579em;
-}
 
 .qodef-content-grid {
   width: 1100px;
@@ -42,4 +37,122 @@ body {
   .qodef-content-grid {
     width: 82%;
   }
+}
+
+/* Contenuto HTML di WordPress (blocchi Gutenberg) con la tipografia del tema */
+.wp-content p {
+  margin: 10px 0;
+}
+
+.wp-content a {
+  @apply text-black underline-offset-2 transition-colors hover:text-fake-black;
+}
+
+.wp-content h1,
+.wp-content h2,
+.wp-content h3,
+.wp-content h4,
+.wp-content h5 {
+  @apply my-6 font-cinzel text-black;
+}
+
+.wp-content h1 {
+  @apply text-[46px] font-normal leading-none tracking-[-0.03em] desk:text-[60px];
+}
+
+.wp-content h2 {
+  @apply text-[40px] font-normal leading-[42px] tracking-[-0.03em];
+}
+
+.wp-content h3 {
+  @apply text-[30px] font-normal leading-[31px] tracking-[-0.025em];
+}
+
+.wp-content h4 {
+  @apply text-2xl font-medium leading-7 tracking-[-0.02em];
+}
+
+.wp-content h5 {
+  @apply text-xl font-medium leading-[25px] tracking-[-0.02em];
+}
+
+.wp-content h6 {
+  @apply my-6 font-playfair text-lg font-medium italic leading-7 text-black;
+}
+
+.wp-content ul,
+.wp-content ol {
+  @apply my-4 pl-6;
+}
+
+.wp-content ul {
+  list-style: disc;
+}
+
+.wp-content ol {
+  list-style: decimal;
+}
+
+.wp-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.wp-content figure {
+  @apply my-6;
+}
+
+.wp-content figcaption {
+  @apply mt-2 text-center text-base;
+}
+
+.wp-content hr,
+.wp-content .wp-block-separator {
+  @apply my-8 border-0 border-t border-separator;
+}
+
+.wp-content .wp-block-separator:not(.is-style-wide) {
+  @apply mx-auto w-[100px];
+}
+
+.wp-content .wp-block-audio audio {
+  @apply w-full;
+}
+
+.wp-content .wp-block-gallery {
+  @apply flex flex-wrap gap-4;
+}
+
+.wp-content .wp-block-gallery > figure {
+  @apply m-0 flex-1 basis-[calc(33%-1rem)];
+}
+
+.wp-content .wp-block-media-text {
+  @apply my-8 grid items-center gap-8;
+}
+
+.wp-content .wp-block-media-text__media {
+  @apply m-0;
+}
+
+.wp-content .wp-block-media-text__media img {
+  @apply w-full;
+}
+
+@media only screen and (max-width: 600px) {
+  .wp-content .wp-block-media-text.is-stacked-on-mobile {
+    grid-template-columns: 100% !important;
+  }
+}
+
+.wp-content .aligncenter {
+  @apply mx-auto text-center;
+}
+
+.wp-content .has-text-align-center {
+  text-align: center;
+}
+
+.wp-content .has-text-align-right {
+  text-align: right;
 }

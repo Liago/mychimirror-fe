@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath, updateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 import { getDbPool } from "./db";
+import { fetchPostList, type PostList } from "./content";
 import { mutateGraphQL } from "./wordpress";
 
 type CreateCommentInput = {
@@ -12,7 +13,7 @@ type CreateCommentInput = {
   authorEmail: string;
   authorUrl?: string;
   content: string;
-  postSlug: string;
+  postUri: string;
 };
 
 export type CreateCommentResult =
@@ -61,7 +62,7 @@ export async function createCommentAction(
       return { ok: false, error: "Invio del commento non riuscito." };
     }
 
-    revalidatePath(`/posts/${input.postSlug}`);
+    updateTag(`uri:${input.postUri}`);
 
     const approved = data?.createComment?.comment?.approved ?? false;
     return { ok: true, pending: !approved };
@@ -176,5 +177,86 @@ export async function bulkCreateReviewsAction(
       ok: false,
       error: err?.message || "Errore durante l'inserimento nel database.",
     };
+  }
+}
+
+type LoadPostListInput = {
+  page: number;
+  perPage: number;
+  categoryId: number;
+};
+
+/**
+ * Pagina successiva di una lista di post, per lo scroll infinito.
+ */
+export async function loadPostListAction(
+  input: LoadPostListInput
+): Promise<PostList | null> {
+  const page = Math.max(1, Math.floor(input.page));
+  const perPage = Math.min(50, Math.max(1, Math.floor(input.perPage)));
+  return fetchPostList({ page, perPage, categoryId: input.categoryId });
+}
+
+// Modulo "Contatti" di Contact Form 7 su WordPress
+const CONTACT_FORM_ID = 5380;
+
+type ContactInput = {
+  email: string;
+  name: string;
+  message: string;
+  recaptchaToken?: string;
+};
+
+export type ContactResult =
+  | { ok: true; message: string }
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+
+/**
+ * Invia il form contatti alla REST API di Contact Form 7, che manda la mail
+ * e applica le stesse validazioni e protezioni antispam del sito attuale.
+ */
+export async function submitContactAction(
+  input: ContactInput
+): Promise<ContactResult> {
+  const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
+  if (!endpoint) {
+    return { ok: false, error: "Configurazione del server mancante." };
+  }
+
+  const body = new FormData();
+  body.set("your-email", input.email.trim());
+  body.set("your-name", input.name.trim());
+  body.set("your-message", input.message.trim());
+  body.set("_wpcf7_unit_tag", `wpcf7-f${CONTACT_FORM_ID}-o1`);
+  if (input.recaptchaToken) {
+    body.set("_wpcf7_recaptcha_response", input.recaptchaToken);
+  }
+
+  try {
+    const url = new URL(
+      `/wp-json/contact-form-7/v1/contact-forms/${CONTACT_FORM_ID}/feedback`,
+      endpoint
+    );
+    const res = await fetch(url, { method: "POST", body, cache: "no-store" });
+    const data: {
+      status?: string;
+      message?: string;
+      invalid_fields?: { field: string; message: string }[];
+    } = await res.json();
+
+    if (data.status === "mail_sent") {
+      return { ok: true, message: data.message ?? "Messaggio inviato." };
+    }
+
+    const fieldErrors = Object.fromEntries(
+      (data.invalid_fields ?? []).map((f) => [f.field, f.message])
+    );
+    return {
+      ok: false,
+      error: data.message ?? "Invio del messaggio non riuscito.",
+      fieldErrors,
+    };
+  } catch {
+    return { ok: false, error: "Invio del messaggio non riuscito." };
   }
 }

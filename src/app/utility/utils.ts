@@ -14,3 +14,13 @@ const formatDateTime = (inputDateTime: string) => {
 };
 
 export { formatDateTime };
+
+/**
+ * Data nel formato del tema WordPress: "On 04/15/2023".
+ */
+const formatThemeDate = (inputDateTime: string) => {
+	const [year, month, day] = inputDateTime.slice(0, 10).split("-");
+	return `On ${month}/${day}/${year}`;
+};
+
+export { formatThemeDate };

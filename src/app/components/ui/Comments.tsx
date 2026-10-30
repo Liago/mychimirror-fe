@@ -1,29 +1,16 @@
-import { cinzel, cormorantGaramond } from "@/assets/fonts";
+import type { CommentNode } from "@/lib/content";
+
 import CommentReplyAction from "./CommentReplyAction";
 import LeaveCommentForm from "./LeaveCommentForm";
 
-type CommentAuthorNode = {
-  name?: string | null;
-  username?: string | null;
-};
-
-type CommentNode = {
-  id: string;
-  databaseId: number;
-  parentDatabaseId: number | null;
-  date: string;
-  content: string;
-  author: {
-    node: CommentAuthorNode;
-  };
-};
+type CommentAuthorNode = CommentNode["author"]["node"];
 
 type TreeNode = CommentNode & { children: TreeNode[] };
 
 type Props = {
   comments: CommentNode[];
   postDatabaseId: number;
-  postSlug: string;
+  postUri: string;
 };
 
 function resolveAuthorName(node: CommentAuthorNode): string {
@@ -50,29 +37,25 @@ const CommentItem = ({
   node,
   depth,
   postDatabaseId,
-  postSlug,
+  postUri,
 }: {
   node: TreeNode;
   depth: number;
   postDatabaseId: number;
-  postSlug: string;
+  postUri: string;
 }) => {
-  const isReply = depth > 0;
   return (
-    <li
-      className={`${isReply ? "mt-6" : "mt-8 border-t border-fake-black/20 pt-6"}`}
-      style={{ marginLeft: depth * 32 }}
-    >
-      <p className={`${cinzel.className} text-xl text-fake-black`}>
+    <li className="mt-10" style={{ marginLeft: depth * 32 }}>
+      <h6 className="font-playfair text-lg font-medium italic leading-7 text-black">
         {resolveAuthorName(node.author.node)}
-      </p>
+      </h6>
       <div
-        className={`${cormorantGaramond.className} text-lg text-fake-black mt-2`}
+        className="wp-content mt-1"
         dangerouslySetInnerHTML={{ __html: node.content }}
       />
       <CommentReplyAction
         postDatabaseId={postDatabaseId}
-        postSlug={postSlug}
+        postUri={postUri}
         parentId={node.id}
       />
       {node.children.length > 0 && (
@@ -83,7 +66,7 @@ const CommentItem = ({
               node={child}
               depth={depth + 1}
               postDatabaseId={postDatabaseId}
-              postSlug={postSlug}
+              postUri={postUri}
             />
           ))}
         </ul>
@@ -92,32 +75,31 @@ const CommentItem = ({
   );
 };
 
-const Comments = ({ comments, postDatabaseId, postSlug }: Props) => {
+const Comments = ({ comments, postDatabaseId, postUri }: Props) => {
   const tree = buildTree(comments);
   const count = comments.length;
 
   return (
-    <section className="mt-10">
-      <h2 className={`${cinzel.className} text-3xl text-fake-black`}>
-        Comments ({count})
-      </h2>
-      {count === 0 ? null : (
-        <ul>
-          {tree.map((node) => (
-            <CommentItem
-              key={node.id}
-              node={node}
-              depth={0}
-              postDatabaseId={postDatabaseId}
-              postSlug={postSlug}
-            />
-          ))}
-        </ul>
+    <section id="comments" className="mt-[30px]">
+      {count > 0 && (
+        <>
+          <h4 className="font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-black">
+            Comments ({count})
+          </h4>
+          <ul>
+            {tree.map((node) => (
+              <CommentItem
+                key={node.id}
+                node={node}
+                depth={0}
+                postDatabaseId={postDatabaseId}
+                postUri={postUri}
+              />
+            ))}
+          </ul>
+        </>
       )}
-      <LeaveCommentForm
-        postDatabaseId={postDatabaseId}
-        postSlug={postSlug}
-      />
+      <LeaveCommentForm postDatabaseId={postDatabaseId} postUri={postUri} />
     </section>
   );
 };

@@ -19,7 +19,7 @@ const CardContainer = (props: Props) => {
 
   return (
     <NextLink
-      href={`/posts/${slug}/`}
+      href={`/${slug}/`}
       className="relative mx-4 flex flex-col overflow-hidden rounded-large bg-white p-4 text-foreground shadow-small transition-transform active:scale-[0.97]"
     >
       <div

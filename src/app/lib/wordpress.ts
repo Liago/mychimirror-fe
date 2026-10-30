@@ -60,6 +60,51 @@ export async function mutateGraphQL<T>(
 	return fetchGraphQL<T>(mutation, variables, { revalidate: 0 });
 }
 
+export type RESTPage<T> = {
+	data: T;
+	total: number;
+	totalPages: number;
+};
+
+/**
+ * GET sulla REST API di WordPress (`/wp-json/...`). La usiamo dove GraphQL
+ * non basta, cioè per le liste paginate: WPGraphQL non supporta l'offset,
+ * la REST sì e restituisce anche il numero di pagine.
+ */
+export async function fetchREST<T>(
+	path: string,
+	params: Record<string, string | number> = {},
+	options: FetchOptions = {}
+): Promise<RESTPage<T>> {
+	const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
+	if (!endpoint) {
+		throw new Error(
+			"NEXT_PUBLIC_WORDPRESS_API_URL environment variable is not defined"
+		);
+	}
+
+	const url = new URL(`/wp-json${path}`, endpoint);
+	for (const [key, value] of Object.entries(params)) {
+		url.searchParams.set(key, String(value));
+	}
+
+	const { tags = [], revalidate = DEFAULT_REVALIDATE } = options;
+
+	const res = await fetch(url, {
+		next: { tags: ["wordpress", ...tags], revalidate },
+	});
+
+	if (!res.ok) {
+		throw new Error(`WordPress REST HTTP ${res.status} (${path})`);
+	}
+
+	return {
+		data: await res.json(),
+		total: Number(res.headers.get("X-WP-Total") ?? 0),
+		totalPages: Number(res.headers.get("X-WP-TotalPages") ?? 0),
+	};
+}
+
 /**
  * GET di un endpoint JSON custom (es. /API/*.php) con cache e tag.
  */
