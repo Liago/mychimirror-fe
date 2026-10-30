@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 import aspectRatio from "@tailwindcss/aspect-ratio";
 
 const config: Config = {
@@ -12,6 +13,25 @@ const config: Config = {
 			widest: ".3em",
 		},
 		extend: {
+			screens: {
+				// Il tema WordPress passa all'header desktop sopra i 1024px
+				desk: "1025px",
+			},
+			fontFamily: {
+				cinzel: ["var(--font-cinzel)", ...defaultTheme.fontFamily.serif],
+				cormorant: [
+					"var(--font-cormorant-garamond)",
+					...defaultTheme.fontFamily.serif,
+				],
+				playfair: [
+					"var(--font-playfair-display)",
+					...defaultTheme.fontFamily.serif,
+				],
+				"open-sans": [
+					"var(--font-open-sans)",
+					...defaultTheme.fontFamily.sans,
+				],
+			},
 			backgroundImage: {
 				"gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
 				"gradient-conic":
@@ -21,6 +41,11 @@ const config: Config = {
 				"fake-black": "#6A5921",
 				nocciola: "#FAF2ED",
 				"book-description": "#7A7A78",
+				// Colori del tema WordPress (Belletrist)
+				"body-text": "#4D4D4D",
+				separator: "#9E9E9E",
+				"mobile-header": "#DFDCCF",
+				"mobile-menu": "#F7F7F6",
 				// Valori ereditati dal tema NextUI (rimosso), per non cambiare l'aspetto
 				foreground: "#11181C",
 				"default-500": "#71717A",

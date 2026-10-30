@@ -19,14 +19,12 @@ const CardContainer = (props: Props) => {
 
   return (
     <NextLink
-      href={`/posts/${slug}`}
+      href={`/posts/${slug}/`}
       className="relative mx-4 flex flex-col overflow-hidden rounded-large bg-white p-4 text-foreground shadow-small transition-transform active:scale-[0.97]"
     >
       <div
-        className="w-full shrink-0 rounded-t-large"
+        className="aspect-[350/292] w-full max-w-[350px] shrink-0 rounded-t-large"
         style={{
-          width: "350px",
-          height: "292px",
           background: `url(${imageUrl})`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",

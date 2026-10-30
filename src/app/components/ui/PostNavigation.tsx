@@ -22,7 +22,7 @@ const PostNavigation = ({ previous, next }: Props) => {
     >
       {previous ? (
         <NextLink
-          href={`/posts/${previous.slug}`}
+          href={`/posts/${previous.slug}/`}
           className="flex items-center gap-2 text-fake-black hover:underline"
           aria-label={`Post precedente: ${previous.title}`}
         >
@@ -46,7 +46,7 @@ const PostNavigation = ({ previous, next }: Props) => {
       )}
       {next ? (
         <NextLink
-          href={`/posts/${next.slug}`}
+          href={`/posts/${next.slug}/`}
           className="flex items-center gap-2 text-fake-black hover:underline"
           aria-label={`Post successivo: ${next.title}`}
         >

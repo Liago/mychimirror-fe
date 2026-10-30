@@ -165,3 +165,45 @@ export async function getBooksReviews() {
 		},
 	};
 }
+
+export type MenuItem = {
+	label: string;
+	uri: string;
+};
+
+// Usato se WordPress non risponde, per non lasciare il sito senza navigazione
+const FALLBACK_MENU: MenuItem[] = [
+	{ label: "Home", uri: "/" },
+	{ label: "Pillole Emotive", uri: "/blog/" },
+	{ label: "Shop", uri: "/shop/" },
+	{ label: "About Me", uri: "/about/" },
+	{ label: "Contatti", uri: "/contacts/" },
+];
+
+export async function fetchMainMenu(): Promise<MenuItem[]> {
+	try {
+		const data = await fetchGraphQL<{
+			menuItems: { nodes: { label: string; uri: string }[] };
+		}>(
+			/* GraphQL */ `
+				query MainMenu {
+					menuItems(
+						first: 50
+						where: { location: MAIN_NAVIGATION, parentId: "0" }
+					) {
+						nodes {
+							label
+							uri
+						}
+					}
+				}
+			`,
+			undefined,
+			{ tags: ["menu"] }
+		);
+		const items = data.menuItems.nodes;
+		return items.length ? items : FALLBACK_MENU;
+	} catch {
+		return FALLBACK_MENU;
+	}
+}

@@ -33,7 +33,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Layer dati unico `fetchGraphQL` con `fetch` nativo + cache tags (sostituisce Apollo lato server)
 - ⏳ Progetto Vercel collegato al repo GitHub, preview deploy automatici sulle PR (serve l'account)
 
-### F1 — Layout e design system (≈2-3 gg)
+### F1 — Layout e design system ✅ (30/10/2026, mini-cart rimandato a F3)
 - Header con menu da WP (`MAIN_NAVIGATION`), menu mobile, footer, mini-cart
 - Token tipografici e colori, componenti base (Container, Section title, Button, Card)
 - Pagina 404 e stati di errore/caricamento

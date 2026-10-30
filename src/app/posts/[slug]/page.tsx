@@ -3,7 +3,6 @@ import Image from "next/image";
 
 import { fetchPostBySlug, fetchAdjacentPosts } from "@/lib/data";
 import { cinzel, cormorantGaramond } from "@/assets/fonts";
-import Header from "@/components/ui/header/Header";
 import Divider from "@/components/hoc/Divider";
 import Comments from "@/components/ui/Comments";
 import PostCategories from "@/components/ui/PostCategories";
@@ -28,7 +27,6 @@ export default async function PostPage({ params }: PageProps) {
 
   return (
     <>
-      <Header />
       <main className="block bg-white">
         {cover && (
           <section className="block w-full px-6 pt-10">

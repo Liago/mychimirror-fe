@@ -29,7 +29,8 @@ Tutto il codice sta in `src/app/` (che è anche `baseUrl` di tsconfig). Alias:
 
 ```
 src/app/
-  layout.tsx                      # root layout
+  layout.tsx                      # root layout: font, Header, Footer, ScrollToTop (presenti su tutte le pagine)
+  not-found.tsx, error.tsx, loading.tsx
   page.tsx                        # home: cover, ultimi 3 post ("Pillole"), press, interviste YouTube, libri+recensioni
   posts/[slug]/page.tsx           # articolo singolo con commenti annidati e navigazione prev/next
   admin/reviews-upload/page.tsx   # tool interno (noindex) per caricare recensioni in blocco
@@ -39,6 +40,8 @@ src/app/
   lib/actions.ts                  # server actions: createCommentAction, bulkCreateReviewsAction
   lib/db.ts                       # pool MySQL lazy
   components/                     # Cards, VideoCards, Book, BookReview, admin/, hoc/Divider, ui/*
+  components/ui/header/           # Header (server: legge il menu WP) + HeaderNav (client: voce attiva, menu mobile)
+  components/ui/                  # Footer, SectionTitle, Button e gli altri componenti di pagina
   utility/utils.ts                # formatDateTime (it-IT, UTC)
 ```
 
@@ -67,12 +70,15 @@ Stato del backend WordPress (verificato su live):
 - Mutazioni tramite server actions in `lib/actions.ts` che ritornano un risultato discriminato `{ ok: true, ... } | { ok: false, error }` con messaggi in italiano; i client component usano `useTransition`.
 - HTML da WordPress reso con `dangerouslySetInnerHTML` (classi `post-content prose`).
 - Immagini remote con `next/image`: ogni nuovo host va aggiunto a `images.remotePatterns` in `next.config.js`.
-- Palette Tailwind custom: `fake-black` (#6A5921, colore testo/accento oro), `nocciola` (#FAF2ED, sfondo), `book-description`. Classe `qodef-content-grid` (da `globals.css`) replica il contenitore del tema WP.
+- **Design = replica fedele del tema WordPress (Belletrist).** Prima di implementare un componente, misurare gli stili calcolati sul sito live (font, misure, colori) e riprodurli.
+- Token Tailwind del tema: colori `fake-black` (#6A5921, oro: voce attiva/hover e accenti), `nocciola` (#FAF2ED), `body-text` (#4D4D4D), `separator` (#9E9E9E), `mobile-header`, `mobile-menu`, `book-description`; font `font-cinzel` (titoli), `font-cormorant` (testo, default del body 19px/25px), `font-playfair` (corsivi, h6), `font-open-sans` (menu, bottoni). Il codice più vecchio usa ancora `cinzel.className` ecc. da `assets/fonts.ts`: entrambi funzionano.
+- Breakpoint `desk` (≥1025px) = passaggio header mobile/desktop del tema. Classe `qodef-content-grid` (da `globals.css`) replica il contenitore del tema con le sue larghezze per breakpoint.
+- Componenti base: `SectionTitle` (titolo Cinzel con lineetta), `Button` (bottone nero del tema, link se riceve `href`).
+- `trailingSlash: true`: tutti gli URL e i `href` interni finiscono con `/`, come su WordPress.
 - Stile codice: tab nei file più vecchi, 2 spazi nei più recenti; Prettier in `.prettierrc`.
 
 ## Attenzione
 
 - `.env` non è tracciato (contiene credenziali): le variabili sono documentate in `.env.example`.
-- Elementi `position: fixed` non vanno messi dentro il `<nav>` dell'header: il suo `backdrop-filter` crea un nuovo containing block.
 - Gli URL dei post su WordPress sono alla radice (`/<slug>/`), mentre qui la route è `/posts/[slug]`: va risolto prima del go-live per non perdere SEO.
 - Quando WordPress passerà su `cms.mychicmirror.com`, vanno aggiornati gli env, `remotePatterns` e gli endpoint PHP in `/API/`.

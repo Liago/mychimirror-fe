@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+    // Gli URL di WordPress finiscono tutti con "/": restano identici per la SEO
+    trailingSlash: true,
     images: {
         remotePatterns: [
           {

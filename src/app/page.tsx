@@ -2,9 +2,8 @@ import { fetchRecentPosts } from "@/lib/data";
 import Image from "next/image";
 import { cinzel } from "@/assets/fonts";
 
-import Header from "@/components/ui/header/Header";
 import LastPostContainer from "@/components/ui/LastPostContainer";
-import Divider from "@/components/hoc/Divider";
+import SectionTitle from "@/components/ui/SectionTitle";
 import PressContainer from "@/components/ui/PressContainer";
 import InterviewContainer from "@/components/ui/InterviewContainer";
 import BooksContainer from "@/components/ui/BooksContainer";
@@ -15,7 +14,6 @@ export default async function Home() {
 
 	return (
 		<>
-			<Header />
 			<main className="block bg-nocciola">
 				<section className="relative block w-full">
 					<Image
@@ -30,11 +28,7 @@ export default async function Home() {
 				<section className="flex min-h-screen flex-col items-center justify-between">
 					<div className="z-10 max-w-7xl w-full items-center">
 						<div className={cinzel.className}>
-							<Divider border="10">
-								<h1 className="text-4xl text-fake-black uppercase text-center">
-									Pillole
-								</h1>
-							</Divider>
+							<SectionTitle className="my-10">Pillole</SectionTitle>
 							<LastPostContainer posts={props.posts} />
 						</div>
 					</div>
