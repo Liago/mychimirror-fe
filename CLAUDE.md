@@ -36,6 +36,9 @@ src/app/
   [...uri]/page.tsx               # catch-all: risolve qualsiasi URI WordPress (post, pagina, categoria, tag, /page/N/)
   posts/[slug]/page.tsx           # redirect 308 dal vecchio /posts/<slug>/ a /<slug>/
   portfolio-item/press/page.tsx   # rassegna stampa statica (il CPT portfolio-item non è nelle API)
+  shop/, product/[slug]/, product-category/[slug]/   # catalogo WooCommerce (Store API)
+  cart/page.tsx                   # pagina carrello (client, usa CartProvider)
+  checkout/route.ts, my-account/route.ts   # redirect a WordPress (checkout con Cart-Token)
   admin/reviews-upload/page.tsx   # tool interno (noindex) per caricare recensioni in blocco
   lib/wordpress.ts                # fetchGraphQL / mutateGraphQL / fetchREST / fetchJSON con cache e tag
   lib/content.ts                  # tipi e query dei contenuti: resolveUri, fetchPostList, fetchAdjacentPosts
@@ -43,9 +46,13 @@ src/app/
   lib/editorial.ts                # contenuti scritti a mano nella vecchia home Elementor (video, stampa, citazioni, loghi, newsletter)
   lib/actions.ts                  # server actions: commenti, recensioni, scroll infinito, form contatti (CF7)
   lib/site.ts                     # SITE_URL
+  lib/shop.ts                     # catalogo: prodotti, categorie, descrizione (REST WP), recensioni, correlati
+  lib/cart.ts, lib/cartActions.ts # carrello Store API (Cart-Token in cookie httpOnly) e server action
   lib/db.ts                       # pool MySQL lazy
   components/home/                # sezioni della home: LatestPosts, PressBanner, BookSection, BookPressQuote, RetailerLogos, NewsletterBanner
   components/admin/               # form del tool recensioni
+  components/shop/                # ProductCard/Grid, ProductGallery, AddToCartForm, ProductTabs
+  components/cart/                # CartProvider (context), MiniCart (bottone flottante + finestra), CartView, QuantityInput
   components/ui/header/           # Header (server: legge il menu WP) + HeaderNav (client: voce attiva, menu mobile)
   components/ui/                  # Footer, PageTitle, SectionTitle, Button, WPContent, PostCard, MetroTile, Pagination, form...
   components/views/               # una vista per tipo di contenuto: PostView, PageView, ArchiveView, BlogView, ContactView
@@ -60,6 +67,8 @@ src/app/
 | Creazione commenti | mutation `createComment` WPGraphQL | `lib/actions.ts` |
 | Libri | `BOOKS_EDITED_DATA` → `/API/getBooks.php` (PHP custom sul server WP) | `fetchBooks` |
 | Recensioni libri | `BOOKS_REVIEWS_DATA` → `/API/getBookReviews.php`; scrittura diretta su tabella MySQL `reviews` | `fetchBooks`, `bulkCreateReviewsAction` |
+| Prodotti, categorie prodotto | WooCommerce Store API `/wp-json/wc/store/v1/products` (pubblica, via `fetchREST`) | `lib/shop.ts` |
+| Carrello | Store API `/cart`, `/cart/add-item`... con header `Cart-Token` (niente nonce) | `lib/cart.ts` |
 | Contenuti editoriali della home | scritti a mano in `lib/editorial.ts` (sul vecchio sito erano statici in Elementor) | `components/home/*` |
 | Foto di copertina della home | `MAIN_IMAGE_COVER_URL` | `LatestPosts` |
 
@@ -94,6 +103,10 @@ Stato del backend WordPress (verificato su live):
 ## Attenzione
 
 - `.env` non è tracciato (contiene credenziali): le variabili sono documentate in `.env.example`.
-- Le pagine WooCommerce (`/shop/`, `/cart/`, `/checkout/`, `/my-account/`) danno 404 finché non arriva lo shop (F3): vedi `SHOP_PAGES`.
+- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout) e `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare).
+- Pagina prodotto: la descrizione viene dalla REST di WordPress (`/wp/v2/product`) togliendo i `<style>`, perché la Store API lascia il CSS come testo. Le recensioni si leggono dalla Store API e si inviano a `wp-comments-post.php` (`submitProductReviewAction`).
+- **Checkout**: `/checkout/` reindirizza a `NEXT_PUBLIC_WORDPRESS_SITE_URL/checkout/?mcm_cart=<Cart-Token>`. Il carrello viene ripreso solo se su WordPress è installato `wordpress/mu-plugins/mcm-cart-handoff.php` (in `wp-content/mu-plugins/`).
+- Shop: i libri sono "Esauriti" su WooCommerce (si comprano dai link esterni nella descrizione); il fazzoletto è l'unico prodotto acquistabile ed è nascosto dal catalogo (`catalog_visibility: hidden`), quindi si raggiunge solo dalla sua pagina.
+- Le immagini della Store API arrivano dal CDN Jetpack (`i0.wp.com`): `toProductImage` le riporta all'originale e legge le dimensioni dal parametro `fit`.
 - Form contatti: l'invio vero usa reCAPTCHA v3 e funziona solo da un dominio autorizzato per la chiave (non da localhost).
 - Quando WordPress passerà su `cms.mychicmirror.com`, vanno aggiornati gli env, `remotePatterns` e gli endpoint PHP in `/API/`.

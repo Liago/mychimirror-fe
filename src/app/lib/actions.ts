@@ -2,6 +2,8 @@
 
 import { updateTag } from "next/cache";
 
+import { cleanText } from "@/utility/utils";
+
 import { getDbPool } from "./db";
 import { fetchPostList, type PostList } from "./content";
 import { mutateGraphQL } from "./wordpress";
@@ -258,5 +260,69 @@ export async function submitContactAction(
     };
   } catch {
     return { ok: false, error: "Invio del messaggio non riuscito." };
+  }
+}
+
+type ProductReviewInput = {
+  productId: number;
+  productSlug: string;
+  rating: number;
+  review: string;
+  author: string;
+  email: string;
+};
+
+/**
+ * Recensione di un prodotto: è un commento WordPress con voto, inviato a
+ * wp-comments-post.php come fa il form del tema (le API non permettono di crearle).
+ */
+export async function submitProductReviewAction(
+  input: ProductReviewInput
+): Promise<CreateCommentResult> {
+  const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
+  if (!endpoint) {
+    return { ok: false, error: "Configurazione del server mancante." };
+  }
+  const rating = Math.round(input.rating);
+  if (rating < 1 || rating > 5) {
+    return { ok: false, error: "Seleziona una valutazione." };
+  }
+  if (!input.review.trim() || !input.author.trim() || !input.email.trim()) {
+    return { ok: false, error: "Compila tutti i campi obbligatori." };
+  }
+
+  const body = new URLSearchParams({
+    comment_post_ID: String(input.productId),
+    comment_parent: "0",
+    rating: String(rating),
+    comment: input.review.trim(),
+    author: input.author.trim(),
+    email: input.email.trim(),
+  });
+
+  try {
+    const res = await fetch(new URL("/wp-comments-post.php", endpoint), {
+      method: "POST",
+      body,
+      redirect: "manual",
+      cache: "no-store",
+    });
+
+    // WordPress risponde con un redirect alla recensione se l'ha accettata,
+    // altrimenti con una pagina di errore (wp_die)
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get("location") ?? "";
+      updateTag(`reviews:product:${input.productId}`);
+      updateTag(`product:${input.productSlug}`);
+      return { ok: true, pending: /unapproved=/.test(location) };
+    }
+
+    const html = await res.text();
+    const message = cleanText(
+      html.match(/<p>([\s\S]*?)<\/p>/)?.[1]?.replace(/<[^>]+>/g, "") ?? ""
+    );
+    return { ok: false, error: message || "Invio della recensione non riuscito." };
+  } catch {
+    return { ok: false, error: "Invio della recensione non riuscito." };
   }
 }

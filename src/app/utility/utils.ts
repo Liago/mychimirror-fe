@@ -26,7 +26,8 @@ const CP1252: Record<number, string> = {
 const NAMED_ENTITIES: Record<string, string> = {
 	amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: " ",
 	rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“", hellip: "…",
-	ndash: "–", mdash: "—", laquo: "«", raquo: "»",
+	ndash: "–", mdash: "—", laquo: "«", raquo: "»", times: "×",
+	lrm: "", rlm: "",
 	agrave: "à", egrave: "è", eacute: "é", igrave: "ì", ograve: "ò",
 	ugrave: "ù", Agrave: "À", Egrave: "È", Eacute: "É",
 };
@@ -45,3 +46,14 @@ const cleanText = (input: string) =>
 		.trim();
 
 export { formatThemeDate, cleanText };
+
+/**
+ * Prezzo nel formato del tema: "14,99€".
+ */
+const formatPrice = (price: { amount: number; minorUnit: number; symbol: string }) =>
+	new Intl.NumberFormat("it-IT", {
+		minimumFractionDigits: price.minorUnit,
+		maximumFractionDigits: price.minorUnit,
+	}).format(price.amount / 10 ** price.minorUnit) + price.symbol;
+
+export { formatPrice };

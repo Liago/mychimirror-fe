@@ -6,6 +6,8 @@ import {
 	openSans,
 	playfairDisplay,
 } from "@/assets/fonts";
+import { CartProvider } from "@/components/cart/CartProvider";
+import MiniCart from "@/components/cart/MiniCart";
 import Header from "@/components/ui/header/Header";
 import Footer from "@/components/ui/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
@@ -34,10 +36,13 @@ export default function RootLayout({
 	return (
 		<html lang="it" className={fontVariables}>
 			<body className="flex min-h-screen flex-col">
-				<Header />
-				<div className="flex-1">{children}</div>
-				<Footer />
-				<ScrollToTop />
+				<CartProvider>
+					<Header />
+					<div className="flex-1">{children}</div>
+					<Footer />
+					<ScrollToTop />
+					<MiniCart />
+				</CartProvider>
 			</body>
 		</html>
 	);

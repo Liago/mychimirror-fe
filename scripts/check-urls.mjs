@@ -6,7 +6,7 @@
  *   node scripts/check-urls.mjs [baseUrl] [--include=post,page,category]
  *
  * baseUrl: app da verificare (default http://localhost:3000)
- * --include: tipi di sitemap Yoast da controllare (default post,page,category,post_tag)
+ * --include: tipi di sitemap Yoast da controllare (default post,page,category,post_tag,product,product_cat)
  */
 
 const SITEMAP_INDEX = "https://www.mychicmirror.com/sitemap_index.xml";
@@ -22,13 +22,16 @@ const EXPECTED = {
 	"/i-racconti-di-fragola-capitolo-iv/": 404,
 	"/i-racconti-di-fragola-capitolo-v/": 404,
 	"/contatti/": 301,
+	// Checkout e area clienti restano su WordPress
+	"/checkout/": 307,
+	"/my-account/": 307,
 };
 const CONCURRENCY = 4;
 
 const args = process.argv.slice(2);
 const base = (args.find((a) => !a.startsWith("--")) ?? "http://localhost:3000").replace(/\/$/, "");
 const includeArg = args.find((a) => a.startsWith("--include="));
-const include = (includeArg?.split("=")[1] ?? "post,page,category,post_tag").split(",");
+const include = (includeArg?.split("=")[1] ?? "post,page,category,post_tag,product,product_cat").split(",");
 
 const locs = (xml) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 

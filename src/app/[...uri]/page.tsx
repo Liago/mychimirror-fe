@@ -18,9 +18,6 @@ const CUSTOM_PAGES: Record<string, (props: { page: Page }) => Promise<React.Reac
 	"/contacts/": ContactView,
 };
 
-// Pagine WooCommerce: arrivano con lo shop (F3)
-const SHOP_PAGES = new Set(["/shop/", "/cart/", "/checkout/", "/my-account/"]);
-
 // Pagine di vecchie versioni del sito, dismesse: rispondono 404 anche se esistono in WordPress
 const RETIRED_PAGES = new Set([
 	"/pillole/",
@@ -55,7 +52,7 @@ function parseSegments(segments: string[]): Parsed | null {
 
 async function load(params: Props["params"]): Promise<{ node: ContentNode; page: number } | null> {
 	const parsed = parseSegments((await params).uri);
-	if (!parsed || SHOP_PAGES.has(parsed.uri) || RETIRED_PAGES.has(parsed.uri)) {
+	if (!parsed || RETIRED_PAGES.has(parsed.uri)) {
 		return null;
 	}
 
