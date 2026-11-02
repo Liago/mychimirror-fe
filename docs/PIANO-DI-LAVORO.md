@@ -45,7 +45,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Pagine testuali: Privacy, Termini, Spedizione
 - Rifinitura di Home e articolo esistenti (immagini `next/image`, HTML WP sanificato)
 
-### F3 — Shop ✅ (02/11/2026; manca la prova del checkout con il mu-plugin installato)
+### F3 — Shop ✅ (02/11/2026, mu-plugin installati e passaggio al checkout verificato sul live)
 - `/shop/`, `/product/<slug>/`, `/product-category/<slug>/` (stessi URL di oggi)
 - Carrello con Store API: aggiungi, modifica quantità, rimuovi; contatore nell'header
 - Checkout: passaggio al checkout di WordPress su `cms.` (gateway di pagamento invariati); `/cart/`, `/checkout/` e `/my-account/` rimandano a WP
