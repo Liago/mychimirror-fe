@@ -7,6 +7,8 @@ import { formatThemeDate } from "@/utility/utils";
 
 export const metadata: Metadata = {
 	title: pressPage.title,
+	description: `${pressPage.subject}: ${pressPage.description}`,
+	alternates: { canonical: "/portfolio-item/press/" },
 };
 
 const labelClassName =

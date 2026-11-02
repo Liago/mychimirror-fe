@@ -1,5 +1,17 @@
 import { fetchGraphQL, fetchREST } from "./wordpress";
 
+// Pagine di vecchie versioni del sito, dismesse: rispondono 404 anche se esistono in WordPress
+export const RETIRED_PAGES = new Set([
+	"/pillole/",
+	"/tematiche/",
+	"/pillole-emotive/",
+	"/i-racconti-di-fragola-capitolo-1/",
+	"/i-racconti-di-fragola-capitolo-ii/",
+	"/i-racconti-di-fragola-capitolo-iii/",
+	"/i-racconti-di-fragola-capitolo-iv/",
+	"/i-racconti-di-fragola-capitolo-v/",
+]);
+
 // ---------------------------------------------------------------------------
 // Tipi
 // ---------------------------------------------------------------------------

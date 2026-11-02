@@ -46,6 +46,8 @@ src/app/
   lib/editorial.ts                # contenuti scritti a mano nella vecchia home Elementor (video, stampa, citazioni, loghi, newsletter)
   lib/actions.ts                  # server actions: commenti, recensioni, scroll infinito, form contatti (CF7)
   lib/site.ts                     # SITE_URL
+  lib/seo.ts                      # metadata da Yoast (yoast_head_json), JSON-LD, schema Product
+  sitemap.ts, robots.ts, icon.png, apple-icon.png   # SEO e icone (logo "MM")
   lib/shop.ts                     # catalogo: prodotti, categorie, descrizione (REST WP), recensioni, correlati
   lib/cart.ts, lib/cartActions.ts # carrello Store API (Cart-Token in cookie httpOnly) e server action
   lib/db.ts                       # pool MySQL lazy
@@ -91,6 +93,10 @@ Stato del backend WordPress (verificato su live):
 - HTML da WordPress reso con il componente `WPContent` (classe `.wp-content`, stili dei blocchi Gutenberg in `globals.css`).
 - Tutti i testi sono in italiano, anche quelli che il tema originale mostrava in inglese (date "15 aprile 2023" con `formatThemeDate`, "Articolo precedente", "Commenti", "Rispondi"...): è una scelta voluta, non una differenza da correggere.
 - Pagine WordPress dismesse: in `RETIRED_PAGES` di `[...uri]/page.tsx` (rispondono 404). Redirect permanenti in `redirects()` di `next.config.js`.
+- **SEO**: ogni pagina usa `generateMetadata` con `fetchYoastHead` + `yoastToMetadata` (il titolo Yoast include già " - MyChicMirror": è `title.absolute`) e stampa `<JsonLd json={buildJsonLd(yoast)} />`. Gli URL di WordPress vengono riscritti su `SITE_URL` (`toPublicUrl`).
+- Dati secondari di una pagina (recensioni, correlati, post adiacenti) vanno avvolti in `orFallback`: se WordPress non risponde la pagina esce senza quella parte invece di andare in errore.
+- Banner cookie: `components/ui/CookieBanner.tsx` (iubenda, configurazione copiata dal plugin WP).
+- Analytics: Google Analytics 4 (`components/ui/GoogleAnalytics.tsx`, attivo solo se c'è `NEXT_PUBLIC_GA_MEASUREMENT_ID`) con Google Consent Mode v2: consensi negati di default, aggiornati da iubenda (`googleConsentMode: true`). Nel layout l'ordine è: `GoogleConsentDefaults`, `CookieBanner`, `GoogleAnalytics`.
 - Immagini remote con `next/image`: ogni nuovo host va aggiunto a `images.remotePatterns` in `next.config.js`.
 - **Design = replica fedele del tema WordPress (Belletrist).** Prima di implementare un componente, misurare gli stili calcolati sul sito live (font, misure, colori) e riprodurli.
 - Token Tailwind del tema: colori `fake-black` (#6A5921, oro: voce attiva/hover e accenti), `nocciola` (#FAF2ED), `body-text` (#4D4D4D), `separator` (#9E9E9E), `mobile-header`, `mobile-menu`, `book-description`; font `font-cinzel` (titoli), `font-cormorant` (testo, default del body 19px/25px), `font-playfair` (corsivi, h6), `font-open-sans` (menu, bottoni).
@@ -109,4 +115,5 @@ Stato del backend WordPress (verificato su live):
 - Shop: i libri sono "Esauriti" su WooCommerce (si comprano dai link esterni nella descrizione); il fazzoletto è l'unico prodotto acquistabile ed è nascosto dal catalogo (`catalog_visibility: hidden`), quindi si raggiunge solo dalla sua pagina.
 - Le immagini della Store API arrivano dal CDN Jetpack (`i0.wp.com`): `toProductImage` le riporta all'originale e legge le dimensioni dal parametro `fit`.
 - Form contatti: l'invio vero usa reCAPTCHA v3 e funziona solo da un dominio autorizzato per la chiave (non da localhost).
+- **Rate limit Aruba**: il proxy di Aruba risponde 429 se riceve troppe richieste API dallo stesso IP (succede lanciando `check-urls.mjs` a freddo). Next non mette in cache le risposte non-200.
 - Quando WordPress passerà su `cms.mychicmirror.com`, vanno aggiornati gli env, `remotePatterns` e gli endpoint PHP in `/API/`.

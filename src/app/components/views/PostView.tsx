@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import { fetchAdjacentPosts, type Post } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
+import { orFallback } from "@/lib/wordpress";
 import Comments from "@/components/ui/Comments";
 import PageTitle from "@/components/ui/PageTitle";
 import PostCategories from "@/components/ui/PostCategories";
@@ -14,7 +15,10 @@ type Props = {
 };
 
 export default async function PostView({ post }: Props) {
-	const { previous, next } = await fetchAdjacentPosts(post.date);
+	const { previous, next } = await orFallback(fetchAdjacentPosts(post.date), {
+		previous: null,
+		next: null,
+	});
 
 	return (
 		<>

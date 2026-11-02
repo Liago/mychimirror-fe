@@ -131,3 +131,16 @@ export async function fetchJSON<T>(
 
 	return res.json();
 }
+
+/**
+ * Per i dati secondari di una pagina (recensioni, correlati...): se WordPress
+ * non risponde (es. 429 dal proxy di Aruba) la pagina esce comunque, senza quella parte.
+ */
+export async function orFallback<T>(promise: Promise<T>, fallback: T): Promise<T> {
+	try {
+		return await promise;
+	} catch (err) {
+		console.error(err);
+		return fallback;
+	}
+}

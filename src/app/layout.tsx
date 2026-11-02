@@ -9,12 +9,16 @@ import {
 import { CartProvider } from "@/components/cart/CartProvider";
 import MiniCart from "@/components/cart/MiniCart";
 import Header from "@/components/ui/header/Header";
+import { SITE_URL } from "@/lib/site";
+import CookieBanner from "@/components/ui/CookieBanner";
 import Footer from "@/components/ui/Footer";
+import GoogleAnalytics, { GoogleConsentDefaults } from "@/components/ui/GoogleAnalytics";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
+	metadataBase: new URL(SITE_URL),
 	title: {
 		default: "MyChicMirror",
 		template: "%s - MyChicMirror",
@@ -43,6 +47,10 @@ export default function RootLayout({
 					<ScrollToTop />
 					<MiniCart />
 				</CartProvider>
+				{/* Ordine richiesto da iubenda: consensi di default, banner, poi i tag Google */}
+				<GoogleConsentDefaults />
+				<CookieBanner />
+				<GoogleAnalytics />
 			</body>
 		</html>
 	);

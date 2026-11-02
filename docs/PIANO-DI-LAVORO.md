@@ -50,7 +50,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Carrello con Store API: aggiungi, modifica quantità, rimuovi; contatore nell'header
 - Checkout: passaggio al checkout di WordPress su `cms.` (gateway di pagamento invariati); `/cart/`, `/checkout/` e `/my-account/` rimandano a WP
 
-### F4 — SEO e tracking (≈2-3 gg)
+### F4 — SEO e tracking ✅ (02/11/2026; GA4 pronto, manca l'ID di misurazione)
 - `generateMetadata` dai dati Yoast; Open Graph; JSON-LD (Article, Product, Book)
 - `sitemap.xml`, `robots.txt`, canonical, redirect dei vecchi URL non più usati
 - Banner cookie iubenda, analytics (da decidere: Vercel Analytics / GA4)
@@ -60,6 +60,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Draft Mode per le anteprime dall'editor WP
 
 ### F6 — Staging e verifica (≈3-4 gg)
+- ⚠️ Il proxy di Aruba limita le richieste API (HTTP 429) dopo qualche centinaio di chiamate ravvicinate dallo stesso IP: verificare con Aruba se si può alzare il limite o mettere in whitelist gli IP di Vercel, e preferire cache lunghe + revalidazione on-demand (F5)
 - Staging su Vercel (es. `staging.mychicmirror.com`) che legge dal WP attuale
 - Script che scarica tutte le URL delle sitemap attuali e controlla che la nuova app risponda 200 con titolo corretto
 - Lighthouse/Core Web Vitals, test acquisto completo (ordine reale a importo minimo, poi rimborso)

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { resolveUri, type ContentNode, type Page } from "@/lib/content";
+import { RETIRED_PAGES, resolveUri, type ContentNode, type Page } from "@/lib/content";
+import { buildJsonLd, fetchYoastHead, yoastToMetadata } from "@/lib/seo";
+import JsonLd from "@/components/ui/JsonLd";
 import ArchiveView from "@/components/views/ArchiveView";
 import BlogView from "@/components/views/BlogView";
 import ContactView from "@/components/views/ContactView";
@@ -17,18 +19,6 @@ const CUSTOM_PAGES: Record<string, (props: { page: Page }) => Promise<React.Reac
 	"/blog/": BlogView,
 	"/contacts/": ContactView,
 };
-
-// Pagine di vecchie versioni del sito, dismesse: rispondono 404 anche se esistono in WordPress
-const RETIRED_PAGES = new Set([
-	"/pillole/",
-	"/tematiche/",
-	"/pillole-emotive/",
-	"/i-racconti-di-fragola-capitolo-1/",
-	"/i-racconti-di-fragola-capitolo-ii/",
-	"/i-racconti-di-fragola-capitolo-iii/",
-	"/i-racconti-di-fragola-capitolo-iv/",
-	"/i-racconti-di-fragola-capitolo-v/",
-]);
 
 type Parsed = { uri: string; page: number };
 
@@ -70,20 +60,33 @@ export async function generateStaticParams() {
 	return [];
 }
 
+// Endpoint REST da cui leggere i dati Yoast per ogni tipo di contenuto
+const YOAST_PATHS: Record<ContentNode["kind"], string> = {
+	post: "/wp/v2/posts",
+	page: "/wp/v2/pages",
+	category: "/wp/v2/categories",
+	tag: "/wp/v2/tags",
+};
+
+function yoastFor(node: ContentNode) {
+	return fetchYoastHead(`${YOAST_PATHS[node.kind]}/${node.databaseId}`);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const result = await load(params);
 	if (!result) return {};
-	const { node } = result;
-	const title = "name" in node ? `${node.name} Archivi` : node.title;
-	const plain = title.replace(/<[^>]+>/g, "").trim();
-	return plain ? { title: plain } : {};
+	const { node, page } = result;
+	const title = ("name" in node ? `${node.name} Archivi` : node.title)
+		.replace(/<[^>]+>/g, "")
+		.trim();
+	return yoastToMetadata(await yoastFor(node), {
+		// Le pagine successive di un archivio hanno un canonical proprio
+		path: page > 1 ? `${node.uri}page/${page}/` : undefined,
+		fallbackTitle: title || undefined,
+	});
 }
 
-export default async function WordPressPage({ params }: Props) {
-	const result = await load(params);
-	if (!result) notFound();
-	const { node, page } = result;
-
+function renderView(node: ContentNode, page: number) {
 	switch (node.kind) {
 		case "post":
 			return <PostView post={node} />;
@@ -95,4 +98,17 @@ export default async function WordPressPage({ params }: Props) {
 		case "tag":
 			return <ArchiveView archive={node} page={page} />;
 	}
+}
+
+export default async function WordPressPage({ params }: Props) {
+	const result = await load(params);
+	if (!result) notFound();
+	const { node, page } = result;
+
+	return (
+		<>
+			<JsonLd json={buildJsonLd(await yoastFor(node))} />
+			{renderView(node, page)}
+		</>
+	);
 }

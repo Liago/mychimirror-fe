@@ -8,6 +8,9 @@ import {
 	fetchProductReviews,
 	fetchRelatedProducts,
 } from "@/lib/shop";
+import { buildJsonLd, fetchYoastHead, productSchema, yoastToMetadata } from "@/lib/seo";
+import { orFallback } from "@/lib/wordpress";
+import JsonLd from "@/components/ui/JsonLd";
 import PageTitle from "@/components/ui/PageTitle";
 import WPContent from "@/components/ui/WPContent";
 import AddToCartForm from "@/components/shop/AddToCartForm";
@@ -29,19 +32,24 @@ export async function generateStaticParams() {
 	return [];
 }
 
+const productYoast = (slug: string) => fetchYoastHead("/wp/v2/product", { slug });
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-	const product = await fetchProduct((await params).slug);
-	return product ? { title: product.name } : {};
+	const { slug } = await params;
+	const product = await fetchProduct(slug);
+	if (!product) return {};
+	return yoastToMetadata(await productYoast(slug), { fallbackTitle: product.name });
 }
 
 export default async function ProductPage({ params }: Props) {
 	const product = await fetchProduct((await params).slug);
 	if (!product) notFound();
 
-	const [description, reviews, related] = await Promise.all([
-		fetchProductDescription(product.slug),
-		fetchProductReviews(product.id),
-		fetchRelatedProducts(product),
+	const [description, reviews, related, yoast] = await Promise.all([
+		orFallback(fetchProductDescription(product.slug), { html: "", reviewsOpen: false }),
+		orFallback(fetchProductReviews(product.id), []),
+		orFallback(fetchRelatedProducts(product), []),
+		productYoast(product.slug),
 	]);
 
 	// Stesse schede del tema WooCommerce, mostrate solo se hanno contenuto
@@ -76,6 +84,7 @@ export default async function ProductPage({ params }: Props) {
 
 	return (
 		<>
+			<JsonLd json={buildJsonLd(yoast, [productSchema(product)])} />
 			<PageTitle title="Shop" as="p" />
 			<main className="qodef-content-grid pb-[100px] pt-[97px]">
 				<div className="grid grid-cols-1 gap-y-12 desk:grid-cols-[630fr_470fr]">
