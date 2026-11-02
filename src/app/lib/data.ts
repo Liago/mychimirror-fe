@@ -46,12 +46,13 @@ export async function fetchBooks(): Promise<Book[]> {
 		fetchJSON<{ data: RawBook[] }>(
 			process.env.BOOKS_EDITED_DATA,
 			"BOOKS_EDITED_DATA",
-			{ tags: ["books"] }
+			// Il DB dei libri non avvisa quando cambia: aggiornamento ogni ora
+			{ tags: ["books"], revalidate: 3600 }
 		),
 		fetchJSON<{ data: RawReview[] }>(
 			process.env.BOOKS_REVIEWS_DATA,
 			"BOOKS_REVIEWS_DATA",
-			{ tags: ["reviews"] }
+			{ tags: ["reviews"], revalidate: 3600 }
 		),
 	]);
 

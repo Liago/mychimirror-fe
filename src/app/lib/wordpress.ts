@@ -1,4 +1,6 @@
-const DEFAULT_REVALIDATE = 3600;
+// 24 ore: i contenuti WordPress vengono aggiornati subito dalla revalidazione
+// on-demand (/api/revalidate), il tempo serve solo come rete di sicurezza
+const DEFAULT_REVALIDATE = 86400;
 
 export type FetchOptions = {
 	tags?: string[];

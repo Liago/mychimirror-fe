@@ -55,7 +55,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - `sitemap.xml`, `robots.txt`, canonical, redirect dei vecchi URL non più usati
 - Banner cookie iubenda, analytics (da decidere: Vercel Analytics / GA4)
 
-### F5 — Integrazione CMS (≈1-2 gg)
+### F5 — Integrazione CMS ✅ (02/11/2026; da attivare con mu-plugin, costanti in wp-config e variabili su Vercel)
 - `/api/revalidate` chiamato da WP (`save_post`, webhook prodotti) → revalidazione on-demand
 - Draft Mode per le anteprime dall'editor WP
 

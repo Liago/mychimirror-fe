@@ -47,6 +47,8 @@ src/app/
   lib/actions.ts                  # server actions: commenti, recensioni, scroll infinito, form contatti (CF7)
   lib/site.ts                     # SITE_URL
   lib/seo.ts                      # metadata da Yoast (yoast_head_json), JSON-LD, schema Product
+  lib/revalidate.ts, api/revalidate/route.ts   # revalidazione on-demand: evento WordPress -> tag di cache
+  lib/preview.ts, api/preview/, api/exit-preview/, anteprima/[type]/[id]/   # anteprime bozze (Draft Mode)
   sitemap.ts, robots.ts, icon.png, apple-icon.png   # SEO e icone (logo "MM")
   lib/shop.ts                     # catalogo: prodotti, categorie, descrizione (REST WP), recensioni, correlati
   lib/cart.ts, lib/cartActions.ts # carrello Store API (Cart-Token in cookie httpOnly) e server action
@@ -110,7 +112,8 @@ Stato del backend WordPress (verificato su live):
 
 - `.env` non è tracciato (contiene credenziali): le variabili sono documentate in `.env.example`.
 - **Deploy**: Vercel, progetto collegato al repo GitHub (push su `main` → deploy). Staging: https://mychimirror-fe-three.vercel.app. Finché `NEXT_PUBLIC_ALLOW_INDEXING` non è `"true"` ogni risposta ha `X-Robots-Tag: noindex` e `robots.txt` blocca tutto: si attiva solo al go-live sul dominio vero.
-- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout) e `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare).
+- **Cache**: le fetch verso WordPress durano 24h (`DEFAULT_REVALIDATE`) perché WordPress avvisa a ogni modifica via `/api/revalidate` (mu-plugin `mcm-frontend-sync.php`); libri e recensioni dal DB custom restano a 1h. **Se aggiungi un tag di cache nuovo, aggiungilo anche a `tagsFor` in `lib/revalidate.ts`**, altrimenti quel dato non si aggiorna fino a 24h.
+- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout), `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare) e `mcm-frontend-sync.php` (revalidazione on-demand e link di anteprima; richiede le costanti `MCM_FRONTEND_URL`, `MCM_REVALIDATE_SECRET`, `MCM_PREVIEW_SECRET` in `wp-config.php`).
 - Pagina prodotto: la descrizione viene dalla REST di WordPress (`/wp/v2/product`) togliendo i `<style>`, perché la Store API lascia il CSS come testo. Le recensioni si leggono dalla Store API e si inviano a `wp-comments-post.php` (`submitProductReviewAction`).
 - **Checkout**: `/checkout/` reindirizza a `NEXT_PUBLIC_WORDPRESS_SITE_URL/checkout/?mcm_cart=<Cart-Token>`. Il carrello viene ripreso solo se su WordPress è installato `wordpress/mu-plugins/mcm-cart-handoff.php` (in `wp-content/mu-plugins/`).
 - Shop: i libri sono "Esauriti" su WooCommerce (si comprano dai link esterni nella descrizione); il fazzoletto è l'unico prodotto acquistabile ed è nascosto dal catalogo (`catalog_visibility: hidden`), quindi si raggiunge solo dalla sua pagina.
