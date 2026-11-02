@@ -16,11 +16,22 @@ type Props = {
 const CUSTOM_PAGES: Record<string, (props: { page: Page }) => Promise<React.ReactNode> | React.ReactNode> = {
 	"/blog/": BlogView,
 	"/contacts/": ContactView,
-	"/contatti/": ContactView,
 };
 
 // Pagine WooCommerce: arrivano con lo shop (F3)
 const SHOP_PAGES = new Set(["/shop/", "/cart/", "/checkout/", "/my-account/"]);
+
+// Pagine di vecchie versioni del sito, dismesse: rispondono 404 anche se esistono in WordPress
+const RETIRED_PAGES = new Set([
+	"/pillole/",
+	"/tematiche/",
+	"/pillole-emotive/",
+	"/i-racconti-di-fragola-capitolo-1/",
+	"/i-racconti-di-fragola-capitolo-ii/",
+	"/i-racconti-di-fragola-capitolo-iii/",
+	"/i-racconti-di-fragola-capitolo-iv/",
+	"/i-racconti-di-fragola-capitolo-v/",
+]);
 
 type Parsed = { uri: string; page: number };
 
@@ -44,7 +55,9 @@ function parseSegments(segments: string[]): Parsed | null {
 
 async function load(params: Props["params"]): Promise<{ node: ContentNode; page: number } | null> {
 	const parsed = parseSegments((await params).uri);
-	if (!parsed || SHOP_PAGES.has(parsed.uri)) return null;
+	if (!parsed || SHOP_PAGES.has(parsed.uri) || RETIRED_PAGES.has(parsed.uri)) {
+		return null;
+	}
 
 	const node = await resolveUri(parsed.uri);
 	if (!node) return null;

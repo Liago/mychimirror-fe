@@ -61,7 +61,7 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
         }}
         className="font-open-sans text-[11px] font-medium uppercase leading-[25px] tracking-[0.4em] text-black transition-colors hover:text-fake-black"
       >
-        {open ? "Annulla" : "Reply"}
+        {open ? "Annulla" : "Rispondi"}
       </button>
 
       {feedback && (
@@ -79,7 +79,7 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
         <form onSubmit={handleSubmit} className="mt-4 max-w-xl">
           <textarea
             required
-            placeholder="Your Comment *"
+            placeholder="Il tuo commento *"
             aria-label="Risposta"
             rows={4}
             value={content}
@@ -89,7 +89,7 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
           <input
             type="text"
             required
-            placeholder="Your Name *"
+            placeholder="Il tuo nome *"
             aria-label="Nome"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
@@ -98,7 +98,7 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
           <input
             type="email"
             required
-            placeholder="Your Email *"
+            placeholder="La tua email *"
             aria-label="Email"
             value={authorEmail}
             onChange={(e) => setAuthorEmail(e.target.value)}

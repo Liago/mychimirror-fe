@@ -1,74 +1,79 @@
+import { cleanText } from "@/utility/utils";
+
 import { fetchGraphQL, fetchJSON } from "./wordpress";
 
-export async function fetchRecentPosts() {
-  const data = await fetchGraphQL<any>(
-    /* GraphQL */ `
-      query RecentPosts {
-        posts(first: 3) {
-          nodes {
-            id
-            slug
-            title
-            date
-            commentCount
-            featuredImage {
-              node {
-                mediaItemUrl
-              }
-            }
-          }
-        }
-      }
-    `,
-    undefined,
-    { tags: ["posts"] }
-  );
+export type BookReview = {
+	id: number;
+	user: string;
+	review: string;
+	rating: number;
+	link: string | null;
+};
 
-	return {
-		props: {
-			posts: data.posts.nodes,
-		},
-	};
-}
+export type Book = {
+	id: number;
+	title: string;
+	plot: string;
+	coverArt: string;
+	publicationYear: number;
+	reviews: BookReview[];
+};
 
-export async function getYouTubeData() {
-	const data = await fetchJSON<any>(
-		process.env.YOUTUBE_VIDEO_DATA,
-		"YOUTUBE_VIDEO_DATA",
-		{ tags: ["videos"] }
-	);
+type RawBook = {
+	id: string | number;
+	title: string;
+	plot: string | null;
+	coverArt: string;
+	publication_year: string | number;
+	visible: string | number;
+};
 
-	return {
-		props: {
-			videos: data,
-		},
-	};
-}
-export async function getBooksData() {
-	const data = await fetchJSON<any>(
-		process.env.BOOKS_EDITED_DATA,
-		"BOOKS_EDITED_DATA",
-		{ tags: ["books"] }
-	);
+type RawReview = {
+	id: string | number;
+	user: string;
+	review: string;
+	rating: string | number;
+	bookId: string | number;
+	link?: string | null;
+};
 
-	return {
-		props: {
-			books: data,
-		},
-	};
-}
-export async function getBooksReviews() {
-	const data = await fetchJSON<any>(
-		process.env.BOOKS_REVIEWS_DATA,
-		"BOOKS_REVIEWS_DATA",
-		{ tags: ["reviews"] }
-	);
+/**
+ * Libri visibili, dal più vecchio al più recente come sulla home, ognuno
+ * con le sue recensioni (endpoint PHP sul server WordPress, tabelle MySQL).
+ */
+export async function fetchBooks(): Promise<Book[]> {
+	const [books, reviews] = await Promise.all([
+		fetchJSON<{ data: RawBook[] }>(
+			process.env.BOOKS_EDITED_DATA,
+			"BOOKS_EDITED_DATA",
+			{ tags: ["books"] }
+		),
+		fetchJSON<{ data: RawReview[] }>(
+			process.env.BOOKS_REVIEWS_DATA,
+			"BOOKS_REVIEWS_DATA",
+			{ tags: ["reviews"] }
+		),
+	]);
 
-	return {
-		props: {
-			reviews: data,
-		},
-	};
+	return books.data
+		.filter((b) => Number(b.visible) === 1)
+		.map((b) => ({
+			id: Number(b.id),
+			title: cleanText(b.title),
+			plot: cleanText(b.plot ?? ""),
+			coverArt: b.coverArt,
+			publicationYear: Number(b.publication_year),
+			reviews: reviews.data
+				.filter((r) => Number(r.bookId) === Number(b.id))
+				.map((r) => ({
+					id: Number(r.id),
+					user: cleanText(r.user),
+					review: cleanText(r.review),
+					rating: Number(r.rating) || 0,
+					link: r.link || null,
+				})),
+		}))
+		.sort((a, b) => a.publicationYear - b.publicationYear || a.id - b.id);
 }
 
 export type MenuItem = {

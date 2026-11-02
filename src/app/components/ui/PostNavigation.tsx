@@ -46,7 +46,7 @@ const PostNavigation = ({ previous, next }: Props) => {
 					aria-label={`Post precedente: ${previous.title}`}
 				>
 					<Chevron direction="left" />
-					Prev post
+					Articolo precedente
 				</NextLink>
 			) : (
 				<span />
@@ -57,7 +57,7 @@ const PostNavigation = ({ previous, next }: Props) => {
 					className={linkClassName}
 					aria-label={`Post successivo: ${next.title}`}
 				>
-					Next post
+					Articolo successivo
 					<Chevron direction="right" />
 				</NextLink>
 			) : (

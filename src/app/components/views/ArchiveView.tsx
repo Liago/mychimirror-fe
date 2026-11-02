@@ -26,7 +26,7 @@ export default async function ArchiveView({ archive, page }: Props) {
 	});
 	if (!list) notFound();
 
-	const label = archive.kind === "category" ? "Category" : "Tag";
+	const label = archive.kind === "category" ? "Categoria" : "Tag";
 
 	return (
 		<>

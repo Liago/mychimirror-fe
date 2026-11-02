@@ -64,7 +64,7 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         <textarea
           required
           rows={6}
-          placeholder="Your Comment *"
+          placeholder="Il tuo commento *"
           aria-label="Commento"
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -73,7 +73,7 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         <input
           type="text"
           required
-          placeholder="Your Name *"
+          placeholder="Il tuo nome *"
           aria-label="Nome"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
@@ -82,7 +82,7 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         <input
           type="email"
           required
-          placeholder="Your Email *"
+          placeholder="La tua email *"
           aria-label="Email"
           value={authorEmail}
           onChange={(e) => setAuthorEmail(e.target.value)}
@@ -90,7 +90,7 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         />
         <input
           type="url"
-          placeholder="Website"
+          placeholder="Sito web"
           aria-label="Sito web"
           value={authorUrl}
           onChange={(e) => setAuthorUrl(e.target.value)}

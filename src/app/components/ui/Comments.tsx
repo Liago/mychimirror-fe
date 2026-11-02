@@ -84,7 +84,7 @@ const Comments = ({ comments, postDatabaseId, postUri }: Props) => {
       {count > 0 && (
         <>
           <h4 className="font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-black">
-            Comments ({count})
+            Commenti ({count})
           </h4>
           <ul>
             {tree.map((node) => (

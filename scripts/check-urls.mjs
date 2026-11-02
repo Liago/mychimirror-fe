@@ -10,6 +10,19 @@
  */
 
 const SITEMAP_INDEX = "https://www.mychicmirror.com/sitemap_index.xml";
+
+// Risposte attese diverse da 200: pagine dismesse (404) e redirect volute
+const EXPECTED = {
+	"/pillole/": 404,
+	"/tematiche/": 404,
+	"/pillole-emotive/": 404,
+	"/i-racconti-di-fragola-capitolo-1/": 404,
+	"/i-racconti-di-fragola-capitolo-ii/": 404,
+	"/i-racconti-di-fragola-capitolo-iii/": 404,
+	"/i-racconti-di-fragola-capitolo-iv/": 404,
+	"/i-racconti-di-fragola-capitolo-v/": 404,
+	"/contatti/": 301,
+};
 const CONCURRENCY = 4;
 
 const args = process.argv.slice(2);
@@ -52,7 +65,7 @@ for (let i = 0; i < urls.length; i += CONCURRENCY) {
 	results.push(...(await Promise.all(urls.slice(i, i + CONCURRENCY).map(check))));
 }
 
-const failed = results.filter((r) => r.status !== 200);
+const failed = results.filter((r) => r.status !== (EXPECTED[r.path] ?? 200));
 for (const r of failed) console.log(`${r.status}  ${r.path}`);
 console.log(`\nOK: ${results.length - failed.length}  KO: ${failed.length}`);
 process.exitCode = failed.length ? 1 : 0;

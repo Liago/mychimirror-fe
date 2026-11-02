@@ -1,48 +1,36 @@
-import { fetchRecentPosts } from "@/lib/data";
-import Image from "next/image";
-import { cinzel } from "@/assets/fonts";
+import { Fragment } from "react";
 
-import LastPostContainer from "@/components/ui/LastPostContainer";
-import SectionTitle from "@/components/ui/SectionTitle";
-import PressContainer from "@/components/ui/PressContainer";
-import InterviewContainer from "@/components/ui/InterviewContainer";
-import BooksContainer from "@/components/ui/BooksContainer";
+import { fetchPostList } from "@/lib/content";
+import { fetchBooks } from "@/lib/data";
+import { bookPressQuotes } from "@/lib/editorial";
+import BookPressQuote from "@/components/home/BookPressQuote";
+import BookSection from "@/components/home/BookSection";
+import LatestPosts from "@/components/home/LatestPosts";
+import NewsletterBanner from "@/components/home/NewsletterBanner";
+import PressBanner from "@/components/home/PressBanner";
+import RetailerLogos from "@/components/home/RetailerLogos";
 
 export default async function Home() {
-	const data = await fetchRecentPosts();
-	const { props } = data;
+	const [latest, books] = await Promise.all([
+		fetchPostList({ page: 1, perPage: 3 }),
+		fetchBooks(),
+	]);
 
 	return (
-		<>
-			<main className="block bg-nocciola">
-				<section className="relative block w-full">
-					<Image
-						alt="Melissa Cecchini per MyChicMirror"
-						src={process.env.MAIN_IMAGE_COVER_URL as string}
-						sizes="100vw"
-						style={{ width: "100%", height: "auto" }}
-						width={500}
-						height={300}
-					/>
-				</section>
-				<section className="flex min-h-screen flex-col items-center justify-between">
-					<div className="z-10 max-w-7xl w-full items-center">
-						<div className={cinzel.className}>
-							<SectionTitle className="my-10">Pillole</SectionTitle>
-							<LastPostContainer posts={props.posts} />
-						</div>
-					</div>
-				</section>
-				<section className="relative block w-full py-6">
-					<PressContainer />
-				</section>
-				<section className="relative block w-full py-6">
-					<InterviewContainer />
-				</section>
-				<section className="relative block w-full">
-					<BooksContainer />
-				</section>
-			</main>
-		</>
+		<main>
+			<LatestPosts posts={latest?.posts ?? []} />
+			<PressBanner />
+			{books.map((book) => {
+				const quote = bookPressQuotes[book.id];
+				return (
+					<Fragment key={book.id}>
+						<BookSection book={book} />
+						{quote && <BookPressQuote quote={quote} />}
+					</Fragment>
+				);
+			})}
+			<RetailerLogos />
+			<NewsletterBanner />
+		</main>
 	);
 }

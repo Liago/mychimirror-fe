@@ -5,6 +5,12 @@ const nextConfig = {
     trailingSlash: true,
     // C'è un package-lock.json in /Users/.../Projects: la root del progetto è questa cartella
     turbopack: { root: __dirname },
+    async redirects() {
+        return [
+            // Doppione di /contacts/ (la pagina nel menu)
+            { source: '/contatti/', destination: '/contacts/', statusCode: 301 },
+        ]
+    },
     images: {
         remotePatterns: [
           {
