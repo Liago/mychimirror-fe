@@ -31,7 +31,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Mettere in sicurezza `.env` (è tracciato in git): `git rm --cached .env`, aggiungere `.env.example`
 - Aggiornare Next.js 14 → 16.4 + React 19; NextUI sostituito con Tailwind puro; rimossi Apollo, Sass, lodash e dipendenze inutilizzate; ESLint 9 flat config
 - Layer dati unico `fetchGraphQL` con `fetch` nativo + cache tags (sostituisce Apollo lato server)
-- ⏳ Progetto Vercel collegato al repo GitHub, preview deploy automatici sulle PR (serve l'account)
+- ✅ Progetto Vercel collegato al repo GitHub (02/11/2026): staging su https://mychimirror-fe-three.vercel.app, non indicizzabile finché `NEXT_PUBLIC_ALLOW_INDEXING` non è `true`
 
 ### F1 — Layout e design system ✅ (30/10/2026, mini-cart rimandato a F3)
 - Header con menu da WP (`MAIN_NAVIGATION`), menu mobile, footer, mini-cart

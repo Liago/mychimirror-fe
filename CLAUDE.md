@@ -109,6 +109,7 @@ Stato del backend WordPress (verificato su live):
 ## Attenzione
 
 - `.env` non è tracciato (contiene credenziali): le variabili sono documentate in `.env.example`.
+- **Deploy**: Vercel, progetto collegato al repo GitHub (push su `main` → deploy). Staging: https://mychimirror-fe-three.vercel.app. Finché `NEXT_PUBLIC_ALLOW_INDEXING` non è `"true"` ogni risposta ha `X-Robots-Tag: noindex` e `robots.txt` blocca tutto: si attiva solo al go-live sul dominio vero.
 - **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout) e `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare).
 - Pagina prodotto: la descrizione viene dalla REST di WordPress (`/wp/v2/product`) togliendo i `<style>`, perché la Store API lascia il CSS come testo. Le recensioni si leggono dalla Store API e si inviano a `wp-comments-post.php` (`submitProductReviewAction`).
 - **Checkout**: `/checkout/` reindirizza a `NEXT_PUBLIC_WORDPRESS_SITE_URL/checkout/?mcm_cart=<Cart-Token>`. Il carrello viene ripreso solo se su WordPress è installato `wordpress/mu-plugins/mcm-cart-handoff.php` (in `wp-content/mu-plugins/`).

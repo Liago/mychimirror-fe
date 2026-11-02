@@ -1,10 +1,23 @@
 /** @type {import('next').NextConfig} */
 
+// Indicizzazione permessa solo sul dominio vero (da attivare al go-live):
+// su staging e anteprime ogni risposta ha X-Robots-Tag: noindex
+const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true'
+
 const nextConfig = {
     // Gli URL di WordPress finiscono tutti con "/": restano identici per la SEO
     trailingSlash: true,
     // C'è un package-lock.json in /Users/.../Projects: la root del progetto è questa cartella
     turbopack: { root: __dirname },
+    async headers() {
+        if (allowIndexing) return []
+        return [
+            {
+                source: '/:path*',
+                headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+            },
+        ]
+    },
     async redirects() {
         return [
             // Doppione di /contacts/ (la pagina nel menu)
