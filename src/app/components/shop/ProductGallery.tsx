@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { ProductImage } from "@/lib/shop";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
  * Immagine principale del prodotto con le miniature sotto, se ce ne sono più di una.
  */
 const ProductGallery = ({ images, name }: Props) => {
+	const { t } = useI18n();
 	const [active, setActive] = useState(0);
 	const main = images[active];
 	if (!main) return null;
@@ -36,7 +38,7 @@ const ProductGallery = ({ images, name }: Props) => {
 							<button
 								type="button"
 								onClick={() => setActive(i)}
-								aria-label={`Mostra immagine ${i + 1}`}
+								aria-label={t.shop.showImage(i + 1)}
 								aria-current={i === active ? "true" : undefined}
 								className="relative block aspect-[1/1] w-full opacity-60 transition-opacity hover:opacity-100 aria-[current=true]:opacity-100"
 							>

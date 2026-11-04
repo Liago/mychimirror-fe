@@ -2,12 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { featuredVideo, pressBanner } from "@/lib/editorial";
+import { getDict, localePath, type Locale } from "@/lib/i18n";
 import YouTubeFacade from "./YouTubeFacade";
 
 /**
  * Banner "Rassegna Stampa" a tutta larghezza seguito dal video in evidenza.
  */
-const PressBanner = () => {
+const PressBanner = ({ lang }: { lang: Locale }) => {
+	const t = getDict(lang);
+	const href = localePath(lang, pressBanner.href);
 	return (
 		<>
 			<section className="bg-[#FCFCFC]">
@@ -23,22 +26,22 @@ const PressBanner = () => {
 						<p>{pressBanner.category}</p>
 						<h2 className="font-cinzel text-[32px] font-normal leading-[1.05] tracking-[-0.03em] desk:text-[40px]">
 							<Link
-								href={pressBanner.href}
+								href={href}
 								className="transition-opacity hover:opacity-80"
 							>
-								{pressBanner.title}
+								{t.home.press}
 							</Link>
 						</h2>
 						<Link
-							href={pressBanner.href}
+							href={href}
 							className="mt-[10px] block text-lg transition-opacity hover:opacity-80"
 						>
-							Leggi di più
+							{t.common.readMore}
 						</Link>
 					</div>
 				</div>
 				<h3 className="pt-5 text-center font-cinzel text-[39px] font-light leading-none tracking-[-0.025em] text-black">
-					{featuredVideo.heading}
+					{t.home.videoHeading}
 				</h3>
 			</section>
 			<section className="bg-white">

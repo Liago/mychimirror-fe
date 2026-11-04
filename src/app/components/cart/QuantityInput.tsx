@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 type Props = {
 	value: number;
 	max: number;
@@ -23,6 +25,7 @@ const QuantityInput = ({
 	tone = "dark",
 	label,
 }: Props) => {
+	const { t } = useI18n();
 	const isSmall = size === "sm";
 	const color =
 		tone === "light" ? "text-white border-white/60" : "text-black border-separator";
@@ -34,7 +37,7 @@ const QuantityInput = ({
 				type="button"
 				onClick={() => set(value - 1)}
 				disabled={disabled || value <= 1}
-				aria-label="Diminuisci quantità"
+				aria-label={t.shop.decrease}
 				className={`font-cinzel leading-none disabled:opacity-40 ${
 					tone === "light" ? "text-white" : "text-black"
 				} ${isSmall ? "text-lg" : "text-2xl"}`}
@@ -57,7 +60,7 @@ const QuantityInput = ({
 				type="button"
 				onClick={() => set(value + 1)}
 				disabled={disabled || value >= max}
-				aria-label="Aumenta quantità"
+				aria-label={t.shop.increase}
 				className={`font-cinzel leading-none disabled:opacity-40 ${
 					tone === "light" ? "text-white" : "text-black"
 				} ${isSmall ? "text-lg" : "text-2xl"}`}

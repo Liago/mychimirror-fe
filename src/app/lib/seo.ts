@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { cleanText } from "@/utility/utils";
 
+import { DEFAULT_LOCALE, localePath, type Locale } from "./i18n";
 import type { Product } from "./shop";
 import { SITE_URL } from "./site";
 import { fetchREST } from "./wordpress";
@@ -88,7 +89,21 @@ type MetadataOptions = {
 	path?: string;
 	/** Titolo da usare se Yoast non ne ha uno */
 	fallbackTitle?: string;
+	lang?: Locale;
+	/** false: la versione inglese ha solo l'interfaccia tradotta e il canonical resta quello italiano */
+	translated?: boolean;
+	/** Titolo completo al posto di quello di Yoast */
+	title?: string;
+	/** Descrizione al posto di quella di Yoast */
+	description?: string;
 };
+
+/** Versioni linguistiche di una pagina, per i link hreflang. */
+export const languageAlternates = (path: string) => ({
+	it: `${SITE_URL}${path}`,
+	en: `${SITE_URL}${localePath("en", path)}`,
+	"x-default": `${SITE_URL}${path}`,
+});
 
 /**
  * Converte i dati Yoast nei Metadata di Next. Il titolo di Yoast contiene già
@@ -96,16 +111,26 @@ type MetadataOptions = {
  */
 export function yoastToMetadata(
 	yoast: YoastHead | null,
-	{ path, fallbackTitle }: MetadataOptions = {}
+	{
+		path,
+		fallbackTitle,
+		lang = DEFAULT_LOCALE,
+		translated = false,
+		title,
+		description: descriptionOverride,
+	}: MetadataOptions = {}
 ): Metadata {
-	if (!yoast) return fallbackTitle ? { title: fallbackTitle } : {};
+	if (!yoast) return title ? { title: { absolute: title } } : fallbackTitle ? { title: fallbackTitle } : {};
 
-	const canonical = path
-		? `${SITE_URL}${path}`
-		: yoast.canonical
-			? toPublicUrl(yoast.canonical)
-			: undefined;
-	const description = yoast.description ?? yoast.og_description;
+	const basePath =
+		path ?? (yoast.canonical ? new URL(yoast.canonical).pathname : undefined);
+	const canonical = basePath
+		? `${SITE_URL}${translated ? localePath(lang, basePath) : basePath}`
+		: undefined;
+	const description =
+		descriptionOverride ?? yoast.description ?? yoast.og_description;
+	const ogTitle = title ?? yoast.og_title;
+	const ogDescription = descriptionOverride ?? yoast.og_description;
 	const images = (yoast.og_image ?? []).map((img) => ({
 		url: toPublicUrl(img.url),
 		width: Number(img.width) || undefined,
@@ -114,20 +139,25 @@ export function yoastToMetadata(
 	}));
 
 	return {
-		title: yoast.title ? { absolute: cleanText(yoast.title) } : fallbackTitle,
+		title: title
+			? { absolute: cleanText(title) }
+			: yoast.title
+				? { absolute: cleanText(yoast.title) }
+				: fallbackTitle,
 		description: description ? cleanText(description) : undefined,
 		// alternates non si fonde con quello del layout: va ripetuto il feed RSS
 		alternates: {
 			...(canonical ? { canonical } : {}),
+			...(translated && basePath ? { languages: languageAlternates(basePath) } : {}),
 			types: { "application/rss+xml": `${SITE_URL}/feed/` },
 		},
 		robots: toRobots(yoast.robots),
 		openGraph: {
 			type: yoast.og_type === "article" ? "article" : "website",
-			locale: yoast.og_locale,
+			locale: lang === DEFAULT_LOCALE ? yoast.og_locale : "en_GB",
 			siteName: yoast.og_site_name,
-			title: yoast.og_title ? cleanText(yoast.og_title) : undefined,
-			description: yoast.og_description ? cleanText(yoast.og_description) : undefined,
+			title: ogTitle ? cleanText(ogTitle) : undefined,
+			description: ogDescription ? cleanText(ogDescription) : undefined,
 			url: canonical,
 			images,
 			...(yoast.og_type === "article"

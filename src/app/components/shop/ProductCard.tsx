@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { getDict, localePath, type Locale } from "@/lib/i18n";
 import type { Product } from "@/lib/shop";
 import Button from "@/components/ui/Button";
 import { formatPrice } from "@/utility/utils";
@@ -8,6 +9,7 @@ import AddToCartButton from "./AddToCartButton";
 
 type Props = {
 	product: Product;
+	lang: Locale;
 	/** Prodotti della prima riga: immagine caricata subito (LCP) */
 	priority?: boolean;
 };
@@ -16,7 +18,8 @@ type Props = {
  * Prodotto nella griglia dello shop: immagine quadrata con il bottone che
  * compare al passaggio del mouse, titolo e prezzo centrati.
  */
-const ProductCard = ({ product, priority = false }: Props) => {
+const ProductCard = ({ product, lang, priority = false }: Props) => {
+	const href = localePath(lang, product.uri);
 	const image = product.images[0];
 
 	return (
@@ -36,12 +39,12 @@ const ProductCard = ({ product, priority = false }: Props) => {
 					{product.purchasable ? (
 						<AddToCartButton productId={product.id} />
 					) : (
-						<Button href={product.uri}>Leggi tutto</Button>
+						<Button href={href}>{getDict(lang).common.readAll}</Button>
 					)}
 				</div>
 			</div>
 			<h2 className="mt-2 font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-black">
-				<Link href={product.uri} className="after:absolute after:inset-0">
+				<Link href={href} className="after:absolute after:inset-0">
 					{product.name}
 				</Link>
 			</h2>

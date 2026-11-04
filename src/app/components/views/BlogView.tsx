@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { fetchPostList, resolveUri, type Page } from "@/lib/content";
+import { pageTitle, type Locale } from "@/lib/i18n";
 import InfiniteMetroGrid from "@/components/ui/InfiniteMetroGrid";
 import PageTitle from "@/components/ui/PageTitle";
 
@@ -10,9 +11,10 @@ const BLOG_PER_PAGE = 8;
 
 type Props = {
 	page: Page;
+	lang: Locale;
 };
 
-export default async function BlogView({ page }: Props) {
+export default async function BlogView({ page, lang }: Props) {
 	const category = await resolveUri(BLOG_CATEGORY_URI);
 	if (!category || category.kind !== "category") notFound();
 
@@ -25,7 +27,7 @@ export default async function BlogView({ page }: Props) {
 
 	return (
 		<>
-			<PageTitle title={page.title} />
+			<PageTitle title={pageTitle(lang, page.uri, page.title)} />
 			<main className="qodef-content-grid py-[100px]">
 				<InfiniteMetroGrid
 					initial={initial}

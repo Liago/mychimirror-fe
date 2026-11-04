@@ -1,3 +1,4 @@
+import { localizeTitle } from "@/lib/postLocale";
 import { SITE_URL } from "@/lib/site";
 import { fetchREST } from "@/lib/wordpress";
 import { cleanText } from "@/utility/utils";
@@ -34,7 +35,7 @@ export async function GET() {
 		.map((post) => {
 			const url = `${SITE_URL}${new URL(post.link).pathname}`;
 			return `<item>
-<title>${escapeXml(plainText(post.title.rendered))}</title>
+<title>${escapeXml(plainText(localizeTitle(post.title.rendered, "it")))}</title>
 <link>${escapeXml(url)}</link>
 <guid isPermaLink="true">${escapeXml(url)}</guid>
 <pubDate>${new Date(`${post.date_gmt}Z`).toUTCString()}</pubDate>

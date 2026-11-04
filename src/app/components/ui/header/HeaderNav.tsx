@@ -5,7 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { MenuItem } from "@/lib/data";
+import { stripLocale } from "@/lib/i18n";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const LOGO_URL =
 	"https://www.mychicmirror.com/wp-content/uploads/MCM-TITLE_thin_whit_strawberries.png";
@@ -28,7 +31,8 @@ type Props = {
 };
 
 const HeaderNav = ({ menuItems }: Props) => {
-	const pathname = usePathname();
+	const { t, href } = useI18n();
+	const pathname = stripLocale(usePathname());
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const isCurrent = (uri: string) => pathname === uri;
@@ -37,7 +41,7 @@ const HeaderNav = ({ menuItems }: Props) => {
 		<>
 			<header className="relative hidden h-[100px] bg-white desk:block">
 				<div className="flex h-full items-center justify-between px-10">
-					<Link href="/" rel="home" className="shrink-0">
+					<Link href={href("/")} rel="home" className="shrink-0">
 						<Image
 							width={326}
 							height={52}
@@ -46,29 +50,30 @@ const HeaderNav = ({ menuItems }: Props) => {
 							priority
 						/>
 					</Link>
-					<nav aria-label="Menu principale" className="h-full">
+					<nav aria-label={t.nav.mainMenu} className="flex h-full items-center">
 						<ul className="flex h-full items-center">
 							{menuItems.map((item) => (
 								<li key={item.uri} className="group h-full">
 									<Link
-										href={item.uri}
+										href={href(item.uri)}
 										aria-current={isCurrent(item.uri) ? "page" : undefined}
 										className={`${linkClassName} flex h-full items-center whitespace-nowrap`}
 									>
 										<span className="block border-r border-separator pl-[25px] pr-[22px] leading-6 group-last:border-r-0">
-											{item.label}
+											{t.nav.labels[item.uri] ?? item.label}
 										</span>
 									</Link>
 								</li>
 							))}
 						</ul>
+						<LanguageSwitcher className="ml-6 border-l border-separator pl-6" />
 					</nav>
 				</div>
 			</header>
 
 			<header className="relative z-40 h-[70px] bg-mobile-header desk:hidden">
 				<div className="flex h-full items-center justify-between pl-6 pr-[34px]">
-					<Link href="/" rel="home" onClick={() => setIsMenuOpen(false)}>
+					<Link href={href("/")} rel="home" onClick={() => setIsMenuOpen(false)}>
 						<Image
 							width={262}
 							height={42}
@@ -79,7 +84,7 @@ const HeaderNav = ({ menuItems }: Props) => {
 					</Link>
 					<button
 						type="button"
-						aria-label={isMenuOpen ? "Chiudi menu" : "Apri menu"}
+						aria-label={isMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
 						aria-expanded={isMenuOpen}
 						aria-controls="mobile-menu"
 						onClick={() => setIsMenuOpen((v) => !v)}
@@ -97,22 +102,25 @@ const HeaderNav = ({ menuItems }: Props) => {
 				{isMenuOpen && (
 					<nav
 						id="mobile-menu"
-						aria-label="Menu principale"
+						aria-label={t.nav.mainMenu}
 						className="absolute inset-x-0 top-full bg-mobile-menu"
 					>
 						<ul className="qodef-content-grid py-[34px]">
 							{menuItems.map((item) => (
 								<li key={item.uri}>
 									<Link
-										href={item.uri}
+										href={href(item.uri)}
 										aria-current={isCurrent(item.uri) ? "page" : undefined}
 										onClick={() => setIsMenuOpen(false)}
 										className={`${linkClassName} block leading-10`}
 									>
-										{item.label}
+										{t.nav.labels[item.uri] ?? item.label}
 									</Link>
 								</li>
 							))}
+							<li className="mt-4 border-t border-separator pt-5">
+								<LanguageSwitcher />
+							</li>
 						</ul>
 					</nav>
 				)}

@@ -2,10 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { PostSummary } from "@/lib/content";
+import { getDict, localePath, termName, type Locale } from "@/lib/i18n";
+import { localizeTitle } from "@/lib/postLocale";
 import { formatThemeDate } from "@/utility/utils";
 
 type Props = {
 	post: PostSummary;
+	lang: Locale;
 	/**
 	 * "archive": immagine intera e titolo piccolo (archivi categoria/tag);
 	 * "box": immagine ritagliata 417×292 e titolo h3 (ultimi post in home).
@@ -16,7 +19,9 @@ type Props = {
 /**
  * Card di un post: immagine, data, titolo, categorie e commenti.
  */
-const PostCard = ({ post, variant = "archive" }: Props) => {
+const PostCard = ({ post, lang, variant = "archive" }: Props) => {
+	const t = getDict(lang);
+	const postHref = localePath(lang, post.uri);
 	const isBox = variant === "box";
 	const TitleTag = isBox ? "h3" : "h2";
 
@@ -24,7 +29,7 @@ const PostCard = ({ post, variant = "archive" }: Props) => {
 		<article>
 			{post.image && (
 				<Link
-					href={post.uri}
+					href={postHref}
 					tabIndex={-1}
 					aria-hidden="true"
 					className={isBox ? "relative block aspect-[417/292]" : "block"}
@@ -49,7 +54,7 @@ const PostCard = ({ post, variant = "archive" }: Props) => {
 					)}
 				</Link>
 			)}
-			<p className="mb-1 mt-[17px] font-medium">{formatThemeDate(post.date)}</p>
+			<p className="mb-1 mt-[17px] font-medium">{formatThemeDate(post.date, t.dateLocale)}</p>
 			<TitleTag
 				className={`font-cinzel text-black ${
 					isBox
@@ -58,9 +63,9 @@ const PostCard = ({ post, variant = "archive" }: Props) => {
 				}`}
 			>
 				<Link
-					href={post.uri}
+					href={postHref}
 					className="transition-colors hover:text-fake-black"
-					dangerouslySetInnerHTML={{ __html: post.title }}
+					dangerouslySetInnerHTML={{ __html: localizeTitle(post.title, lang) }}
 				/>
 			</TitleTag>
 			<div
@@ -72,20 +77,20 @@ const PostCard = ({ post, variant = "archive" }: Props) => {
 					{post.categories.map((cat, i) => (
 						<span key={cat.uri}>
 							<Link
-								href={cat.uri}
+								href={localePath(lang, cat.uri)}
 								className="text-black transition-colors hover:text-fake-black"
 							>
-								{cat.name}
+								{termName(lang, cat.name)}
 							</Link>
 							{i < post.categories.length - 1 && ", "}
 						</span>
 					))}
 				</div>
 				<Link
-					href={`${post.uri}#comments`}
+					href={`${postHref}#comments`}
 					className="text-black transition-colors hover:text-fake-black"
 				>
-					{post.commentCount} {post.commentCount === 1 ? "commento" : "commenti"}
+					{t.post.commentCount(post.commentCount)}
 				</Link>
 			</div>
 		</article>

@@ -6,14 +6,12 @@
 const UPLOADS = "https://www.mychicmirror.com/wp-content/uploads";
 
 export const featuredVideo = {
-	heading: "Intervista andata in onda su TeleRomagna il 22/11/2022",
 	youtubeId: "iDyM0mtqC28",
 	title: "Pillole emotive",
 };
 
 export const pressBanner = {
 	category: "press",
-	title: "Rassegna Stampa",
 	href: "/portfolio-item/press/",
 	image: { url: `${UPLOADS}/pexels-markus-spiske-97050-2-1300x650.jpg`, width: 1300, height: 650 },
 };
@@ -64,14 +62,8 @@ export const retailers = [
 	{ name: "Mondadori Store", href: "https://www.mondadoristore.it/", logo: `${UPLOADS}/logo-1.png`, width: 231, height: 37 },
 ];
 
-export const newsletter = {
-	title: ["Iscriviti alla", "mia Newsletter"],
-	text: "Resta aggiornato a tutti gli eventi, le pubblicazioni e molto altro!",
-};
-
 /** Pagina /portfolio-item/press/ (tipo di contenuto del tema, non esposto dalle API). */
 export const pressPage = {
-	title: "Rassegna Stampa",
 	subject: "Pillole Emotive",
 	description: "Da \"Il Corriere di Romagna\" e \"Il Resto del Carlino\"",
 	date: "2022-10-16",

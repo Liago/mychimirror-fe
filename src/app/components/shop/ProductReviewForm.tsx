@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { submitProductReviewAction } from "@/lib/actions";
 import Button from "@/components/ui/Button";
 import { inputClassName } from "@/components/ui/commentFormStyles";
@@ -11,9 +12,8 @@ type Props = {
 	productSlug: string;
 };
 
-const RATING_LABELS = ["Pessimo", "Scarso", "Nella media", "Buono", "Perfetto"];
-
 const ProductReviewForm = ({ productId, productSlug }: Props) => {
+	const { lang, t } = useI18n();
 	const [rating, setRating] = useState(0);
 	const [review, setReview] = useState("");
 	const [author, setAuthor] = useState("");
@@ -39,15 +39,18 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 				setFeedback({
 					type: "success",
 					message: result.pending
-						? "Grazie! La tua recensione è in attesa di approvazione."
-						: "Recensione pubblicata.",
+						? t.shop.reviewPending
+						: t.shop.reviewPublished,
 				});
 				setRating(0);
 				setReview("");
 				setAuthor("");
 				setEmail("");
 			} else {
-				setFeedback({ type: "error", message: result.error });
+				setFeedback({
+					type: "error",
+					message: lang === "it" ? result.error : t.common.formError,
+				});
 			}
 		});
 	};
@@ -55,15 +58,14 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 	return (
 		<form onSubmit={handleSubmit}>
 			<p className="mb-[30px]">
-				Il tuo indirizzo email non sarà pubblicato. I campi obbligatori sono
-				contrassegnati *
+				{t.post.emailNote}
 			</p>
 			<fieldset>
 				<legend id="rating-label" className="mb-[5px]">
-					La tua valutazione *
+					{t.shop.yourRating}
 				</legend>
 				<div role="radiogroup" aria-labelledby="rating-label" className="flex gap-1">
-					{RATING_LABELS.map((label, i) => {
+					{t.shop.ratings.map((label, i) => {
 						const value = i + 1;
 						return (
 							<button
@@ -71,7 +73,7 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 								type="button"
 								role="radio"
 								aria-checked={rating === value}
-								aria-label={`${value} ${value === 1 ? "stella" : "stelle"} su 5: ${label}`}
+								aria-label={t.shop.ratingLabel(value, label)}
 								onClick={() => setRating(value)}
 								className={`text-xl leading-none ${
 									value <= rating ? "text-fake-black" : "text-separator"
@@ -86,8 +88,8 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 			<textarea
 				required
 				rows={8}
-				placeholder="La tua recensione *"
-				aria-label="La tua recensione"
+				placeholder={t.shop.yourReview}
+				aria-label={t.shop.yourReview}
 				value={review}
 				onChange={(e) => setReview(e.target.value)}
 				className="mb-[9px] mt-[17px] w-full border border-separator bg-transparent py-[11px] pl-[5px] leading-6 placeholder:text-body-text focus:border-black focus:outline-none"
@@ -95,8 +97,8 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 			<input
 				type="text"
 				required
-				placeholder="Il tuo nome *"
-				aria-label="Il tuo nome"
+				placeholder={t.post.yourName}
+				aria-label={t.post.yourName}
 				value={author}
 				onChange={(e) => setAuthor(e.target.value)}
 				className={inputClassName}
@@ -104,8 +106,8 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 			<input
 				type="email"
 				required
-				placeholder="La tua email *"
-				aria-label="La tua email"
+				placeholder={t.post.yourEmail}
+				aria-label={t.post.yourEmail}
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 				className={inputClassName}
@@ -122,7 +124,7 @@ const ProductReviewForm = ({ productId, productSlug }: Props) => {
 			)}
 			<div className="mt-8">
 				<Button type="submit" variant="outlined" disabled={pending}>
-					{pending ? "Invio..." : "Invia"}
+					{pending ? t.post.sending : t.post.send}
 				</Button>
 			</div>
 		</form>

@@ -6,6 +6,7 @@ import { buildJsonLd, fetchYoastHead, yoastToMetadata } from "@/lib/seo";
 import JsonLd from "@/components/ui/JsonLd";
 import { fetchBooks } from "@/lib/data";
 import { bookPressQuotes } from "@/lib/editorial";
+import { getDict, isLocale, type Locale } from "@/lib/i18n";
 import BookPressQuote from "@/components/home/BookPressQuote";
 import BookSection from "@/components/home/BookSection";
 import LatestPosts from "@/components/home/LatestPosts";
@@ -19,11 +20,30 @@ async function homeYoast() {
 	return front ? fetchYoastHead(`/wp/v2/pages/${front.databaseId}`) : null;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-	return yoastToMetadata(await homeYoast(), { fallbackTitle: "MyChicMirror" });
+type Props = {
+	params: Promise<{ lang: string }>;
+};
+
+async function getLang(params: Props["params"]): Promise<Locale> {
+	const { lang } = await params;
+	return isLocale(lang) ? lang : "it";
 }
 
-export default async function Home() {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+	const lang = await getLang(params);
+	return yoastToMetadata(await homeYoast(), {
+		fallbackTitle: "MyChicMirror",
+		lang,
+		path: "/",
+		translated: true,
+		...(lang === "en"
+			? { title: "MyChicMirror", description: getDict(lang).home.description }
+			: {}),
+	});
+}
+
+export default async function Home({ params }: Props) {
+	const lang = await getLang(params);
 	const [latest, books, yoast] = await Promise.all([
 		fetchPostList({ page: 1, perPage: 3 }),
 		fetchBooks(),
@@ -32,20 +52,20 @@ export default async function Home() {
 
 	return (
 		<main>
-			<JsonLd json={buildJsonLd(yoast)} />
-			<LatestPosts posts={latest?.posts ?? []} />
-			<PressBanner />
+			{lang === "it" && <JsonLd json={buildJsonLd(yoast)} />}
+			<LatestPosts posts={latest?.posts ?? []} lang={lang} />
+			<PressBanner lang={lang} />
 			{books.map((book) => {
 				const quote = bookPressQuotes[book.id];
 				return (
 					<Fragment key={book.id}>
-						<BookSection book={book} />
-						{quote && <BookPressQuote quote={quote} />}
+						<BookSection book={book} lang={lang} />
+						{quote && <BookPressQuote quote={quote} lang={lang} />}
 					</Fragment>
 				);
 			})}
 			<RetailerLogos />
-			<NewsletterBanner />
+			<NewsletterBanner lang={lang} />
 		</main>
 	);
 }

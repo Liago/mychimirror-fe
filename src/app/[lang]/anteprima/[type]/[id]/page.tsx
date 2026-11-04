@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 
+import { getDict, isLocale } from "@/lib/i18n";
 import { PreviewError, fetchPreview } from "@/lib/preview";
 import PageView from "@/components/views/PageView";
 import PostView from "@/components/views/PostView";
 
 type Props = {
-	params: Promise<{ type: string; id: string }>;
+	params: Promise<{ lang: string; type: string; id: string }>;
 };
 
 export const metadata: Metadata = {
@@ -21,8 +22,9 @@ export const metadata: Metadata = {
 export default async function PreviewPage({ params }: Props) {
 	if (!(await draftMode()).isEnabled) notFound();
 
-	const { type, id } = await params;
-	if (type !== "post" && type !== "page") notFound();
+	const { lang, type, id } = await params;
+	if (!isLocale(lang) || (type !== "post" && type !== "page")) notFound();
+	const t = getDict(lang).preview;
 
 	let content;
 	try {
@@ -42,16 +44,16 @@ export default async function PreviewPage({ params }: Props) {
 	return (
 		<>
 			<div className="bg-black py-2 text-center font-open-sans text-xs uppercase tracking-[0.2em] text-white">
-				Anteprima: non pubblicato ·{" "}
+				{t.bar} ·{" "}
 				{/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
 				<a href="/api/exit-preview/" className="underline">
-					Esci dall&apos;anteprima
+					{t.exit}
 				</a>
 			</div>
 			{content.kind === "post" ? (
-				<PostView post={content} />
+				<PostView post={content} lang={lang} path={`/anteprima/post/${id}/`} />
 			) : (
-				<PageView page={content} />
+				<PageView page={content} lang={lang} />
 			)}
 		</>
 	);

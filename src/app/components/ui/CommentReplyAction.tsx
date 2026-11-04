@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { createCommentAction } from "@/lib/actions";
 import Button from "./Button";
 import { inputClassName, textareaClassName } from "./commentFormStyles";
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
+  const { lang, t } = useI18n();
   const [open, setOpen] = useState(false);
   const [author, setAuthor] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -38,15 +40,18 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
         setFeedback({
           type: "success",
           message: result.pending
-            ? "Grazie! Il tuo commento è in attesa di moderazione."
-            : "Commento pubblicato.",
+            ? t.post.commentPending
+            : t.post.commentPublished,
         });
         setAuthor("");
         setAuthorEmail("");
         setContent("");
         setOpen(false);
       } else {
-        setFeedback({ type: "error", message: result.error });
+        setFeedback({
+          type: "error",
+          message: lang === "it" ? result.error : t.common.formError,
+        });
       }
     });
   };
@@ -61,7 +66,7 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
         }}
         className="font-open-sans text-[11px] font-medium uppercase leading-[25px] tracking-[0.4em] text-black transition-colors hover:text-fake-black"
       >
-        {open ? "Annulla" : "Rispondi"}
+        {open ? t.post.cancel : t.post.reply}
       </button>
 
       {feedback && (
@@ -79,8 +84,8 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
         <form onSubmit={handleSubmit} className="mt-4 max-w-xl">
           <textarea
             required
-            placeholder="Il tuo commento *"
-            aria-label="Risposta"
+            placeholder={t.post.yourComment}
+            aria-label={t.post.reply}
             rows={4}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -89,8 +94,8 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
           <input
             type="text"
             required
-            placeholder="Il tuo nome *"
-            aria-label="Nome"
+            placeholder={t.post.yourName}
+            aria-label={t.post.yourName}
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             className={inputClassName}
@@ -98,15 +103,15 @@ const CommentReplyAction = ({ postDatabaseId, postUri, parentId }: Props) => {
           <input
             type="email"
             required
-            placeholder="La tua email *"
-            aria-label="Email"
+            placeholder={t.post.yourEmail}
+            aria-label={t.post.yourEmail}
             value={authorEmail}
             onChange={(e) => setAuthorEmail(e.target.value)}
             className={inputClassName}
           />
           <div className="mt-6">
             <Button type="submit" variant="outlined" disabled={pending}>
-              {pending ? "Invio..." : "Invia"}
+              {pending ? t.post.sending : t.post.send}
             </Button>
           </div>
         </form>

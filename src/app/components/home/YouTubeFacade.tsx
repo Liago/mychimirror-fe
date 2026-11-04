@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 type Props = {
 	youtubeId: string;
 	title: string;
@@ -13,6 +15,7 @@ type Props = {
  * script, cookie di terze parti) si carica solo quando l'utente fa clic.
  */
 const YouTubeFacade = ({ youtubeId, title }: Props) => {
+	const { t } = useI18n();
 	const [playing, setPlaying] = useState(false);
 
 	if (playing) {
@@ -32,7 +35,7 @@ const YouTubeFacade = ({ youtubeId, title }: Props) => {
 		<button
 			type="button"
 			onClick={() => setPlaying(true)}
-			aria-label={`Riproduci il video: ${title}`}
+			aria-label={t.home.playVideo(title)}
 			className="group absolute inset-0 h-full w-full"
 		>
 			<Image

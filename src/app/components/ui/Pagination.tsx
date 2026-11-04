@@ -1,10 +1,13 @@
 import Link from "next/link";
 
+import { getDict, localePath, type Locale } from "@/lib/i18n";
+
 type Props = {
 	/** URI della prima pagina, es. "/category/blog/" */
 	baseUri: string;
 	page: number;
 	totalPages: number;
+	lang: Locale;
 };
 
 const pageUri = (baseUri: string, page: number) =>
@@ -31,18 +34,20 @@ function visiblePages(page: number, totalPages: number): (number | "dots")[] {
 const arrowClassName =
 	"px-[3px] text-[21px] text-[#7D7D7D] transition-colors hover:text-black";
 
-const Pagination = ({ baseUri, page, totalPages }: Props) => {
+const Pagination = ({ baseUri, page, totalPages, lang }: Props) => {
 	if (totalPages <= 1) return null;
+	const t = getDict(lang).archive;
+	const href = (p: number) => localePath(lang, pageUri(baseUri, p));
 
 	return (
 		<nav
-			aria-label="Paginazione"
+			aria-label={t.pagination}
 			className="mt-[60px] flex items-center justify-center gap-[9px]"
 		>
 			{page > 1 && (
 				<Link
-					href={pageUri(baseUri, page - 1)}
-					aria-label="Pagina precedente"
+					href={href(page - 1)}
+					aria-label={t.prevPage}
 					className={arrowClassName}
 				>
 					‹
@@ -56,7 +61,7 @@ const Pagination = ({ baseUri, page, totalPages }: Props) => {
 				) : (
 					<Link
 						key={p}
-						href={pageUri(baseUri, p)}
+						href={href(p)}
 						aria-current={p === page ? "page" : undefined}
 						className="px-[3px] font-cinzel text-lg text-[#7D7D7D] transition-colors hover:text-black aria-[current=page]:text-black"
 					>
@@ -66,8 +71,8 @@ const Pagination = ({ baseUri, page, totalPages }: Props) => {
 			)}
 			{page < totalPages && (
 				<Link
-					href={pageUri(baseUri, page + 1)}
-					aria-label="Pagina successiva"
+					href={href(page + 1)}
+					aria-label={t.nextPage}
 					className={arrowClassName}
 				>
 					›

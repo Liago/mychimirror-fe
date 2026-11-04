@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { PostList } from "@/lib/content";
 import { loadPostListAction } from "@/lib/actions";
 import MetroTile from "./MetroTile";
@@ -17,6 +18,7 @@ type Props = {
  * quando la sentinella entra nel viewport carica la pagina successiva.
  */
 const InfiniteMetroGrid = ({ initial, categoryId, perPage }: Props) => {
+	const { t } = useI18n();
 	const [posts, setPosts] = useState(initial.posts);
 	const [page, setPage] = useState(initial.page);
 	const [failed, setFailed] = useState(false);
@@ -65,7 +67,7 @@ const InfiniteMetroGrid = ({ initial, categoryId, perPage }: Props) => {
 					{pending && (
 						<span
 							role="status"
-							aria-label="Caricamento"
+							aria-label={t.common.loading}
 							className="block h-px w-[50px] animate-pulse bg-separator"
 						/>
 					)}

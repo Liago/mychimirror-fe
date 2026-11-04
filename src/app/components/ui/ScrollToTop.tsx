@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 const SCROLL_THRESHOLD = 300;
 
 const ScrollToTop = () => {
+  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -24,7 +27,7 @@ const ScrollToTop = () => {
     <button
       type="button"
       onClick={handleClick}
-      aria-label="Torna su"
+      aria-label={t.common.backToTop}
       className={`fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-fake-black/30 bg-white text-fake-black shadow-md transition-opacity duration-200 hover:bg-fake-black hover:text-white ${
         visible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}

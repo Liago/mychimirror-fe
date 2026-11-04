@@ -1,4 +1,5 @@
 import type { CommentNode } from "@/lib/content";
+import { getDict, type Locale } from "@/lib/i18n";
 
 import CommentReplyAction from "./CommentReplyAction";
 import LeaveCommentForm from "./LeaveCommentForm";
@@ -11,10 +12,11 @@ type Props = {
   comments: CommentNode[];
   postDatabaseId: number;
   postUri: string;
+  lang: Locale;
 };
 
-function resolveAuthorName(node: CommentAuthorNode): string {
-  return node.username || node.name || "Anonimo";
+function resolveAuthorName(node: CommentAuthorNode, fallback: string): string {
+  return node.username || node.name || fallback;
 }
 
 function buildTree(comments: CommentNode[]): TreeNode[] {
@@ -38,16 +40,18 @@ const CommentItem = ({
   depth,
   postDatabaseId,
   postUri,
+  lang,
 }: {
   node: TreeNode;
   depth: number;
   postDatabaseId: number;
   postUri: string;
+  lang: Locale;
 }) => {
   return (
     <li className="mt-10" style={{ marginLeft: depth * 32 }}>
       <h6 className="font-playfair text-lg font-medium italic leading-7 text-black">
-        {resolveAuthorName(node.author.node)}
+        {resolveAuthorName(node.author.node, getDict(lang).post.anonymous)}
       </h6>
       <div
         className="wp-content mt-1"
@@ -67,6 +71,7 @@ const CommentItem = ({
               depth={depth + 1}
               postDatabaseId={postDatabaseId}
               postUri={postUri}
+              lang={lang}
             />
           ))}
         </ul>
@@ -75,7 +80,7 @@ const CommentItem = ({
   );
 };
 
-const Comments = ({ comments, postDatabaseId, postUri }: Props) => {
+const Comments = ({ comments, postDatabaseId, postUri, lang }: Props) => {
   const tree = buildTree(comments);
   const count = comments.length;
 
@@ -84,7 +89,7 @@ const Comments = ({ comments, postDatabaseId, postUri }: Props) => {
       {count > 0 && (
         <>
           <h4 className="font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-black">
-            Commenti ({count})
+            {getDict(lang).post.comments(count)}
           </h4>
           <ul>
             {tree.map((node) => (
@@ -94,6 +99,7 @@ const Comments = ({ comments, postDatabaseId, postUri }: Props) => {
                 depth={0}
                 postDatabaseId={postDatabaseId}
                 postUri={postUri}
+                lang={lang}
               />
             ))}
           </ul>

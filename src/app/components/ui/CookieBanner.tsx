@@ -1,5 +1,7 @@
 import Script from "next/script";
 
+import type { Locale } from "@/lib/i18n";
+
 // Configurazione del banner iubenda copiata dal plugin WordPress del vecchio sito
 const IUBENDA_CONFIG = {
 	ccpaAcknowledgeOnDisplay: true,
@@ -15,7 +17,6 @@ const IUBENDA_CONFIG = {
 	siteId: 2092736,
 	whitelabel: false,
 	cookiePolicyId: 61490459,
-	lang: "it",
 	cookiePolicyUrl: "https://www.iubenda.com/privacy-policy/73268054",
 	privacyPolicyUrl: "https://www.iubenda.com/privacy-policy/73268054",
 	banner: {
@@ -44,11 +45,11 @@ const IUBENDA_CONFIG = {
 /**
  * Banner cookie iubenda (Cookie Solution), con la stessa configurazione del sito WordPress.
  */
-const CookieBanner = () => {
+const CookieBanner = ({ lang }: { lang: Locale }) => {
 	return (
 		<>
 			<Script id="iubenda-config" strategy="beforeInteractive">
-				{`var _iub = _iub || []; _iub.csConfiguration = ${JSON.stringify(IUBENDA_CONFIG)};`}
+				{`var _iub = _iub || []; _iub.csConfiguration = ${JSON.stringify({ ...IUBENDA_CONFIG, lang })};`}
 			</Script>
 			<Script
 				id="iubenda-ccpa-stub"

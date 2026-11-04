@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getDict, isLocale, type Locale } from "@/lib/i18n";
 import { buildJsonLd, fetchYoastHead, yoastToMetadata } from "@/lib/seo";
 import { fetchProducts } from "@/lib/shop";
 import JsonLd from "@/components/ui/JsonLd";
@@ -12,15 +13,25 @@ export async function generateMetadata(): Promise<Metadata> {
 	return yoastToMetadata(await shopYoast(), { fallbackTitle: "Shop" });
 }
 
-export default async function ShopPage() {
+type Props = {
+	params: Promise<{ lang: string }>;
+};
+
+async function getLang(params: Props["params"]): Promise<Locale> {
+	const { lang } = await params;
+	return isLocale(lang) ? lang : "it";
+}
+
+export default async function ShopPage({ params }: Props) {
+	const lang = await getLang(params);
 	const [products, yoast] = await Promise.all([fetchProducts(), shopYoast()]);
 
 	return (
 		<>
-			<JsonLd json={buildJsonLd(yoast)} />
-			<PageTitle title="Shop" />
+			{lang === "it" && <JsonLd json={buildJsonLd(yoast)} />}
+			<PageTitle title={getDict(lang).shop.title} />
 			<main className="qodef-content-grid pb-[100px] pt-[107px]">
-				<ProductGrid products={products} />
+				<ProductGrid products={products} lang={lang} />
 			</main>
 		</>
 	);

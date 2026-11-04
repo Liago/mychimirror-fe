@@ -1,11 +1,11 @@
 /**
- * Data di un contenuto WordPress in italiano: "15 aprile 2023".
+ * Data di un contenuto WordPress: "15 aprile 2023", in inglese "15 April 2023".
  * Legge la data dalla stringa di WP (ora locale del sito, senza fuso),
  * così il giorno non cambia con il fuso orario del server.
  */
-const formatThemeDate = (inputDateTime: string) => {
+const formatThemeDate = (inputDateTime: string, locale = "it-IT") => {
 	const [year, month, day] = inputDateTime.slice(0, 10).split("-").map(Number);
-	return new Intl.DateTimeFormat("it-IT", {
+	return new Intl.DateTimeFormat(locale, {
 		year: "numeric",
 		month: "long",
 		day: "numeric",

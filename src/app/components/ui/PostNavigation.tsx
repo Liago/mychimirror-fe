@@ -1,4 +1,7 @@
-import NextLink from "next/link";
+import Link from "next/link";
+
+import { getDict, localePath, type Locale } from "@/lib/i18n";
+import { localizeTitle } from "@/lib/postLocale";
 
 type AdjacentPost = {
 	uri: string;
@@ -8,61 +11,50 @@ type AdjacentPost = {
 type Props = {
 	previous: AdjacentPost | null;
 	next: AdjacentPost | null;
+	lang: Locale;
 };
 
-const Chevron = ({ direction }: { direction: "left" | "right" }) => (
-	<svg
-		aria-hidden="true"
-		width="12"
-		height="12"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="1.5"
-		strokeLinecap="round"
-		strokeLinejoin="round"
+const Card = ({
+	post,
+	label,
+	lang,
+	align,
+}: {
+	post: AdjacentPost;
+	label: string;
+	lang: Locale;
+	align: "left" | "right";
+}) => (
+	<Link
+		href={localePath(lang, post.uri)}
+		className={`group block bg-nocciola px-6 py-5 transition-colors hover:bg-mobile-header ${
+			align === "right" ? "sm:text-right" : ""
+		}`}
 	>
-		<polyline
-			points={direction === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6"}
+		<span className="block font-open-sans text-[10px] font-medium uppercase tracking-[0.25em] text-fake-black">
+			{align === "left" ? "← " : ""}
+			{label}
+			{align === "right" ? " →" : ""}
+		</span>
+		<span
+			className="mt-2 block font-cinzel text-xl leading-6 tracking-[-0.02em] text-black"
+			dangerouslySetInnerHTML={{ __html: localizeTitle(post.title, lang) }}
 		/>
-	</svg>
+	</Link>
 );
 
-const linkClassName =
-	"flex items-center gap-2 text-black transition-colors hover:text-fake-black";
-
-const PostNavigation = ({ previous, next }: Props) => {
+const PostNavigation = ({ previous, next, lang }: Props) => {
 	if (!previous && !next) return null;
+	const t = getDict(lang).post;
 
 	return (
-		<nav
-			aria-label="Navigazione articoli"
-			className="mt-[88px] flex items-center justify-between gap-4"
-		>
+		<nav aria-label={t.navigation} className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
 			{previous ? (
-				<NextLink
-					href={previous.uri}
-					className={linkClassName}
-					aria-label={`Post precedente: ${previous.title}`}
-				>
-					<Chevron direction="left" />
-					Articolo precedente
-				</NextLink>
+				<Card post={previous} label={t.prev} lang={lang} align="left" />
 			) : (
-				<span />
+				<span className="hidden sm:block" />
 			)}
-			{next ? (
-				<NextLink
-					href={next.uri}
-					className={linkClassName}
-					aria-label={`Post successivo: ${next.title}`}
-				>
-					Articolo successivo
-					<Chevron direction="right" />
-				</NextLink>
-			) : (
-				<span />
-			)}
+			{next && <Card post={next} label={t.next} lang={lang} align="right" />}
 		</nav>
 	);
 };

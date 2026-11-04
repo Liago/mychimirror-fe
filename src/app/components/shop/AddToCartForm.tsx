@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useCart } from "@/components/cart/CartProvider";
 import QuantityInput from "@/components/cart/QuantityInput";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import Button from "@/components/ui/Button";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const AddToCartForm = ({ productId, productName, maxQuantity }: Props) => {
+	const { t } = useI18n();
 	const { addItem, pending } = useCart();
 	const [quantity, setQuantity] = useState(1);
 
@@ -29,10 +31,10 @@ const AddToCartForm = ({ productId, productName, maxQuantity }: Props) => {
 				max={maxQuantity}
 				onChange={setQuantity}
 				disabled={pending}
-				label={`Quantità di ${productName}`}
+				label={t.shop.quantityOf(productName)}
 			/>
 			<Button type="submit" disabled={pending}>
-				{pending ? "Aggiunta..." : "Aggiungi al carrello"}
+				{pending ? t.shop.adding : t.shop.addToCart}
 			</Button>
 		</form>
 	);

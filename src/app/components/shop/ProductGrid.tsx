@@ -1,15 +1,17 @@
+import { getDict, type Locale } from "@/lib/i18n";
 import type { Product } from "@/lib/shop";
 import ProductCard from "./ProductCard";
 
 type Props = {
 	products: Product[];
+	lang: Locale;
 	/** 3 colonne nello shop, 4 nei "Prodotti correlati" */
 	columns?: 3 | 4;
 };
 
-const ProductGrid = ({ products, columns = 3 }: Props) => {
+const ProductGrid = ({ products, lang, columns = 3 }: Props) => {
 	if (!products.length) {
-		return <p>Nessun prodotto trovato.</p>;
+		return <p>{getDict(lang).shop.noProducts}</p>;
 	}
 	return (
 		<ul
@@ -21,6 +23,7 @@ const ProductGrid = ({ products, columns = 3 }: Props) => {
 				<ProductCard
 					key={product.id}
 					product={product}
+					lang={lang}
 					priority={columns === 3 && i < 3}
 				/>
 			))}

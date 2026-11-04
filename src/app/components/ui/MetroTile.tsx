@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { PostSummary } from "@/lib/content";
+import { localizeTitle } from "@/lib/postLocale";
 import { formatThemeDate } from "@/utility/utils";
 
 type Props = {
@@ -14,6 +16,8 @@ type Props = {
  * data e titolo in bianco sovrapposti in basso.
  */
 const MetroTile = ({ post, priority = false }: Props) => {
+	const { lang, t, href } = useI18n();
+	const title = localizeTitle(post.title, lang);
 	// Il tema usa il formato "belletrist_image_size_portrait" (ritaglio 650×1300):
 	// WordPress ritaglia ogni lato al massimo a quella misura
 	const ratio = post.image
@@ -34,16 +38,16 @@ const MetroTile = ({ post, priority = false }: Props) => {
 			)}
 			<div className="absolute inset-x-0 bottom-0 px-10 pb-[35px] pt-5">
 				<p className="font-playfair text-[15px] italic text-white">
-					{formatThemeDate(post.date)}
+					{formatThemeDate(post.date, t.dateLocale)}
 				</p>
 				<h2 className="font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-white">
-					<span dangerouslySetInnerHTML={{ __html: post.title }} />
+					<span dangerouslySetInnerHTML={{ __html: title }} />
 				</h2>
 			</div>
 			<Link
-				href={post.uri}
+				href={href(post.uri)}
 				className="absolute inset-0"
-				aria-label={post.title.replace(/<[^>]+>/g, "")}
+				aria-label={title.replace(/<[^>]+>/g, "")}
 			/>
 		</article>
 	);

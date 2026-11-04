@@ -74,6 +74,11 @@ Da fare prima del go-live:
 - Contenuti WordPress: link ai capitoli dismessi in `/i-racconti-di-fragola/` e `/i_racconti_di_fragola/`, description di home e shop in Yoast, costo di spedizione (pagina 6,00€, checkout 3,00€)
 - ⚠️ Il proxy di Aruba può rispondere 429 a raffiche di chiamate dallo stesso IP: chiedere ad Aruba il limite esatto e se si possono escludere gli IP di Vercel
 
+### Revamp pre go-live ✅ (04/11/2026)
+- Sito IT/EN: italiano sugli URL storici, inglese sotto `/en/`, autodetect, selettore nell'header, hreflang e sitemap
+- Pagina articolo ridisegnata: foto e titolo affiancati, nuovo player audio, una lingua per volta
+- Dopo il deploy: rilanciare `check-urls.mjs` sullo staging
+
 ### F7 — Migrazione infrastruttura e go-live (≈1 settimana di calendario, poche ore di lavoro)
 - T-7: creare `cms.mychicmirror.com` su Aruba con SSL; abbassare il TTL DNS
 - T-1: freeze contenuti, backup completo (DB + file)

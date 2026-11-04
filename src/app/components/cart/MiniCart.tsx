@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { formatPrice } from "@/utility/utils";
 import CartItemRow from "./CartItemRow";
 import { useCart } from "./CartProvider";
@@ -15,6 +16,7 @@ const PANEL_BG = "bg-[#CC6055]";
  * come il plugin WPC Fly Cart del sito WordPress.
  */
 const MiniCart = () => {
+	const { t, href } = useI18n();
 	const { cart, isOpen, open, close, error } = useCart();
 	const count = cart?.itemsCount ?? 0;
 
@@ -30,7 +32,7 @@ const MiniCart = () => {
 			<button
 				type="button"
 				onClick={open}
-				aria-label={`${count} articoli nel carrello: apri il carrello`}
+				aria-label={t.cart.open(count)}
 				className="fixed bottom-6 left-6 z-40 flex h-[60px] w-[60px] items-center justify-center rounded bg-white text-black shadow-[0_0_20px_0_rgba(0,0,0,0.15)] desk:bottom-10 desk:left-10"
 			>
 				<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -52,18 +54,18 @@ const MiniCart = () => {
 					<div
 						role="dialog"
 						aria-modal="true"
-						aria-label="Carrello"
+						aria-label={t.cart.title}
 						onClick={(e) => e.stopPropagation()}
 						className={`flex max-h-full w-[460px] max-w-full flex-col text-sm text-white ${PANEL_BG}`}
 					>
 						<div className="flex h-12 shrink-0 items-center justify-between bg-black/20 px-5 font-bold uppercase">
 							<span>
-								Carrello <span className="ml-1 font-normal">{count}</span>
+								{t.cart.title} <span className="ml-1 font-normal">{count}</span>
 							</span>
 							<button
 								type="button"
 								onClick={close}
-								aria-label="Chiudi il carrello"
+								aria-label={t.cart.close}
 								className="text-xl leading-none"
 							>
 								×
@@ -81,16 +83,16 @@ const MiniCart = () => {
 								</ul>
 								<div className="shrink-0 px-5 pb-5 pt-4">
 									<div className="flex justify-between font-bold uppercase">
-										<span>Subtotale</span>
+										<span>{t.cart.subtotal}</span>
 										<span>{formatPrice(cart.subtotal)}</span>
 									</div>
 									<div className="mt-4 grid grid-cols-2 gap-3 font-open-sans text-[11px] font-medium uppercase tracking-[0.2em]">
 										<Link
-											href="/cart/"
+											href={href("/cart/")}
 											onClick={close}
 											className="border border-white py-3 text-center transition-colors hover:bg-white hover:text-[#CC6055]"
 										>
-											Carrello
+											{t.cart.title}
 										</Link>
 										{/* Link "pieno": la route /checkout/ reindirizza a WordPress */}
 										{/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
@@ -104,7 +106,7 @@ const MiniCart = () => {
 								</div>
 							</>
 						) : (
-							<p className="px-5 py-6 text-center">Il carrello è vuoto.</p>
+							<p className="px-5 py-6 text-center">{t.cart.empty}</p>
 						)}
 
 						<button
@@ -112,7 +114,7 @@ const MiniCart = () => {
 							onClick={close}
 							className="shrink-0 py-4 text-center uppercase underline-offset-4 hover:underline"
 						>
-							Continua a fare acquisti
+							{t.cart.continue}
 						</button>
 					</div>
 				</div>

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { CartItem } from "@/lib/cart";
 import { formatPrice } from "@/utility/utils";
 import { useCart } from "./CartProvider";
@@ -16,6 +17,7 @@ type Props = {
 };
 
 const CartItemRow = ({ item, tone = "dark", onNavigate }: Props) => {
+	const { t, href } = useI18n();
 	const { updateItem, removeItem, pending } = useCart();
 	const isLight = tone === "light";
 
@@ -26,7 +28,7 @@ const CartItemRow = ({ item, tone = "dark", onNavigate }: Props) => {
 			}`}
 		>
 			{item.image && (
-				<Link href={item.uri} onClick={onNavigate} className="shrink-0">
+				<Link href={href(item.uri)} onClick={onNavigate} className="shrink-0">
 					<Image
 						src={item.image.url}
 						alt={item.image.alt || item.name}
@@ -39,7 +41,7 @@ const CartItemRow = ({ item, tone = "dark", onNavigate }: Props) => {
 			<div className="flex min-w-0 flex-1 flex-col gap-2">
 				<div className="flex items-start justify-between gap-3">
 					<Link
-						href={item.uri}
+						href={href(item.uri)}
 						onClick={onNavigate}
 						className={`font-cinzel text-lg leading-6 ${
 							isLight ? "text-white" : "text-black hover:text-fake-black"
@@ -51,7 +53,7 @@ const CartItemRow = ({ item, tone = "dark", onNavigate }: Props) => {
 						type="button"
 						onClick={() => removeItem(item.key)}
 						disabled={pending}
-						aria-label={`Rimuovi ${item.name} dal carrello`}
+						aria-label={t.cart.remove(item.name)}
 						className={`shrink-0 text-xl leading-6 disabled:opacity-50 ${
 							isLight ? "text-white/80 hover:text-white" : "text-body-text hover:text-black"
 						}`}
@@ -67,7 +69,7 @@ const CartItemRow = ({ item, tone = "dark", onNavigate }: Props) => {
 						disabled={pending}
 						size="sm"
 						tone={tone}
-						label={`Quantità di ${item.name}`}
+						label={t.shop.quantityOf(item.name)}
 					/>
 					<span
 						className={`font-playfair italic ${

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import Button from "@/components/ui/Button";
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function ErrorPage({ error, reset }: Props) {
+	const { t } = useI18n();
 	useEffect(() => {
 		console.error(error);
 	}, [error]);
@@ -17,13 +19,13 @@ export default function ErrorPage({ error, reset }: Props) {
 	return (
 		<main className="qodef-content-grid flex min-h-[680px] flex-col items-center justify-center py-20 text-center">
 			<h1 className="font-cinzel text-[46px] leading-none tracking-[-0.03em] text-black desk:text-[60px]">
-				Qualcosa è andato storto
+				{t.common.errorTitle}
 			</h1>
 			<p className="mt-6 max-w-xl font-medium">
-				Non è stato possibile caricare la pagina. Riprova tra qualche istante.
+				{t.common.errorText}
 			</p>
 			<div className="mt-10">
-				<Button onClick={reset}>Riprova</Button>
+				<Button onClick={reset}>{t.common.retry}</Button>
 			</div>
 		</main>
 	);

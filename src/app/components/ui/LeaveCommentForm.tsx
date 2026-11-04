@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { createCommentAction } from "@/lib/actions";
 import Button from "./Button";
 import { inputClassName, textareaClassName } from "./commentFormStyles";
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
+  const { lang, t } = useI18n();
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -37,15 +39,18 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         setFeedback({
           type: "success",
           message: result.pending
-            ? "Grazie! Il tuo commento è in attesa di moderazione."
-            : "Commento pubblicato.",
+            ? t.post.commentPending
+            : t.post.commentPublished,
         });
         setContent("");
         setAuthor("");
         setAuthorEmail("");
         setAuthorUrl("");
       } else {
-        setFeedback({ type: "error", message: result.error });
+        setFeedback({
+          type: "error",
+          message: lang === "it" ? result.error : t.common.formError,
+        });
       }
     });
   };
@@ -53,19 +58,18 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
   return (
     <section className="mt-16">
       <h4 className="mb-px font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-black">
-        Lascia un commento
+        {t.post.leaveComment}
       </h4>
       <p className="mb-[41px]">
-        Il tuo indirizzo email non sarà pubblicato. I campi obbligatori sono
-        contrassegnati *
+        {t.post.emailNote}
       </p>
 
       <form onSubmit={handleSubmit}>
         <textarea
           required
           rows={6}
-          placeholder="Il tuo commento *"
-          aria-label="Commento"
+          placeholder={t.post.yourComment}
+          aria-label={t.post.yourComment}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className={textareaClassName}
@@ -73,8 +77,8 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         <input
           type="text"
           required
-          placeholder="Il tuo nome *"
-          aria-label="Nome"
+          placeholder={t.post.yourName}
+          aria-label={t.post.yourName}
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           className={inputClassName}
@@ -82,16 +86,16 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
         <input
           type="email"
           required
-          placeholder="La tua email *"
-          aria-label="Email"
+          placeholder={t.post.yourEmail}
+          aria-label={t.post.yourEmail}
           value={authorEmail}
           onChange={(e) => setAuthorEmail(e.target.value)}
           className={inputClassName}
         />
         <input
           type="url"
-          placeholder="Sito web"
-          aria-label="Sito web"
+          placeholder={t.post.website}
+          aria-label={t.post.website}
           value={authorUrl}
           onChange={(e) => setAuthorUrl(e.target.value)}
           className={inputClassName}
@@ -110,7 +114,7 @@ const LeaveCommentForm = ({ postDatabaseId, postUri }: Props) => {
 
         <div className="mt-8">
           <Button type="submit" variant="outlined" disabled={pending}>
-            {pending ? "Invio..." : "Invia commento"}
+            {pending ? t.post.sending : t.post.sendComment}
           </Button>
         </div>
       </form>

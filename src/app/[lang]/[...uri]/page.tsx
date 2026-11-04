@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RETIRED_PAGES, resolveUri, type ContentNode, type Page } from "@/lib/content";
+import { isLocale, pageTitle, type Locale } from "@/lib/i18n";
+import { isBilingualPage, localizePost } from "@/lib/postLocale";
 import { buildJsonLd, fetchYoastHead, yoastToMetadata } from "@/lib/seo";
 import JsonLd from "@/components/ui/JsonLd";
 import ArchiveView from "@/components/views/ArchiveView";
@@ -11,11 +13,11 @@ import PageView from "@/components/views/PageView";
 import PostView from "@/components/views/PostView";
 
 type Props = {
-	params: Promise<{ uri: string[] }>;
+	params: Promise<{ lang: string; uri: string[] }>;
 };
 
 // Pagine WordPress costruite con Elementor o plugin: hanno una vista dedicata
-const CUSTOM_PAGES: Record<string, (props: { page: Page }) => Promise<React.ReactNode> | React.ReactNode> = {
+const CUSTOM_PAGES: Record<string, (props: { page: Page; lang: Locale }) => Promise<React.ReactNode> | React.ReactNode> = {
 	"/blog/": BlogView,
 	"/contacts/": ContactView,
 };
@@ -74,6 +76,33 @@ function yoastFor(node: ContentNode) {
 	return fetchYoastHead(`${YOAST_PATHS[node.kind]}/${node.databaseId}`);
 }
 
+async function getLang(params: Props["params"]): Promise<Locale> {
+	const { lang } = await params;
+	return isLocale(lang) ? lang : "it";
+}
+
+/** Titolo e descrizione per lingua: Yoast conosce solo il titolo a due lingue. */
+function localizedSeo(node: ContentNode, lang: Locale) {
+	if (node.kind === "post") {
+		const post = localizePost(node, lang);
+		return {
+			translated: post.hasTranslation,
+			title: `${post.title} - MyChicMirror`,
+			...(lang === "en" ? { description: post.excerpt } : {}),
+		};
+	}
+	if (node.kind === "page") {
+		const translated = isBilingualPage(node.uri) || node.uri in CUSTOM_PAGES;
+		return {
+			translated,
+			...(lang === "en" && translated
+				? { title: `${pageTitle(lang, node.uri, node.title)} - MyChicMirror` }
+				: {}),
+		};
+	}
+	return {};
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const result = await load(params);
 	if (!result) return {};
@@ -85,20 +114,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		// Le pagine successive di un archivio hanno un canonical proprio
 		path: page > 1 ? `${node.uri}page/${page}/` : undefined,
 		fallbackTitle: title || undefined,
+		lang: await getLang(params),
+		...localizedSeo(node, await getLang(params)),
 	});
 }
 
-function renderView(node: ContentNode, page: number) {
+function renderView(node: ContentNode, page: number, lang: Locale) {
 	switch (node.kind) {
 		case "post":
-			return <PostView post={node} />;
+			return <PostView post={node} lang={lang} />;
 		case "page": {
 			const Custom = CUSTOM_PAGES[node.uri];
-			return Custom ? <Custom page={node} /> : <PageView page={node} />;
+			return Custom ? (
+				<Custom page={node} lang={lang} />
+			) : (
+				<PageView page={node} lang={lang} />
+			);
 		}
 		case "category":
 		case "tag":
-			return <ArchiveView archive={node} page={page} />;
+			return <ArchiveView archive={node} page={page} lang={lang} />;
 	}
 }
 
@@ -106,11 +141,13 @@ export default async function WordPressPage({ params }: Props) {
 	const result = await load(params);
 	if (!result) notFound();
 	const { node, page } = result;
+	const lang = await getLang(params);
 
 	return (
 		<>
-			<JsonLd json={buildJsonLd(await yoastFor(node))} />
-			{renderView(node, page)}
+			{/* Il grafo di Yoast descrive la versione italiana */}
+			{lang === "it" && <JsonLd json={buildJsonLd(await yoastFor(node))} />}
+			{renderView(node, page, lang)}
 		</>
 	);
 }

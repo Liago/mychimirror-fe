@@ -30,21 +30,24 @@ Tutto il codice sta in `src/app/` (che è anche `baseUrl` di tsconfig). Alias:
 
 ```
 src/app/
-  layout.tsx                      # root layout: font, Header, Footer, ScrollToTop (presenti su tutte le pagine)
-  not-found.tsx, error.tsx       # niente loading.tsx alla radice: lo streaming farebbe rispondere 200 a 404 e redirect
-  page.tsx                        # home: cover + ultimi 3 post, rassegna stampa + video, libri con recensioni e citazioni, loghi, newsletter
-  [...uri]/page.tsx               # catch-all: risolve qualsiasi URI WordPress (post, pagina, categoria, tag, /page/N/)
-  posts/[slug]/page.tsx           # redirect 308 dal vecchio /posts/<slug>/ a /<slug>/
-  portfolio-item/press/page.tsx   # rassegna stampa statica (il CPT portfolio-item non è nelle API)
-  shop/, product/[slug]/, product-category/[slug]/   # catalogo WooCommerce (Store API)
-  cart/page.tsx                   # pagina carrello (client, usa CartProvider)
+  [lang]/                         # tutte le pagine: it sugli URL storici (rewrite in src/proxy.ts), en sotto /en/
+  [lang]/layout.tsx               # root layout: font, I18nProvider, Header, Footer, ScrollToTop (presenti su tutte le pagine)
+  [lang]/not-found.tsx, error.tsx # niente loading.tsx alla radice: lo streaming farebbe rispondere 200 a 404 e redirect
+  [lang]/page.tsx                 # home: cover + ultimi 3 post, rassegna stampa + video, libri con recensioni e citazioni, loghi, newsletter
+  [lang]/[...uri]/page.tsx        # catch-all: risolve qualsiasi URI WordPress (post, pagina, categoria, tag, /page/N/)
+  [lang]/posts/[slug]/page.tsx    # redirect 308 dal vecchio /posts/<slug>/ a /<slug>/
+  [lang]/portfolio-item/press/page.tsx   # rassegna stampa statica (il CPT portfolio-item non è nelle API)
+  [lang]/shop/, product/[slug]/, product-category/[slug]/   # catalogo WooCommerce (Store API)
+  [lang]/cart/page.tsx            # pagina carrello (client, usa CartProvider)
   checkout/route.ts, my-account/route.ts   # redirect a WordPress (checkout con Cart-Token)
-  admin/reviews-upload/page.tsx   # tool interno (noindex) per caricare recensioni in blocco
+  [lang]/admin/reviews-upload/page.tsx   # tool interno (noindex) per caricare recensioni in blocco
   lib/wordpress.ts                # fetchGraphQL / mutateGraphQL / fetchREST / fetchJSON con cache e tag
   lib/content.ts                  # tipi e query dei contenuti: resolveUri, fetchPostList, fetchAdjacentPosts
   lib/data.ts                     # fetchBooks (libri + recensioni dagli endpoint PHP), fetchMainMenu
   lib/editorial.ts                # contenuti scritti a mano nella vecchia home Elementor (video, stampa, citazioni, loghi, newsletter)
   lib/actions.ts                  # server actions: commenti, recensioni, scroll infinito, form contatti (CF7)
+  lib/i18n.ts                     # lingue, localePath, dizionari IT/EN (getDict)
+  lib/postLocale.ts               # separa le due lingue di articoli e About: titolo, testo, audio, foto duplicata
   lib/site.ts                     # SITE_URL
   lib/seo.ts                      # metadata da Yoast (yoast_head_json), JSON-LD, schema Product
   lib/revalidate.ts, api/revalidate/route.ts   # revalidazione on-demand: evento WordPress -> tag di cache
@@ -102,7 +105,9 @@ Stato del backend WordPress (verificato su live):
 - Banner cookie: `components/ui/CookieBanner.tsx` (iubenda, configurazione copiata dal plugin WP).
 - Analytics: Google Analytics 4 (`components/ui/GoogleAnalytics.tsx`, attivo solo se c'è `NEXT_PUBLIC_GA_MEASUREMENT_ID`) con Google Consent Mode v2: consensi negati di default, aggiornati da iubenda (`googleConsentMode: true`). Nel layout l'ordine è: `GoogleConsentDefaults`, `CookieBanner`, `GoogleAnalytics`.
 - Immagini remote con `next/image`: ogni nuovo host va aggiunto a `images.remotePatterns` in `next.config.js`.
-- **Design = replica fedele del tema WordPress (Belletrist).** Prima di implementare un componente, misurare gli stili calcolati sul sito live (font, misure, colori) e riprodurli.
+- **Multilingua**: italiano sugli URL storici, inglese sotto `/en/`. `src/proxy.ts` riscrive su `/it/...` e fa l'autodetect (cookie `mcm_lang`, poi Accept-Language; senza header resta italiano). Testi dell'interfaccia in `lib/i18n.ts`: nei server component `getDict(lang)` + `localePath(lang, uri)`, nei client `useI18n()`. Ogni link interno passa da lì. Il selettore e "Read in English" sono `<a>` normali: `<Link>` farebbe il prefetch prima di salvare il cookie.
+- **Articoli bilingui**: su WordPress restano "Italiano / English" con il testo diviso da `<hr>`; `localizePost` li separa. Tradotti: articoli, About e interfaccia. Privacy, Termini, Spedizione, trame dei libri e descrizioni prodotto restano in italiano (avviso sulle pagine, canonical sulla versione italiana, niente hreflang). Le pagine tradotte stanno in `sitemap.ts`.
+- **Design = replica fedele del tema WordPress (Belletrist)**, tranne la pagina articolo, ridisegnata (`PostView`, `AudioPlayer`). Prima di implementare un componente, misurare gli stili calcolati sul sito live (font, misure, colori) e riprodurli.
 - Token Tailwind del tema: colori `fake-black` (#6A5921, oro: voce attiva/hover e accenti), `nocciola` (#FAF2ED), `body-text` (#4D4D4D), `separator` (#9E9E9E), `mobile-header`, `mobile-menu`, `book-description`; font `font-cinzel` (titoli), `font-cormorant` (testo, default del body 19px/25px), `font-playfair` (corsivi, h6), `font-open-sans` (menu, bottoni).
 - Breakpoint `desk` (≥1025px) = passaggio header mobile/desktop del tema. Classe `qodef-content-grid` (da `globals.css`) replica il contenitore del tema con le sue larghezze per breakpoint.
 - Componenti base: `SectionTitle` (titolo Cinzel; centrato con lineetta o a sinistra con tagline, linea e testo), `Button` (bottone del tema, `filled`/`outlined`, link se riceve `href`).

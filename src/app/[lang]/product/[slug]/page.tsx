@@ -8,6 +8,7 @@ import {
 	fetchProductReviews,
 	fetchRelatedProducts,
 } from "@/lib/shop";
+import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { buildJsonLd, fetchYoastHead, productSchema, yoastToMetadata } from "@/lib/seo";
 import { orFallback } from "@/lib/wordpress";
 import JsonLd from "@/components/ui/JsonLd";
@@ -22,7 +23,7 @@ import ProductTabs from "@/components/shop/ProductTabs";
 import { formatPrice } from "@/utility/utils";
 
 type Props = {
-	params: Promise<{ slug: string }>;
+	params: Promise<{ lang: string; slug: string }>;
 };
 
 const labelClassName =
@@ -42,7 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-	const product = await fetchProduct((await params).slug);
+	const { lang: rawLang, slug } = await params;
+	const lang: Locale = isLocale(rawLang) ? rawLang : "it";
+	const t = getDict(lang).shop;
+	const product = await fetchProduct(slug);
 	if (!product) notFound();
 
 	const [description, reviews, related, yoast] = await Promise.all([
@@ -56,17 +60,17 @@ export default async function ProductPage({ params }: Props) {
 	const tabs = [
 		description.html && {
 			id: "description",
-			label: "Descrizione",
+			label: t.description,
 			content: <WPContent html={description.html} />,
 		},
 		product.details.length > 0 && {
 			id: "additional-information",
-			label: "Informazioni aggiuntive",
-			content: <ProductDetailsTable details={product.details} />,
+			label: t.additionalInfo,
+			content: <ProductDetailsTable details={product.details} lang={lang} />,
 		},
 		(description.reviewsOpen || reviews.length > 0) && {
 			id: "reviews",
-			label: `Recensioni (${reviews.length})`,
+			label: t.reviews(reviews.length),
 			content: (
 				<ProductReviews
 					productId={product.id}
@@ -74,6 +78,7 @@ export default async function ProductPage({ params }: Props) {
 					productName={product.name}
 					reviews={reviews}
 					reviewsOpen={description.reviewsOpen}
+					lang={lang}
 				/>
 			),
 		},
@@ -84,8 +89,8 @@ export default async function ProductPage({ params }: Props) {
 
 	return (
 		<>
-			<JsonLd json={buildJsonLd(yoast, [productSchema(product)])} />
-			<PageTitle title="Shop" as="p" />
+			<JsonLd json={buildJsonLd(lang === "it" ? yoast : null, [productSchema(product)])} />
+			<PageTitle title={t.title} as="p" />
 			<main className="qodef-content-grid pb-[100px] pt-[97px]">
 				<div className="grid grid-cols-1 gap-y-12 desk:grid-cols-[630fr_470fr]">
 					<ProductGallery images={product.images} name={product.name} />
@@ -104,7 +109,7 @@ export default async function ProductPage({ params }: Props) {
 						<WPContent html={product.shortDescription} className="mt-[42px]" />
 						{product.stockText && (
 							<p className={product.inStock ? "" : "text-black"}>
-								{product.stockText}
+								{lang === "it" || product.inStock ? product.stockText : t.outOfStock}
 							</p>
 						)}
 						{product.purchasable && (
@@ -115,15 +120,15 @@ export default async function ProductPage({ params }: Props) {
 							/>
 						)}
 						<div className="mt-[30px]">
-							<p className={`${labelClassName} mb-[18px]`}>Info:</p>
+							<p className={`${labelClassName} mb-[18px]`}>{t.info}</p>
 							{product.sku && <p className="mb-2">SKU: {product.sku}</p>}
 							{product.categories.length > 0 && (
 								<p>
-									Categoria:{" "}
+									{t.category}{" "}
 									{product.categories.map((cat, i) => (
 										<span key={cat.id}>
 											<Link
-												href={cat.uri}
+												href={localePath(lang, cat.uri)}
 												className="text-black underline underline-offset-2 transition-colors hover:text-fake-black"
 											>
 												{cat.name}
@@ -140,9 +145,9 @@ export default async function ProductPage({ params }: Props) {
 				{related.length > 0 && (
 					<section className="mt-[120px]">
 						<h2 className="mb-[87px] font-cinzel text-[32px] font-normal leading-[1.05] tracking-[-0.03em] text-black desk:text-[40px]">
-							Prodotti correlati
+							{t.related}
 						</h2>
-						<ProductGrid products={related} columns={4} />
+						<ProductGrid products={related} lang={lang} columns={4} />
 					</section>
 				)}
 			</main>

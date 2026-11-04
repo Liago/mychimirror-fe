@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Script from "next/script";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { submitContactAction } from "@/lib/actions";
 import Button from "./Button";
 import { inputClassName } from "./commentFormStyles";
@@ -23,6 +24,8 @@ async function getRecaptchaToken(): Promise<string | undefined> {
 }
 
 const ContactForm = () => {
+	const { lang, t } = useI18n();
+	const italian = lang === "it";
 	const [email, setEmail] = useState("");
 	const [name, setName] = useState("");
 	const [message, setMessage] = useState("");
@@ -45,13 +48,28 @@ const ContactForm = () => {
 				recaptchaToken,
 			});
 			if (result.ok) {
-				setFeedback({ type: "success", message: result.message });
+				setFeedback({
+					type: "success",
+					message: italian ? result.message : t.contact.sent,
+				});
 				setEmail("");
 				setName("");
 				setMessage("");
 			} else {
-				setFieldErrors(result.fieldErrors ?? {});
-				setFeedback({ type: "error", message: result.error });
+				setFieldErrors(
+					italian
+						? (result.fieldErrors ?? {})
+						: Object.fromEntries(
+								Object.keys(result.fieldErrors ?? {}).map((key) => [
+									key,
+									t.common.fieldError,
+								])
+							)
+				);
+				setFeedback({
+					type: "error",
+					message: italian ? result.error : t.common.formError,
+				});
 			}
 		});
 	};
@@ -74,8 +92,8 @@ const ContactForm = () => {
 					type="email"
 					name="your-email"
 					required
-					placeholder="La tua email"
-					aria-label="La tua email"
+					placeholder={t.contact.email}
+					aria-label={t.contact.email}
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
 					className={inputClassName}
@@ -85,8 +103,8 @@ const ContactForm = () => {
 					type="text"
 					name="your-name"
 					required
-					placeholder="Il tuo nome"
-					aria-label="Il tuo nome"
+					placeholder={t.contact.name}
+					aria-label={t.contact.name}
 					value={name}
 					onChange={(e) => setName(e.target.value)}
 					className={inputClassName}
@@ -95,8 +113,8 @@ const ContactForm = () => {
 				<textarea
 					name="your-message"
 					rows={7}
-					placeholder="Il tuo messaggio"
-					aria-label="Il tuo messaggio"
+					placeholder={t.contact.message}
+					aria-label={t.contact.message}
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
 					className={inputClassName}
@@ -116,7 +134,7 @@ const ContactForm = () => {
 
 				<div className="mt-[10px]">
 					<Button type="submit" variant="outlined" disabled={pending}>
-						{pending ? "Invio..." : "Invia"}
+						{pending ? t.contact.sending : t.contact.send}
 					</Button>
 				</div>
 			</form>

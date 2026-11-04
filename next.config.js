@@ -24,6 +24,7 @@ const nextConfig = {
         return [
             // Doppione di /contacts/ (la pagina nel menu)
             { source: '/contatti/', destination: '/contacts/', statusCode: 301 },
+            { source: '/en/contatti/', destination: '/en/contacts/', statusCode: 301 },
             // Archivi del portfolio del tema: l'unica voce è la rassegna stampa
             { source: '/portfolio-item/', destination: '/portfolio-item/press/', statusCode: 301 },
             { source: '/portfolio-category/press/', destination: '/portfolio-item/press/', statusCode: 301 },

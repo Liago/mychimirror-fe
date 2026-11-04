@@ -1,13 +1,14 @@
 import Image from "next/image";
 
 import type { Book, BookReview } from "@/lib/data";
+import { getDict, type Locale } from "@/lib/i18n";
 import SectionTitle from "@/components/ui/SectionTitle";
 
-const Stars = ({ rating }: { rating: number }) => (
+const Stars = ({ rating, label }: { rating: number; label: string }) => (
 	<div
 		className="flex gap-[3.5px] text-fake-black"
 		role="img"
-		aria-label={`${rating} stelle su 5`}
+		aria-label={label}
 	>
 		{Array.from({ length: 5 }).map((_, i) => (
 			<svg
@@ -26,9 +27,11 @@ const Stars = ({ rating }: { rating: number }) => (
 	</div>
 );
 
-const ReviewItem = ({ review }: { review: BookReview }) => (
+const ReviewItem = ({ review, lang }: { review: BookReview; lang: Locale }) => (
 	<div>
-		{review.rating > 0 && <Stars rating={review.rating} />}
+		{review.rating > 0 && (
+			<Stars rating={review.rating} label={getDict(lang).home.stars(review.rating)} />
+		)}
 		<p className="mt-px">{review.review}</p>
 		<p className="mt-[10px] font-playfair text-[15px] font-medium italic text-fake-black">
 			{review.link ? (
@@ -49,18 +52,20 @@ const ReviewItem = ({ review }: { review: BookReview }) => (
 
 type Props = {
 	book: Book;
+	lang: Locale;
 };
 
 /**
  * Sezione di un libro in home: copertina, trama e recensioni dei lettori.
  */
-const BookSection = ({ book }: Props) => {
+const BookSection = ({ book, lang }: Props) => {
+	const t = getDict(lang).home;
 	return (
 		<section className="bg-nocciola pb-[95px] pt-[130px] desk:pb-[130px] desk:pt-[115px]">
 			<div className="qodef-content-grid grid grid-cols-1 items-center gap-y-12 desk:grid-cols-[529fr_525fr] desk:gap-x-[46px]">
 				<Image
 					src={book.coverArt}
-					alt={`Copertina di ${book.title}`}
+					alt={t.coverOf(book.title)}
 					width={800}
 					height={1100}
 					sizes="(min-width: 1025px) 529px, 100vw"
@@ -69,7 +74,7 @@ const BookSection = ({ book }: Props) => {
 				<div>
 					<SectionTitle
 						align="left"
-						tagline="Le recensioni"
+						tagline={t.reviews}
 						text={book.plot}
 						textClassName="text-book-description"
 					>
@@ -78,7 +83,7 @@ const BookSection = ({ book }: Props) => {
 					{book.reviews.length > 0 && (
 						<div className="mt-[30px] grid grid-cols-1 gap-10 min-[681px]:grid-cols-2">
 							{book.reviews.map((review) => (
-								<ReviewItem key={review.id} review={review} />
+								<ReviewItem key={review.id} review={review} lang={lang} />
 							))}
 						</div>
 					)}

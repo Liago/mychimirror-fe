@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import {
 	cinzel,
@@ -8,14 +9,16 @@ import {
 } from "@/assets/fonts";
 import { CartProvider } from "@/components/cart/CartProvider";
 import MiniCart from "@/components/cart/MiniCart";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
 import Header from "@/components/ui/header/Header";
-import { SITE_URL } from "@/lib/site";
 import CookieBanner from "@/components/ui/CookieBanner";
 import Footer from "@/components/ui/Footer";
 import GoogleAnalytics, { GoogleConsentDefaults } from "@/components/ui/GoogleAnalytics";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import { LOCALES, isLocale } from "@/lib/i18n";
+import { SITE_URL } from "@/lib/site";
 
-import "./globals.css";
+import "../globals.css";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
@@ -35,24 +38,34 @@ const fontVariables = [
 	playfairDisplay.variable,
 ].join(" ");
 
-export default function RootLayout({
-	children,
-}: {
+export function generateStaticParams() {
+	return LOCALES.map((lang) => ({ lang }));
+}
+
+type Props = {
 	children: React.ReactNode;
-}) {
+	params: Promise<{ lang: string }>;
+};
+
+export default async function RootLayout({ children, params }: Props) {
+	const { lang } = await params;
+	if (!isLocale(lang)) notFound();
+
 	return (
-		<html lang="it" className={fontVariables}>
+		<html lang={lang} className={fontVariables}>
 			<body className="flex min-h-screen flex-col">
-				<CartProvider>
-					<Header />
-					<div className="flex-1">{children}</div>
-					<Footer />
-					<ScrollToTop />
-					<MiniCart />
-				</CartProvider>
+				<I18nProvider lang={lang}>
+					<CartProvider>
+						<Header />
+						<div className="flex-1">{children}</div>
+						<Footer lang={lang} />
+						<ScrollToTop />
+						<MiniCart />
+					</CartProvider>
+				</I18nProvider>
 				{/* Ordine richiesto da iubenda: consensi di default, banner, poi i tag Google */}
 				<GoogleConsentDefaults />
-				<CookieBanner />
+				<CookieBanner lang={lang} />
 				<GoogleAnalytics />
 			</body>
 		</html>
