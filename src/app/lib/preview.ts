@@ -42,7 +42,11 @@ async function restGet<T>(path: string): Promise<T | null> {
 		);
 	}
 
-	const res = await fetch(new URL(`/wp-json${path}`, endpoint), {
+	const url = new URL(`/wp-json${path}`, endpoint);
+	// Le anteprime devono mostrare sempre l'ultima versione (vedi fetchREST)
+	url.searchParams.set("skip_cache", "1");
+
+	const res = await fetch(url, {
 		headers: {
 			Authorization: `Basic ${Buffer.from(`${user}:${password}`).toString("base64")}`,
 		},

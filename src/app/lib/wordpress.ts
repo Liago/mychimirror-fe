@@ -89,6 +89,9 @@ export async function fetchREST<T>(
 	for (const [key, value] of Object.entries(params)) {
 		url.searchParams.set(key, String(value));
 	}
+	// WP REST Cache servirebbe risposte vecchie subito dopo un salvataggio e la
+	// revalidazione le terrebbe per 24 ore: la cache la gestisce già Next
+	url.searchParams.set("skip_cache", "1");
 
 	const { tags = [], revalidate = DEFAULT_REVALIDATE } = options;
 

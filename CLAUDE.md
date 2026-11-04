@@ -84,7 +84,7 @@ Stato del backend WordPress (verificato su live):
 
 ## Convenzioni
 
-- Data fetching nei Server Component con funzioni in `lib/content.ts`/`lib/data.ts` costruite su `lib/wordpress.ts`. Ogni risposta è in Data Cache per 1h con il tag `wordpress` più tag specifici (`posts`, `uri:<uri>`, `menu`, `videos`, `books`, `reviews`): per invalidare usare `revalidateTag(tag, "max")` o, dentro una server action, `updateTag(tag)`.
+- Data fetching nei Server Component con funzioni in `lib/content.ts`/`lib/data.ts` costruite su `lib/wordpress.ts`. Ogni risposta è in Data Cache per 24h (libri e recensioni 1h) con il tag `wordpress` più tag specifici (`posts`, `uri:<uri>`, `menu`, `videos`, `books`, `reviews`): per invalidare usare `revalidateTag(tag, "max")` o, dentro una server action, `updateTag(tag)`.
 - GraphQL per i singoli contenuti, REST (`fetchREST`) per le liste paginate e i post adiacenti: WPGraphQL non ha offset e il suo `dateQuery` ha precisione al giorno.
 - Le immagini usano `mediaItemUrl` (originale su `/wp-content/uploads/`), non `sourceUrl` che passa dal CDN Jetpack `i0.wp.com`.
 - Nuove pagine WordPress con layout speciale (Elementor, plugin): aggiungerle a `CUSTOM_PAGES` in `[...uri]/page.tsx` con una vista in `components/views/`.
@@ -119,5 +119,6 @@ Stato del backend WordPress (verificato su live):
 - Shop: i libri sono "Esauriti" su WooCommerce (si comprano dai link esterni nella descrizione); il fazzoletto è l'unico prodotto acquistabile ed è nascosto dal catalogo (`catalog_visibility: hidden`), quindi si raggiunge solo dalla sua pagina.
 - Le immagini della Store API arrivano dal CDN Jetpack (`i0.wp.com`): `toProductImage` le riporta all'originale e legge le dimensioni dal parametro `fit`.
 - Form contatti: l'invio vero usa reCAPTCHA v3 e funziona solo da un dominio autorizzato per la chiave (non da localhost).
+- **WP REST Cache**: su WordPress c'è una cache delle risposte REST (header `x-wp-cached-call: served-cache`) che resta vecchia dopo un salvataggio: `fetchREST` e `lib/preview.ts` aggiungono `skip_cache=1`. Ogni nuova lettura REST deve fare lo stesso.
 - **Rate limit Aruba**: il proxy di Aruba risponde 429 se riceve troppe richieste API dallo stesso IP (succede lanciando `check-urls.mjs` a freddo). Next non mette in cache le risposte non-200.
 - Quando WordPress passerà su `cms.mychicmirror.com`, vanno aggiornati gli env, `remotePatterns` e gli endpoint PHP in `/API/`.

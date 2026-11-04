@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MyChicMirror – sincronizzazione con il frontend Next.js
  * Description: Avvisa il frontend quando cambiano contenuti (revalidazione on-demand) e fa aprire le anteprime dell'editor sul frontend.
- * Version: 1.0.0
+ * Version: 1.1.0
  *
  * Installazione: copiare questo file in wp-content/mu-plugins/ e aggiungere in wp-config.php:
  *
@@ -168,25 +168,52 @@ foreach ( array( 'woocommerce_product_set_stock', 'woocommerce_product_set_stock
 	);
 }
 
+/** URL dell'anteprima sul frontend, o null se questo contenuto non ce l'ha. */
+function mcm_sync_preview_url( WP_Post $post ): ?string {
+	if ( ! defined( 'MCM_FRONTEND_URL' ) || ! defined( 'MCM_PREVIEW_SECRET' ) ) {
+		return null;
+	}
+	if ( ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
+		return null;
+	}
+	return add_query_arg(
+		array(
+			'secret' => MCM_PREVIEW_SECRET,
+			'type'   => $post->post_type,
+			'id'     => $post->ID,
+		),
+		rtrim( MCM_FRONTEND_URL, '/' ) . '/api/preview/'
+	);
+}
+
 // Il pulsante "Anteprima" dell'editor apre l'anteprima sul frontend
 add_filter(
 	'preview_post_link',
 	function ( $link, $post ) {
-		if ( ! defined( 'MCM_FRONTEND_URL' ) || ! defined( 'MCM_PREVIEW_SECRET' ) ) {
-			return $link;
-		}
-		if ( ! in_array( $post->post_type, array( 'post', 'page' ), true ) ) {
-			return $link;
-		}
-		return add_query_arg(
-			array(
-				'secret' => MCM_PREVIEW_SECRET,
-				'type'   => $post->post_type,
-				'id'     => $post->ID,
-			),
-			rtrim( MCM_FRONTEND_URL, '/' ) . '/api/preview/'
-		);
+		return mcm_sync_preview_url( $post ) ?? $link;
 	},
 	10,
 	2
+);
+
+// Per le bozze l'editor a blocchi ignora il filtro qui sopra e apre
+// /?p=<id>&preview=true: da lì reindirizziamo chi può modificare il contenuto
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! is_preview() ) {
+			return;
+		}
+		$post = get_queried_object();
+		if ( ! $post instanceof WP_Post || ! current_user_can( 'edit_post', $post->ID ) ) {
+			return;
+		}
+		$url = mcm_sync_preview_url( $post );
+		if ( $url ) {
+			// wp_redirect e non wp_safe_redirect: il frontend è su un altro dominio
+			wp_redirect( $url );
+			exit;
+		}
+	},
+	1
 );
