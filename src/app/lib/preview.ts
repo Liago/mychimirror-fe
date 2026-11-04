@@ -30,11 +30,17 @@ type RawAutosave = {
 	content: { rendered: string };
 };
 
+export class PreviewError extends Error {}
+
 async function restGet<T>(path: string): Promise<T | null> {
 	const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
 	const user = process.env.WP_PREVIEW_USER;
 	const password = process.env.WP_PREVIEW_APP_PASSWORD;
-	if (!endpoint || !user || !password) return null;
+	if (!endpoint || !user || !password) {
+		throw new PreviewError(
+			"Credenziali mancanti: imposta WP_PREVIEW_USER e WP_PREVIEW_APP_PASSWORD e rifai il deploy."
+		);
+	}
 
 	const res = await fetch(new URL(`/wp-json${path}`, endpoint), {
 		headers: {
@@ -42,7 +48,14 @@ async function restGet<T>(path: string): Promise<T | null> {
 		},
 		cache: "no-store",
 	});
-	return res.ok ? res.json() : null;
+	if (res.status === 404) return null;
+	if (!res.ok) {
+		const data = await res.json().catch(() => ({}));
+		throw new PreviewError(
+			`WordPress ha risposto ${res.status} (${data.code ?? "errore"}): controlla utente e Application Password.`
+		);
+	}
+	return res.json();
 }
 
 /**

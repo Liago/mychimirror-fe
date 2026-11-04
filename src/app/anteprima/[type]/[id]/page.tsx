@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { fetchPreview } from "@/lib/preview";
+import { PreviewError, fetchPreview } from "@/lib/preview";
 import PageView from "@/components/views/PageView";
 import PostView from "@/components/views/PostView";
 
@@ -24,7 +24,19 @@ export default async function PreviewPage({ params }: Props) {
 	const { type, id } = await params;
 	if (type !== "post" && type !== "page") notFound();
 
-	const content = await fetchPreview(type, Number(id));
+	let content;
+	try {
+		content = await fetchPreview(type, Number(id));
+	} catch (err) {
+		if (!(err instanceof PreviewError)) throw err;
+		console.error(`Anteprima ${type} ${id}: ${err.message}`);
+		return (
+			<main className="qodef-content-grid py-[100px] text-center">
+				<p className="font-cinzel text-2xl text-black">Anteprima non disponibile</p>
+				<p className="mt-4">{err.message}</p>
+			</main>
+		);
+	}
 	if (!content) notFound();
 
 	return (
