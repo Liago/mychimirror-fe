@@ -30,7 +30,7 @@ const MiniCart = () => {
 			<button
 				type="button"
 				onClick={open}
-				aria-label={`Apri il carrello (${count} articoli)`}
+				aria-label={`${count} articoli nel carrello: apri il carrello`}
 				className="fixed bottom-6 left-6 z-40 flex h-[60px] w-[60px] items-center justify-center rounded bg-white text-black shadow-[0_0_20px_0_rgba(0,0,0,0.15)] desk:bottom-10 desk:left-10"
 			>
 				<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

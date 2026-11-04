@@ -1,10 +1,22 @@
+import { timingSafeEqual } from "node:crypto";
+
 // 24 ore: i contenuti WordPress vengono aggiornati subito dalla revalidazione
 // on-demand (/api/revalidate), il tempo serve solo come rete di sicurezza
 const DEFAULT_REVALIDATE = 86400;
 
+/** Confronto di segreti a tempo costante. */
+export function secretsMatch(received: string | null | undefined, expected: string | undefined) {
+	if (!expected || !received) return false;
+	const a = Buffer.from(received);
+	const b = Buffer.from(expected);
+	return a.length === b.length && timingSafeEqual(a, b);
+}
+
 export type FetchOptions = {
 	tags?: string[];
 	revalidate?: number | false;
+	/** Accetta i dati parziali anche se la risposta GraphQL contiene errori */
+	tolerateErrors?: boolean;
 };
 
 type GraphQLResponse<T> = {
@@ -29,7 +41,7 @@ export async function fetchGraphQL<T>(
 		);
 	}
 
-	const { tags = [], revalidate = DEFAULT_REVALIDATE } = options;
+	const { tags = [], revalidate = DEFAULT_REVALIDATE, tolerateErrors = false } = options;
 
 	const res = await fetch(endpoint, {
 		method: "POST",
@@ -43,7 +55,7 @@ export async function fetchGraphQL<T>(
 	}
 
 	const json: GraphQLResponse<T> = await res.json();
-	if (json.errors?.length) {
+	if (json.errors?.length && !(tolerateErrors && json.data)) {
 		throw new Error(json.errors[0].message);
 	}
 	if (!json.data) {

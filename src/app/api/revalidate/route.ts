@@ -1,17 +1,8 @@
-import { timingSafeEqual } from "node:crypto";
 import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { parseEvent, tagsFor } from "@/lib/revalidate";
-
-function isAuthorized(request: NextRequest) {
-	const expected = process.env.REVALIDATE_SECRET;
-	const received = request.headers.get("x-mcm-secret") ?? "";
-	if (!expected) return false;
-	const a = Buffer.from(received);
-	const b = Buffer.from(expected);
-	return a.length === b.length && timingSafeEqual(a, b);
-}
+import { secretsMatch } from "@/lib/wordpress";
 
 /**
  * Revalidazione on-demand: WordPress chiama questo endpoint quando cambia un
@@ -19,7 +10,7 @@ function isAuthorized(request: NextRequest) {
  * Corpo: un oggetto evento (vedi lib/revalidate.ts) o una lista di eventi.
  */
 export async function POST(request: NextRequest) {
-	if (!isAuthorized(request)) {
+	if (!secretsMatch(request.headers.get("x-mcm-secret"), process.env.REVALIDATE_SECRET)) {
 		return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
 	}
 

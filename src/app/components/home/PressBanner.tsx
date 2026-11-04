@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { featuredVideo, pressBanner } from "@/lib/editorial";
+import YouTubeFacade from "./YouTubeFacade";
 
 /**
  * Banner "Rassegna Stampa" a tutta larghezza seguito dal video in evidenza.
@@ -43,14 +44,9 @@ const PressBanner = () => {
 			<section className="bg-white">
 				<div className="mx-auto max-w-[1140px] p-[10px]">
 					<div className="relative aspect-[16/9] w-full bg-black">
-						<iframe
-							className="absolute inset-0 h-full w-full"
-							src={`https://www.youtube.com/embed/${featuredVideo.youtubeId}?rel=0`}
+						<YouTubeFacade
+							youtubeId={featuredVideo.youtubeId}
 							title={featuredVideo.title}
-							loading="lazy"
-							allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-							referrerPolicy="strict-origin-when-cross-origin"
-							allowFullScreen
 						/>
 					</div>
 				</div>

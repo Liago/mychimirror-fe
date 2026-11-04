@@ -10,13 +10,15 @@ const nextConfig = {
     // C'è un package-lock.json in /Users/.../Projects: la root del progetto è questa cartella
     turbopack: { root: __dirname },
     async headers() {
-        if (allowIndexing) return []
-        return [
-            {
-                source: '/:path*',
-                headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
-            },
+        const headers = [
+            { key: 'X-Content-Type-Options', value: 'nosniff' },
+            { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+            { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
         ]
+        if (!allowIndexing) {
+            headers.push({ key: 'X-Robots-Tag', value: 'noindex, nofollow' })
+        }
+        return [{ source: '/:path*', headers }]
     },
     async redirects() {
         return [
@@ -25,13 +27,33 @@ const nextConfig = {
             // Archivi del portfolio del tema: l'unica voce è la rassegna stampa
             { source: '/portfolio-item/', destination: '/portfolio-item/press/', statusCode: 301 },
             { source: '/portfolio-category/press/', destination: '/portfolio-item/press/', statusCode: 301 },
+            // Archivi WordPress senza una pagina equivalente: portano al blog
+            { source: '/:year(\\d{4})/', destination: '/blog/', statusCode: 301 },
+            { source: '/:year(\\d{4})/:month(\\d{2})/', destination: '/blog/', statusCode: 301 },
+            { source: '/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/', destination: '/blog/', statusCode: 301 },
+            { source: '/author/:name/', destination: '/blog/', statusCode: 301 },
+            { source: '/page/:n(\\d+)/', destination: '/blog/', statusCode: 301 },
+            { source: '/blog/page/:n(\\d+)/', destination: '/blog/', statusCode: 301 },
             // Sitemap di Yoast (registrate in Search Console) -> sitemap di Next
             { source: '/sitemap_index.xml', destination: '/sitemap.xml', statusCode: 301 },
             { source: '/:type([a-z_-]+)-sitemap.xml', destination: '/sitemap.xml', statusCode: 301 },
         ]
     },
+    async rewrites() {
+        return {
+            beforeFiles: [
+                // Link brevi di WordPress
+                { source: '/', has: [{ type: 'query', key: 'p', value: '\\d+' }], destination: '/api/shortlink/' },
+                { source: '/', has: [{ type: 'query', key: 'page_id', value: '\\d+' }], destination: '/api/shortlink/' },
+            ],
+            afterFiles: [{ source: '/favicon.ico', destination: '/icon.png' }],
+            fallback: [],
+        }
+    },
     images: {
         remotePatterns: [
+          // Copertina del video in home
+          { protocol: 'https', hostname: 'i.ytimg.com', port: '', pathname: '/vi/**' },
           {
             protocol: 'https',
             hostname: 'www.mychicmirror.com',

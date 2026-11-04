@@ -50,7 +50,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - Carrello con Store API: aggiungi, modifica quantità, rimuovi; contatore nell'header
 - Checkout: passaggio al checkout di WordPress su `cms.` (gateway di pagamento invariati); `/cart/`, `/checkout/` e `/my-account/` rimandano a WP
 
-### F4 — SEO e tracking ✅ (02/11/2026; GA4 pronto, manca l'ID di misurazione)
+### F4 — SEO e tracking ✅ (GA4 attivo e verificato con il consenso iubenda)
 - `generateMetadata` dai dati Yoast; Open Graph; JSON-LD (Article, Product, Book)
 - `sitemap.xml`, `robots.txt`, canonical, redirect dei vecchi URL non più usati
 - Banner cookie iubenda, analytics (da decidere: Vercel Analytics / GA4)
@@ -59,16 +59,29 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 - `/api/revalidate` chiamato da WP (`save_post`, webhook prodotti) → revalidazione on-demand
 - Draft Mode per le anteprime dall'editor WP
 
-### F6 — Staging e verifica (≈3-4 gg)
-- ⚠️ Il proxy di Aruba limita le richieste API (HTTP 429) dopo qualche centinaio di chiamate ravvicinate dallo stesso IP: verificare con Aruba se si può alzare il limite o mettere in whitelist gli IP di Vercel, e preferire cache lunghe + revalidazione on-demand (F5)
-- Staging su Vercel (es. `staging.mychicmirror.com`) che legge dal WP attuale
-- Script che scarica tutte le URL delle sitemap attuali e controlla che la nuova app risponda 200 con titolo corretto
-- Lighthouse/Core Web Vitals, test acquisto completo (ordine reale a importo minimo, poi rimborso)
+### F6 — Staging e verifica
+Fatto:
+- ✅ Staging su Vercel che legge dal WP attuale; `scripts/check-urls.mjs`: tutte le 331 URL delle sitemap ok, senza blocchi di Aruba sulle chiamate da Vercel
+- ✅ Lighthouse mobile su build locale di produzione (home 74, shop 86, prodotto 90, articolo 91; live: 43, 60, 56, 75). Da rimisurare su Vercel dopo il deploy
+- ✅ Video YouTube caricato solo al clic, header di sicurezza, 0 vulnerabilità nelle dipendenze di produzione, nessuna credenziale nella storia di git
+- ✅ URL fuori dalle sitemap: archivi per data, autore e `/page/N/` portano al blog; `/feed/` RSS; shortlink `?p=` e `?page_id=`
+
+Da fare prima del go-live:
+- Prova d'acquisto completa con ordine reale a importo minimo, poi rimborso
+- Invio reale del form contatti dallo staging
+- Caricare `docs/reviews-from-live.json` da `/admin/reviews-upload`
+- Decidere il blocco preventivo di reCAPTCHA (il video ora parte solo al clic)
+- Contenuti WordPress: link ai capitoli dismessi in `/i-racconti-di-fragola/` e `/i_racconti_di_fragola/`, description di home e shop in Yoast, costo di spedizione (pagina 6,00€, checkout 3,00€)
+- ⚠️ Il proxy di Aruba può rispondere 429 a raffiche di chiamate dallo stesso IP: chiedere ad Aruba il limite esatto e se si possono escludere gli IP di Vercel
 
 ### F7 — Migrazione infrastruttura e go-live (≈1 settimana di calendario, poche ore di lavoro)
 - T-7: creare `cms.mychicmirror.com` su Aruba con SSL; abbassare il TTL DNS
 - T-1: freeze contenuti, backup completo (DB + file)
+- Prima del T-0, in `next.config.js`: rewrite di `/wp-content/*` e `/API/*` verso `cms.` (i contenuti hanno immagini con URL assoluti su `www`), redirect di `/wp-admin/` e `/wp-login.php` a `cms.`, `cms.` in `remotePatterns`
 - T-0: spostare `home`/`siteurl` di WP su `cms.`, aggiornare CORS e cookie, puntare `www` e apex a Vercel, smoke test
+- T-0, variabili Vercel: `NEXT_PUBLIC_WORDPRESS_API_URL` e `NEXT_PUBLIC_WORDPRESS_SITE_URL` su `cms.`, `BOOKS_*` e `MAIN_IMAGE_COVER_URL` su `cms.`, `NEXT_PUBLIC_ALLOW_INDEXING=true`; nuovi `REVALIDATE_SECRET` e `PREVIEW_SECRET`
+- T-0, `wp-config.php`: `MCM_FRONTEND_URL` su `https://www.mychicmirror.com` e i nuovi segreti
+- T-0, Search Console: inviare `sitemap.xml`
 - Rollback: DNS di nuovo su Aruba + `siteurl` ripristinato (< 15 min)
 
 ### F8 — Post go-live (1-2 settimane)

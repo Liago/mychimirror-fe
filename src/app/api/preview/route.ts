@@ -2,6 +2,8 @@ import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 
+import { secretsMatch } from "@/lib/wordpress";
+
 /**
  * Link "Anteprima" dell'editor WordPress (vedi mcm-frontend-sync.php):
  * /api/preview/?secret=...&type=post&id=123 attiva il Draft Mode e apre l'anteprima.
@@ -12,7 +14,7 @@ export async function GET(request: NextRequest) {
 	const type = searchParams.get("type");
 	const id = Number(searchParams.get("id"));
 
-	if (!process.env.PREVIEW_SECRET || secret !== process.env.PREVIEW_SECRET) {
+	if (!secretsMatch(secret, process.env.PREVIEW_SECRET)) {
 		return new Response("Token non valido", { status: 401 });
 	}
 	if ((type !== "post" && type !== "page") || !Number.isInteger(id) || id <= 0) {

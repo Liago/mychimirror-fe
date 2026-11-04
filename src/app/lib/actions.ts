@@ -6,7 +6,7 @@ import { cleanText } from "@/utility/utils";
 
 import { getDbPool } from "./db";
 import { fetchPostList, type PostList } from "./content";
-import { mutateGraphQL } from "./wordpress";
+import { mutateGraphQL, secretsMatch } from "./wordpress";
 
 type CreateCommentInput = {
   postDatabaseId: number;
@@ -112,7 +112,7 @@ export async function bulkCreateReviewsAction(
         "ADMIN_UPLOAD_PASSWORD non configurata sul server. Aggiungila nel file .env",
     };
   }
-  if (input.password !== expected) {
+  if (!secretsMatch(input.password, expected)) {
     return { ok: false, error: "Password non valida." };
   }
 

@@ -7,7 +7,7 @@ import { formatThemeDate } from "@/utility/utils";
 type Props = {
 	post: PostSummary;
 	/**
-	 * "archive": immagine intera e titolo h4 (archivi categoria/tag);
+	 * "archive": immagine intera e titolo piccolo (archivi categoria/tag);
 	 * "box": immagine ritagliata 417×292 e titolo h3 (ultimi post in home).
 	 */
 	variant?: "archive" | "box";
@@ -18,7 +18,7 @@ type Props = {
  */
 const PostCard = ({ post, variant = "archive" }: Props) => {
 	const isBox = variant === "box";
-	const TitleTag = isBox ? "h3" : "h4";
+	const TitleTag = isBox ? "h3" : "h2";
 
 	return (
 		<article>

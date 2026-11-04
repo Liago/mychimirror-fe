@@ -19,6 +19,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
+	alternates: {
+		types: { "application/rss+xml": `${SITE_URL}/feed/` },
+	},
 	title: {
 		default: "MyChicMirror",
 		template: "%s - MyChicMirror",

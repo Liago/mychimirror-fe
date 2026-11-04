@@ -240,7 +240,9 @@ export async function resolveUri(uri: string): Promise<ContentNode | null> {
 			}
 		`,
 		{ uri },
-		{ tags: [`uri:${uri}`] }
+		// WPGraphQL dà errore (con nodeByUri null) sulle tassonomie del tema che non
+		// conosce: è un URI inesistente, non un guasto
+		{ tags: [`uri:${uri}`], tolerateErrors: true }
 	);
 
 	const node = data.nodeByUri;

@@ -30,6 +30,8 @@ function parseSegments(segments: string[]): Parsed | null {
 	let page = 1;
 	let parts = segments;
 	const n = parts.length;
+	// I feed dei singoli contenuti non esistono: WordPress risolverebbe il contenuto stesso
+	if (parts[n - 1] === "feed") return null;
 	if (n >= 2 && parts[n - 2] === "page") {
 		page = Number(parts[n - 1]);
 		if (!Number.isInteger(page) || page < 2) return null;

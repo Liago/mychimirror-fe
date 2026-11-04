@@ -32,7 +32,7 @@ const IUBENDA_CONFIG = {
 		customizeButtonDisplay: true,
 		explicitWithdrawal: true,
 		listPurposes: true,
-		logo: "https://www.mychicmirror.com/wp-content/uploads/LOGO-scaled.jpg",
+		logo: "https://www.mychicmirror.com/wp-content/uploads/LOGO-300x300.jpg",
 		position: "float-bottom-right",
 		rejectButtonCaptionColor: "#FFFFFF",
 		rejectButtonColor: "#0073CE",

@@ -116,7 +116,11 @@ export function yoastToMetadata(
 	return {
 		title: yoast.title ? { absolute: cleanText(yoast.title) } : fallbackTitle,
 		description: description ? cleanText(description) : undefined,
-		alternates: canonical ? { canonical } : undefined,
+		// alternates non si fonde con quello del layout: va ripetuto il feed RSS
+		alternates: {
+			...(canonical ? { canonical } : {}),
+			types: { "application/rss+xml": `${SITE_URL}/feed/` },
+		},
 		robots: toRobots(yoast.robots),
 		openGraph: {
 			type: yoast.og_type === "article" ? "article" : "website",

@@ -36,9 +36,9 @@ const MetroTile = ({ post, priority = false }: Props) => {
 				<p className="font-playfair text-[15px] italic text-white">
 					{formatThemeDate(post.date)}
 				</p>
-				<h4 className="font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-white">
+				<h2 className="font-cinzel text-2xl font-medium leading-7 tracking-[-0.02em] text-white">
 					<span dangerouslySetInnerHTML={{ __html: post.title }} />
-				</h4>
+				</h2>
 			</div>
 			<Link
 				href={post.uri}

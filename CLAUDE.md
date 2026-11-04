@@ -49,7 +49,8 @@ src/app/
   lib/seo.ts                      # metadata da Yoast (yoast_head_json), JSON-LD, schema Product
   lib/revalidate.ts, api/revalidate/route.ts   # revalidazione on-demand: evento WordPress -> tag di cache
   lib/preview.ts, api/preview/, api/exit-preview/, anteprima/[type]/[id]/   # anteprime bozze (Draft Mode)
-  sitemap.ts, robots.ts, icon.png, apple-icon.png   # SEO e icone (logo "MM")
+  sitemap.ts, robots.ts, feed/route.ts, icon.png, apple-icon.png   # SEO, RSS e icone (logo "MM")
+  api/shortlink/route.ts          # link brevi WordPress (/?p=123, /?page_id=123) -> indirizzo vero
   lib/shop.ts                     # catalogo: prodotti, categorie, descrizione (REST WP), recensioni, correlati
   lib/cart.ts, lib/cartActions.ts # carrello Store API (Cart-Token in cookie httpOnly) e server action
   lib/db.ts                       # pool MySQL lazy
@@ -94,9 +95,10 @@ Stato del backend WordPress (verificato su live):
 - Mutazioni tramite server actions in `lib/actions.ts` che ritornano un risultato discriminato `{ ok: true, ... } | { ok: false, error }` con messaggi in italiano; i client component usano `useTransition`.
 - HTML da WordPress reso con il componente `WPContent` (classe `.wp-content`, stili dei blocchi Gutenberg in `globals.css`).
 - Tutti i testi sono in italiano, anche quelli che il tema originale mostrava in inglese (date "15 aprile 2023" con `formatThemeDate`, "Articolo precedente", "Commenti", "Rispondi"...): è una scelta voluta, non una differenza da correggere.
-- Pagine WordPress dismesse: in `RETIRED_PAGES` di `[...uri]/page.tsx` (rispondono 404). Redirect permanenti in `redirects()` di `next.config.js`.
+- Pagine WordPress dismesse: in `RETIRED_PAGES` di `lib/content.ts` (rispondono 404). Redirect permanenti in `redirects()` di `next.config.js`.
 - **SEO**: ogni pagina usa `generateMetadata` con `fetchYoastHead` + `yoastToMetadata` (il titolo Yoast include già " - MyChicMirror": è `title.absolute`) e stampa `<JsonLd json={buildJsonLd(yoast)} />`. Gli URL di WordPress vengono riscritti su `SITE_URL` (`toPublicUrl`).
 - Dati secondari di una pagina (recensioni, correlati, post adiacenti) vanno avvolti in `orFallback`: se WordPress non risponde la pagina esce senza quella parte invece di andare in errore.
+- Il video in home è una copertina che carica YouTube solo al clic (`YouTubeFacade`): pesa 1 MB in meno e non contatta Google prima del clic.
 - Banner cookie: `components/ui/CookieBanner.tsx` (iubenda, configurazione copiata dal plugin WP).
 - Analytics: Google Analytics 4 (`components/ui/GoogleAnalytics.tsx`, attivo solo se c'è `NEXT_PUBLIC_GA_MEASUREMENT_ID`) con Google Consent Mode v2: consensi negati di default, aggiornati da iubenda (`googleConsentMode: true`). Nel layout l'ordine è: `GoogleConsentDefaults`, `CookieBanner`, `GoogleAnalytics`.
 - Immagini remote con `next/image`: ogni nuovo host va aggiunto a `images.remotePatterns` in `next.config.js`.

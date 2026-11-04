@@ -17,8 +17,12 @@ const ProductGrid = ({ products, columns = 3 }: Props) => {
 				columns === 4 ? "desk:grid-cols-4" : "desk:grid-cols-3"
 			}`}
 		>
-			{products.map((product) => (
-				<ProductCard key={product.id} product={product} />
+			{products.map((product, i) => (
+				<ProductCard
+					key={product.id}
+					product={product}
+					priority={columns === 3 && i < 3}
+				/>
 			))}
 		</ul>
 	);

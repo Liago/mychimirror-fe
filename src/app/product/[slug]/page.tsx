@@ -124,7 +124,7 @@ export default async function ProductPage({ params }: Props) {
 										<span key={cat.id}>
 											<Link
 												href={cat.uri}
-												className="text-black transition-colors hover:text-fake-black"
+												className="text-black underline underline-offset-2 transition-colors hover:text-fake-black"
 											>
 												{cat.name}
 											</Link>
