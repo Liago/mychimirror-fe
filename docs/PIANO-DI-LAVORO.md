@@ -62,7 +62,7 @@ Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headle
 ### F6 — Staging e verifica
 Fatto:
 - ✅ Staging su Vercel che legge dal WP attuale; `scripts/check-urls.mjs`: tutte le 331 URL delle sitemap ok, senza blocchi di Aruba sulle chiamate da Vercel
-- ✅ Lighthouse mobile su build locale di produzione (home 74, shop 86, prodotto 90, articolo 91; live: 43, 60, 56, 75). Da rimisurare su Vercel dopo il deploy
+- ✅ Lighthouse mobile sullo staging Vercel con cache calda: home 88, shop 92, prodotto 88, articolo 96 (live: 43, 60, 56, 75); LCP 2,5–3,7 s, CLS 0
 - ✅ Video YouTube caricato solo al clic, header di sicurezza, 0 vulnerabilità nelle dipendenze di produzione, nessuna credenziale nella storia di git
 - ✅ URL fuori dalle sitemap: archivi per data, autore e `/page/N/` portano al blog; `/feed/` RSS; shortlink `?p=` e `?page_id=`
 
