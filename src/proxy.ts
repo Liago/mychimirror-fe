@@ -5,9 +5,9 @@ import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale } from "@/lib/i18n";
 /** Lingua preferita dal browser: l'inglese vale per chi non legge in italiano. */
 function preferredLocale(request: NextRequest) {
 	const header = request.headers.get("accept-language");
-	// Senza Accept-Language (motori di ricerca) restiamo sull'italiano
-	if (!header) return DEFAULT_LOCALE;
-	const first = header.split(",")[0].trim().toLowerCase();
+	// Senza una preferenza (motori di ricerca, client con "*") restiamo sull'italiano
+	const first = header?.split(",")[0].split(";")[0].trim().toLowerCase();
+	if (!first || first === "*") return DEFAULT_LOCALE;
 	return first.startsWith("it") ? DEFAULT_LOCALE : "en";
 }
 

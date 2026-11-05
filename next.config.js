@@ -29,7 +29,8 @@ const nextConfig = {
             { source: '/portfolio-item/', destination: '/portfolio-item/press/', statusCode: 301 },
             { source: '/portfolio-category/press/', destination: '/portfolio-item/press/', statusCode: 301 },
             // Archivi WordPress senza una pagina equivalente: portano al blog
-            { source: '/:year(\\d{4})/', destination: '/blog/', statusCode: 301 },
+            // /2019/ è un articolo, non un archivio
+            { source: '/:year((?!2019)\\d{4})/', destination: '/blog/', statusCode: 301 },
             { source: '/:year(\\d{4})/:month(\\d{2})/', destination: '/blog/', statusCode: 301 },
             { source: '/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/', destination: '/blog/', statusCode: 301 },
             { source: '/author/:name/', destination: '/blog/', statusCode: 301 },
