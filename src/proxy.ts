@@ -49,8 +49,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	// Esclusi API, asset, route fuori da [lang] e file con estensione
+	// Esclusi API, asset, route fuori da [lang], percorsi di WordPress e file con estensione
 	matcher: [
-		"/((?!api/|_next/|feed/?$|checkout/?$|my-account/?$|.*\\.[a-zA-Z0-9]+$).*)",
+		"/((?!api/|_next/|wp-content/|wp-json/|wc-api/|wp-admin/|API/|feed/?$|checkout/?$|my-account/?$|.*\\.[a-zA-Z0-9]+$).*)",
 	],
 };

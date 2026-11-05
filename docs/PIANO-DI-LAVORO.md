@@ -79,15 +79,17 @@ Da fare prima del go-live:
 - Pagina articolo ridisegnata: foto e titolo affiancati, nuovo player audio, una lingua per volta
 - Dopo il deploy: rilanciare `check-urls.mjs` sullo staging
 
-### F7 — Migrazione infrastruttura e go-live (≈1 settimana di calendario, poche ore di lavoro)
-- T-7: creare `cms.mychicmirror.com` su Aruba con SSL; abbassare il TTL DNS
-- T-1: freeze contenuti, backup completo (DB + file)
-- Prima del T-0, in `next.config.js`: rewrite di `/wp-content/*` e `/API/*` verso `cms.` (i contenuti hanno immagini con URL assoluti su `www`), redirect di `/wp-admin/` e `/wp-login.php` a `cms.`, `cms.` in `remotePatterns`
-- T-0: spostare `home`/`siteurl` di WP su `cms.`, aggiornare CORS e cookie, puntare `www` e apex a Vercel, smoke test
-- T-0, variabili Vercel: `NEXT_PUBLIC_WORDPRESS_API_URL` e `NEXT_PUBLIC_WORDPRESS_SITE_URL` su `cms.`, `BOOKS_*` e `MAIN_IMAGE_COVER_URL` su `cms.`, `NEXT_PUBLIC_ALLOW_INDEXING=true`; nuovi `REVALIDATE_SECRET` e `PREVIEW_SECRET`
-- T-0, `wp-config.php`: `MCM_FRONTEND_URL` su `https://www.mychicmirror.com` e i nuovi segreti
-- T-0, Search Console: inviare `sitemap.xml`
-- Rollback: DNS di nuovo su Aruba + `siteurl` ripristinato (< 15 min)
+### F7 — Migrazione infrastruttura e go-live
+Decisione (05/11/2026): `cms.mychicmirror.com` esiste già ed è una copia separata di WordPress, ferma a ottobre 2025, con SSL attivo. Si aggiorna quella copia e il WordPress su `www` resta intatto: il rollback è solo DNS e si può provare tutto prima di toccare il dominio.
+
+1. **Backup e copia su `cms`:** backup completo di `www`; export del database con phpMyAdmin e import nel database di `cms`; copia via FTP di `wp-content` e `/API/`. Niente plugin di migrazione: sostituirebbero `www` con `cms` anche nei link interni dei contenuti.
+2. **Configurazione di `cms`:** `WP_HOME` e `WP_SITEURL` in `wp-config.php`, credenziali DB di `cms` anche in `/API/`, costanti `MCM_*`, chiave reCAPTCHA autorizzata per il dominio.
+3. **Prove con lo staging su `cms`:** variabili Vercel `NEXT_PUBLIC_WORDPRESS_API_URL`, `NEXT_PUBLIC_WORDPRESS_SITE_URL`, `BOOKS_*`, `MAIN_IMAGE_COVER_URL`, `DB_*`; controllo URL, anteprima, revalidazione, form, checkout completo, callback dei pagamenti.
+4. **Preparazione del cambio:** TTL DNS bassi, dominio aggiunto su Vercel, `NEXT_PUBLIC_SITE_URL` su `www`, `NEXT_PUBLIC_ALLOW_INDEXING=true`, nuovi `REVALIDATE_SECRET` e `PREVIEW_SECRET`.
+5. **T-0:** blocco contenuti e ordini su `www`, ultimo riallineamento del database, DNS di `@` e `www` su Vercel (compresi i record AAAA; MX e posta non si toccano), `MCM_FRONTEND_URL` su `https://www.mychicmirror.com`, smoke test, sitemap in Search Console.
+6. **Rollback:** DNS di nuovo su Aruba; il WordPress di `www` riparte com'era.
+
+Con `NEXT_PUBLIC_WORDPRESS_SITE_URL` su `cms.`, `next.config.js` riscrive `/wp-content/*`, `/wp-json/*`, `/wc-api/*` e `/API/*` verso `cms.` e reindirizza `/wp-admin/` e `/wp-login.php`.
 
 ### F8 — Post go-live (1-2 settimane)
 - Monitoraggio 404 ed errori, Search Console, Core Web Vitals; TTL di nuovo alti; dismissione tema Belletrist/Elementor
@@ -96,5 +98,5 @@ Da fare prima del go-live:
 
 ## Rischi principali
 1. **MySQL Aruba da Vercel:** l'hosting condiviso di solito non accetta connessioni MySQL dall'esterno, quindi il tool `/admin/reviews-upload` su Vercel potrebbe non funzionare. Alternativa: un endpoint PHP su `cms.` che riceve le recensioni.
-2. **Cambio dominio di WP:** spostare `siteurl` su `cms.` cambia gli URL dei media e i cookie di WooCommerce. Va provato prima su una copia (staging WP).
+2. **Cambio dominio di WP:** su `cms.` cambiano gli URL dei media e i cookie di WooCommerce: si prova sulla copia prima del cambio DNS.
 3. **Contenuti Elementor:** l'HTML delle pagine Elementor senza i CSS di Elementor appare rotto, per questo quelle pagine si rifanno in React.

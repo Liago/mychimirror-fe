@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MyChicMirror – sincronizzazione con il frontend Next.js
  * Description: Avvisa il frontend quando cambiano contenuti (revalidazione on-demand) e fa aprire le anteprime dell'editor sul frontend.
- * Version: 1.1.0
+ * Version: 1.2.0
  *
  * Installazione: copiare questo file in wp-content/mu-plugins/ e aggiungere in wp-config.php:
  *
@@ -216,4 +216,14 @@ add_action(
 		}
 	},
 	1
+);
+
+// cms. serve solo a redattori e checkout: i motori di ricerca devono vedere www
+add_action(
+	'send_headers',
+	function () {
+		if ( 'cms.mychicmirror.com' === wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+			header( 'X-Robots-Tag: noindex, nofollow' );
+		}
+	}
 );
