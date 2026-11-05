@@ -24,8 +24,7 @@ async function getRecaptchaToken(): Promise<string | undefined> {
 }
 
 const ContactForm = () => {
-	const { lang, t } = useI18n();
-	const italian = lang === "it";
+	const { t } = useI18n();
 	const [email, setEmail] = useState("");
 	const [name, setName] = useState("");
 	const [message, setMessage] = useState("");
@@ -48,28 +47,21 @@ const ContactForm = () => {
 				recaptchaToken,
 			});
 			if (result.ok) {
-				setFeedback({
-					type: "success",
-					message: italian ? result.message : t.contact.sent,
-				});
+				setFeedback({ type: "success", message: t.contact.sent });
 				setEmail("");
 				setName("");
 				setMessage("");
 			} else {
+				// I messaggi di Contact Form 7 sono nella lingua del modulo: usiamo i nostri
 				setFieldErrors(
-					italian
-						? (result.fieldErrors ?? {})
-						: Object.fromEntries(
-								Object.keys(result.fieldErrors ?? {}).map((key) => [
-									key,
-									t.common.fieldError,
-								])
-							)
+					Object.fromEntries(
+						Object.keys(result.fieldErrors ?? {}).map((key) => [
+							key,
+							t.common.fieldError,
+						])
+					)
 				);
-				setFeedback({
-					type: "error",
-					message: italian ? result.error : t.common.formError,
-				});
+				setFeedback({ type: "error", message: t.common.formError });
 			}
 		});
 	};

@@ -200,7 +200,7 @@ export async function loadPostListAction(
 }
 
 // Modulo "Contatti" di Contact Form 7 su WordPress
-const CONTACT_FORM_ID = 5380;
+const CONTACT_FORM_ID = 43618;
 
 type ContactInput = {
   email: string;
