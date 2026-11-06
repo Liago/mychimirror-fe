@@ -29,11 +29,12 @@ const MiniCart = () => {
 
 	return (
 		<>
+			{/* Nascosto finché lo shop è chiuso: per riattivarlo, "hidden" torna "flex" */}
 			<button
 				type="button"
 				onClick={open}
 				aria-label={t.cart.open(count)}
-				className="fixed bottom-6 left-6 z-40 flex h-[60px] w-[60px] items-center justify-center rounded bg-white text-black shadow-[0_0_20px_0_rgba(0,0,0,0.15)] desk:bottom-10 desk:left-10"
+				className="fixed bottom-6 left-6 z-40 hidden h-[60px] w-[60px] items-center justify-center rounded bg-white text-black shadow-[0_0_20px_0_rgba(0,0,0,0.15)] desk:bottom-10 desk:left-10"
 			>
 				<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
 					<path d="M3 9h18l-2 11H5L3 9z" />
