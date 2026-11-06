@@ -50,7 +50,11 @@ export default async function ProductPage({ params }: Props) {
 	if (!product) notFound();
 
 	const [description, reviews, related, yoast] = await Promise.all([
-		orFallback(fetchProductDescription(product.slug), { html: "", reviewsOpen: false }),
+		orFallback(fetchProductDescription(product.slug), {
+			html: "",
+			shortHtml: "",
+			reviewsOpen: false,
+		}),
 		orFallback(fetchProductReviews(product.id), []),
 		orFallback(fetchRelatedProducts(product), []),
 		productYoast(product.slug),
@@ -106,7 +110,7 @@ export default async function ProductPage({ params }: Props) {
 							)}
 							{formatPrice(product.price)}
 						</p>
-						<WPContent html={product.shortDescription} className="mt-[42px]" />
+						<WPContent html={description.shortHtml} className="mt-[42px]" />
 						{product.stockText && (
 							<p className={product.inStock ? "" : "text-black"}>
 								{lang === "it" || product.inStock ? product.stockText : t.outOfStock}

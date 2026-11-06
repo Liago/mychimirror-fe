@@ -31,7 +31,6 @@ export type Product = {
 	uri: string;
 	name: string;
 	sku: string;
-	shortDescription: string;
 	images: ProductImage[];
 	categories: ProductCategory[];
 	/** Righe della tabella "Informazioni aggiuntive" (peso, dimensioni, attributi) */
@@ -53,7 +52,6 @@ type RawProduct = {
 	slug: string;
 	name: string;
 	sku: string;
-	short_description: string;
 	images: RawImage[];
 	attributes: { name: string; terms: { name: string }[] }[];
 	review_count: number;
@@ -109,7 +107,6 @@ function toProduct(raw: RawProduct): Product {
 		uri: `/product/${raw.slug}/`,
 		name: cleanText(raw.name),
 		sku: raw.sku,
-		shortDescription: raw.short_description,
 		images: raw.images.map(toProductImage),
 		details: [
 			{ label: "Peso", value: raw.extensions?.mcm?.weight ?? "" },
@@ -184,23 +181,38 @@ export async function fetchProductCategory(
 		: null;
 }
 
+/** Toglie i commenti HTML e gli elementi rimasti vuoti (es. <h1><strong></strong></h1>). */
+function cleanExcerpt(html: string): string {
+	let result = html.replace(/<!--[\s\S]*?-->/g, "");
+	for (let i = 0; i < 2; i++) {
+		result = result.replace(/<(h[1-6]|p|strong|span)\b[^>]*>\s*<\/\1>/gi, "");
+	}
+	return result.trim();
+}
+
 /**
- * Descrizione completa del prodotto. La leggiamo dalla REST di WordPress e non
- * dalla Store API, che toglie i tag <style> lasciandone il CSS come testo.
+ * Descrizioni del prodotto. Le leggiamo dalla REST di WordPress e non dalla Store
+ * API, che lascia il CSS dei tag <style> come testo e rende visibili i commenti
+ * HTML della descrizione breve.
  */
 export async function fetchProductDescription(
 	slug: string
-): Promise<{ html: string; reviewsOpen: boolean }> {
+): Promise<{ html: string; shortHtml: string; reviewsOpen: boolean }> {
 	const res = await fetchREST<
-		{ content: { rendered: string }; comment_status: string }[]
+		{
+			content: { rendered: string };
+			excerpt: { rendered: string };
+			comment_status: string;
+		}[]
 	>(
 		"/wp/v2/product",
-		{ slug, _fields: "content,comment_status" },
+		{ slug, _fields: "content,excerpt,comment_status" },
 		{ tags: ["products", `product:${slug}`] }
 	);
 	const raw = res.data[0];
 	return {
 		html: (raw?.content.rendered ?? "").replace(/<style[\s\S]*?<\/style>/gi, "").trim(),
+		shortHtml: cleanExcerpt(raw?.excerpt.rendered ?? ""),
 		reviewsOpen: raw?.comment_status === "open",
 	};
 }
