@@ -15,7 +15,7 @@ type Props = {
  */
 const LatestPosts = ({ posts, lang }: Props) => {
 	return (
-		<section className="bg-nocciola pb-[95px] pt-[50px] desk:pb-[120px] desk:pt-[22px]">
+		<section className="bg-nocciola pb-[95px] desk:pb-[120px]">
 			<Image
 				alt="Melissa Cecchini per MyChicMirror"
 				src={process.env.MAIN_IMAGE_COVER_URL as string}
