@@ -4,7 +4,6 @@ import { updateTag } from "next/cache";
 
 import { cleanText } from "@/utility/utils";
 
-import { getDbPool } from "./db";
 import { fetchPostList, type PostList } from "./content";
 import { mutateGraphQL, secretsMatch } from "./wordpress";
 
@@ -116,7 +115,7 @@ export async function bulkCreateReviewsAction(
     return { ok: false, error: "Password non valida." };
   }
 
-  const rows: [string, string, number, number, string | null][] = [];
+  const rows: (ReviewInput & { bookId: number })[] = [];
   let skipped = 0;
 
   for (const [bookIdStr, reviews] of Object.entries(input.reviewsByBook ?? {})) {
@@ -133,12 +132,12 @@ export async function bulkCreateReviewsAction(
           ? Math.max(0, Math.min(5, Math.round(r.rating)))
           : NaN;
       const link =
-        typeof r?.link === "string" && r.link.trim() ? r.link.trim() : null;
+        typeof r?.link === "string" && r.link.trim() ? r.link.trim() : undefined;
       if (!user || !review || Number.isNaN(rating)) {
         skipped += 1;
         continue;
       }
-      rows.push([user, review, rating, bookId, link]);
+      rows.push({ user, review, rating, bookId, link });
     }
   }
 
@@ -146,38 +145,64 @@ export async function bulkCreateReviewsAction(
     return { ok: false, error: "Nessuna recensione valida trovata nel JSON." };
   }
 
+  const secret = process.env.REVIEWS_API_SECRET;
+  if (!secret) {
+    return { ok: false, error: "REVIEWS_API_SECRET non configurata sul server." };
+  }
+
   try {
-    const pool = getDbPool();
-
-    const [result] = await pool.query(
-      "INSERT INTO reviews (`user`, review, rating, bookId, link) VALUES ?",
-      [rows]
+    // Da Vercel il MySQL di Aruba non è raggiungibile: scrive il mu-plugin mcm-reviews.php
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_WORDPRESS_SITE_URL}/wp-json/mcm/v1/reviews`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-MCM-Secret": secret },
+        body: JSON.stringify({ reviews: rows }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(30_000),
+      }
     );
-    const rs = result as { affectedRows?: number; insertId?: number };
-    const inserted = rs.affectedRows ?? 0;
-    const insertId = rs.insertId ?? 0;
+    if (res.status === 404) {
+      return { ok: false, error: "Su WordPress manca il mu-plugin mcm-reviews.php." };
+    }
+    if (res.status === 401 || res.status === 403) {
+      return {
+        ok: false,
+        error: "WordPress ha rifiutato il segreto: controlla MCM_REVIEWS_SECRET e REVIEWS_API_SECRET.",
+      };
+    }
+    if (!res.ok) {
+      return { ok: false, error: `WordPress ha risposto ${res.status}.` };
+    }
 
-    const [dbInfoRows] = await pool.query(
-      "SELECT DATABASE() AS db, (SELECT COUNT(*) FROM reviews) AS total"
-    );
-    const info = (dbInfoRows as any[])[0] ?? {};
-
-    updateTag("reviews");
+    const data = (await res.json()) as {
+      inserted: number;
+      duplicates: number;
+      failed: number;
+      error: string;
+      insertId: number;
+      database: string;
+      total: number;
+    };
+    if (data.inserted) updateTag("reviews");
+    if (!data.inserted && data.failed) {
+      return { ok: false, error: data.error || "Nessuna recensione inserita." };
+    }
 
     return {
       ok: true,
-      inserted,
-      skipped,
+      inserted: data.inserted,
+      skipped: skipped + data.duplicates + data.failed,
       diagnostics: {
-        database: info.db ?? null,
-        totalReviewsAfter: Number(info.total ?? 0),
-        insertId,
+        database: data.database,
+        totalReviewsAfter: data.total,
+        insertId: data.insertId,
       },
     };
   } catch (err: any) {
     return {
       ok: false,
-      error: err?.message || "Errore durante l'inserimento nel database.",
+      error: err?.message || "Errore durante l'invio delle recensioni.",
     };
   }
 }

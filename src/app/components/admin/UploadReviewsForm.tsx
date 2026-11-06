@@ -81,7 +81,7 @@ const UploadReviewsForm = () => {
 			});
 			if (r.ok) {
 				const skippedNote = r.skipped
-					? ` (${r.skipped} record scartati per campi mancanti/invalidi)`
+					? ` (${r.skipped} record scartati: doppioni o campi non validi)`
 					: "";
 				setResult({
 					type: "success",

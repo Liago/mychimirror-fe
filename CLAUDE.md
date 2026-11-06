@@ -10,7 +10,7 @@ Lingua del progetto: UI e messaggi in italiano; commit in inglese con prefisso c
 npm run dev     # dev server su http://localhost:3000
 npm run build   # build di produzione (fa anche il type-check)
 npm run lint    # eslint . (flat config in eslint.config.mjs, preset next/core-web-vitals)
-node scripts/check-urls.mjs [baseUrl]   # verifica che tutte le URL delle sitemap del live rispondano 200
+node scripts/check-urls.mjs [baseUrl]   # verifica che le URL storiche (sitemap Yoast su cms) rispondano come previsto; --en per quelle inglesi
 ```
 
 Non ci sono test automatici. Node 20.
@@ -20,7 +20,6 @@ Non ci sono test automatici. Node 20.
 - Next.js 16 (App Router, React Server Components, Turbopack) + React 19, TypeScript `strict`
 - Tailwind CSS 3, nessuna libreria di componenti (NextUI rimosso: i suoi valori di tema usati — `text-tiny`, `text-small`, `shadow-small/medium`, `rounded-large`, `foreground`, `divider`, `default-500` — sono replicati in `tailwind.config.ts`)
 - GraphQL con `fetch` nativo (`lib/wordpress.ts`), nessun client Apollo
-- `mysql2` per l'unico accesso diretto al DB (tool admin recensioni)
 - Font via `next/font/google` in `src/app/assets/fonts.ts`: Cinzel (titoli), Cormorant Garamond (testo), Playfair Display (corsivi), Open Sans (menu, bottoni), esposti come variabili CSS su `<html>`
 
 ## Struttura
@@ -56,7 +55,6 @@ src/app/
   api/shortlink/route.ts          # link brevi WordPress (/?p=123, /?page_id=123) -> indirizzo vero
   lib/shop.ts                     # catalogo: prodotti, categorie, descrizione (REST WP), recensioni, correlati
   lib/cart.ts, lib/cartActions.ts # carrello Store API (Cart-Token in cookie httpOnly) e server action
-  lib/db.ts                       # pool MySQL lazy
   components/home/                # sezioni della home: LatestPosts, PressBanner, BookSection, BookPressQuote, RetailerLogos, NewsletterBanner
   components/admin/               # form del tool recensioni
   components/shop/                # ProductCard/Grid, ProductGallery, AddToCartForm, ProductTabs
@@ -71,10 +69,10 @@ src/app/
 
 | Dato | Sorgente | Dove |
 |---|---|---|
-| Post, pagine, commenti, menu | WPGraphQL `NEXT_PUBLIC_WORDPRESS_API_URL` (oggi `https://www.mychicmirror.com/graphql`) | `lib/data.ts` |
+| Post, pagine, commenti, menu | WPGraphQL `NEXT_PUBLIC_WORDPRESS_API_URL` (`https://cms.mychicmirror.com/graphql`) | `lib/data.ts` |
 | Creazione commenti | mutation `createComment` WPGraphQL | `lib/actions.ts` |
 | Libri | `BOOKS_EDITED_DATA` → `/API/getBooks.php` (PHP custom sul server WP) | `fetchBooks` |
-| Recensioni libri | `BOOKS_REVIEWS_DATA` → `/API/getBookReviews.php`; scrittura diretta su tabella MySQL `reviews` | `fetchBooks`, `bulkCreateReviewsAction` |
+| Recensioni libri | `BOOKS_REVIEWS_DATA` → `/API/getBookReviews.php`; scrittura sulla tabella MySQL `reviews` tramite il mu-plugin `mcm-reviews.php` (MySQL di Aruba non raggiungibile da Vercel) | `fetchBooks`, `bulkCreateReviewsAction` |
 | Prodotti, categorie prodotto | WooCommerce Store API `/wp-json/wc/store/v1/products` (pubblica, via `fetchREST`) | `lib/shop.ts` |
 | Carrello | Store API `/cart`, `/cart/add-item`... con header `Cart-Token` (niente nonce) | `lib/cart.ts` |
 | Contenuti editoriali della home | scritti a mano in `lib/editorial.ts` (sul vecchio sito erano statici in Elementor) | `components/home/*` |
@@ -118,9 +116,9 @@ Stato del backend WordPress (verificato su live):
 ## Attenzione
 
 - `.env` non è tracciato (contiene credenziali): le variabili sono documentate in `.env.example`.
-- **Deploy**: Vercel, progetto collegato al repo GitHub (push su `main` → deploy). Staging: https://mychimirror-fe-three.vercel.app. Finché `NEXT_PUBLIC_ALLOW_INDEXING` non è `"true"` ogni risposta ha `X-Robots-Tag: noindex` e `robots.txt` blocca tutto: si attiva solo al go-live sul dominio vero.
+- **Deploy**: Vercel, progetto collegato al repo GitHub (push su `main` → deploy, quindi in produzione). Go-live fatto il 06/11/2026: `www.mychicmirror.com` è su Vercel, `mychicmirror.com` fa redirect su `www`, WordPress e le sue API stanno su `cms.mychicmirror.com`. Staging: https://mychimirror-fe-three.vercel.app (sempre noindex). Finché `NEXT_PUBLIC_ALLOW_INDEXING` non è `"true"` ogni risposta ha `X-Robots-Tag: noindex` e `robots.txt` blocca tutto: si attiva solo al go-live sul dominio vero.
 - **Cache**: le fetch verso WordPress durano 24h (`DEFAULT_REVALIDATE`) perché WordPress avvisa a ogni modifica via `/api/revalidate` (mu-plugin `mcm-frontend-sync.php`); libri e recensioni dal DB custom restano a 1h. **Se aggiungi un tag di cache nuovo, aggiungilo anche a `tagsFor` in `lib/revalidate.ts`**, altrimenti quel dato non si aggiorna fino a 24h.
-- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout), `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare) e `mcm-frontend-sync.php` (revalidazione on-demand e link di anteprima; richiede le costanti `MCM_FRONTEND_URL`, `MCM_REVALIDATE_SECRET`, `MCM_PREVIEW_SECRET` in `wp-config.php`).
+- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout), `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare) `mcm-reviews.php` (caricamento recensioni; richiede `MCM_REVIEWS_SECRET` in `wp-config.php`, uguale a `REVIEWS_API_SECRET` su Vercel) e `mcm-frontend-sync.php` (revalidazione on-demand e link di anteprima; richiede le costanti `MCM_FRONTEND_URL`, `MCM_REVALIDATE_SECRET`, `MCM_PREVIEW_SECRET` in `wp-config.php`).
 - Pagina prodotto: la descrizione viene dalla REST di WordPress (`/wp/v2/product`) togliendo i `<style>`, perché la Store API lascia il CSS come testo. Le recensioni si leggono dalla Store API e si inviano a `wp-comments-post.php` (`submitProductReviewAction`).
 - **Checkout**: `/checkout/` reindirizza a `NEXT_PUBLIC_WORDPRESS_SITE_URL/checkout/?mcm_cart=<Cart-Token>`. Il carrello viene ripreso solo se su WordPress è installato `wordpress/mu-plugins/mcm-cart-handoff.php` (in `wp-content/mu-plugins/`).
 - Shop: i libri sono "Esauriti" su WooCommerce (si comprano dai link esterni nella descrizione); il fazzoletto è l'unico prodotto acquistabile ed è nascosto dal catalogo (`catalog_visibility: hidden`), quindi si raggiunge solo dalla sua pagina.
@@ -128,4 +126,4 @@ Stato del backend WordPress (verificato su live):
 - Form contatti: l'invio vero usa reCAPTCHA v3 e funziona solo da un dominio autorizzato per la chiave (non da localhost).
 - **WP REST Cache**: su WordPress c'è una cache delle risposte REST (header `x-wp-cached-call: served-cache`) che resta vecchia dopo un salvataggio: `fetchREST` e `lib/preview.ts` aggiungono `skip_cache=1`. Ogni nuova lettura REST deve fare lo stesso.
 - **Rate limit Aruba**: il proxy di Aruba risponde 429 se riceve troppe richieste API dallo stesso IP (succede lanciando `check-urls.mjs` a freddo). Next non mette in cache le risposte non-200.
-- Quando WordPress passerà su `cms.mychicmirror.com`, vanno aggiornati gli env, `remotePatterns` e gli endpoint PHP in `/API/`.
+- `/wp-content/`, `/wp-json/`, `/wc-api/` e `/API/*.php` su `www` sono inoltrati a `cms` da `next.config.js`: l'app mobile li usa, non vanno rimossi. Il pannello WordPress è su `cms`.

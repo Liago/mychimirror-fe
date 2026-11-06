@@ -10,18 +10,19 @@
  * --en: controlla invece le URL inglesi della sitemap dell'app
  */
 
-const SITEMAP_INDEX = "https://www.mychicmirror.com/sitemap_index.xml";
+// Le sitemap Yoast stanno su cms: su www risponde la sitemap dell'app
+const SITEMAP_INDEX = "https://cms.mychicmirror.com/sitemap_index.xml";
 
 // Risposte attese diverse da 200: pagine dismesse (404) e redirect volute
 const EXPECTED = {
 	"/pillole/": 404,
 	"/tematiche/": 404,
 	"/pillole-emotive/": 404,
-	"/i-racconti-di-fragola-capitolo-1/": 404,
-	"/i-racconti-di-fragola-capitolo-ii/": 404,
-	"/i-racconti-di-fragola-capitolo-iii/": 404,
-	"/i-racconti-di-fragola-capitolo-iv/": 404,
-	"/i-racconti-di-fragola-capitolo-v/": 404,
+	"/i-racconti-di-fragola-capitolo-1/": 301,
+	"/i-racconti-di-fragola-capitolo-ii/": 301,
+	"/i-racconti-di-fragola-capitolo-iii/": 301,
+	"/i-racconti-di-fragola-capitolo-iv/": 301,
+	"/i-racconti-di-fragola-capitolo-v/": 301,
 	"/contatti/": 301,
 	// Checkout e area clienti restano su WordPress
 	"/checkout/": 307,

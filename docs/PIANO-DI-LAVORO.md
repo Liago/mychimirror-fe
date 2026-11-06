@@ -1,6 +1,6 @@
 # Piano di lavoro — mychicmirror.com headless
 
-Stato al 30/10/2026. Riferimento tecnico: `Guida Completa alla Migrazione Headless…md` (stessa cartella).
+Stato al 06/11/2026: go-live completato, resta F8. Riferimento tecnico: `Guida Completa alla Migrazione Headless…md` (stessa cartella).
 
 ## Decisioni prese (30/10/2026)
 - **Shop:** carrello headless con la Store API, checkout su WordPress (`cms.`)
@@ -79,7 +79,9 @@ Da fare prima del go-live:
 - Pagina articolo ridisegnata: foto e titolo affiancati, nuovo player audio, una lingua per volta
 - Dopo il deploy: rilanciare `check-urls.mjs` sullo staging
 
-### F7 — Migrazione infrastruttura e go-live
+### F7 — Migrazione infrastruttura e go-live ✅ (06/11/2026)
+Online su Vercel dalle 14:47 del 06/11/2026, dopo circa 20 minuti di HTTPS non disponibile. Due cause: la modifica del record A di `@` su Aruba non era stata pubblicata (risolta eliminando e ricreando il record) e la prima generazione del certificato era fallita. Controlli: 618 URL della sitemap a 200, form, revalidazione, anteprima, commenti e app mobile confermati. Upload recensioni: da Vercel MySQL dà `ETIMEDOUT`, quindi scrive il mu-plugin `mcm-reviews.php`. Non verificato: acquisto completo (shop chiuso).
+
 Decisione (05/11/2026): `cms.mychicmirror.com` esiste già ed è una copia separata di WordPress, ferma a ottobre 2025, con SSL attivo. Si aggiorna quella copia e il WordPress su `www` resta intatto: il rollback è solo DNS e si può provare tutto prima di toccare il dominio.
 
 1. **Backup e copia su `cms`:** backup completo di `www`; export del database con phpMyAdmin e import nel database di `cms`; copia via FTP di `wp-content` e `/API/`. Niente plugin di migrazione: sostituirebbero `www` con `cms` anche nei link interni dei contenuti.
@@ -102,7 +104,7 @@ Le app mobile usano `www/API/*.php` e `www/wp-json/`: con il dominio su Vercel p
 Con `NEXT_PUBLIC_WORDPRESS_SITE_URL` su `cms.`, `next.config.js` riscrive `/wp-content/*`, `/wp-json/*`, `/wc-api/*` e `/API/*` verso `cms.` e reindirizza `/wp-admin/` e `/wp-login.php`.
 
 ### F8 — Post go-live (1-2 settimane)
-- Monitoraggio 404 ed errori, Search Console, Core Web Vitals; TTL di nuovo alti; dismissione tema Belletrist/Elementor
+- Monitoraggio 404 ed errori, Search Console, Core Web Vitals; TTL di nuovo alti (`@`, `www`); prova d'acquisto alla riapertura dello shop; dismissione tema Belletrist/Elementor
 
 **Totale stimato:** circa 4-5 settimane di sviluppo, più la finestra di go-live.
 
