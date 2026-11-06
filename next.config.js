@@ -10,7 +10,14 @@ const wordpressOrigin = new URL(
     process.env.NEXT_PUBLIC_WORDPRESS_SITE_URL || 'https://www.mychicmirror.com'
 ).origin
 const wordpressMoved = wordpressOrigin !== 'https://www.mychicmirror.com'
-const wordpressPaths = ['/wp-content', '/wp-json', '/wc-api', '/API']
+// Next ignora maiuscole e minuscole: /API/ deve restare limitato ai file .php
+// per non catturare le route /api/ dell'app
+const wordpressRewrites = [
+    { source: '/wp-content/:path*', destination: `${wordpressOrigin}/wp-content/:path*` },
+    { source: '/wp-json/:path*', destination: `${wordpressOrigin}/wp-json/:path*` },
+    { source: '/wc-api/:path*', destination: `${wordpressOrigin}/wc-api/:path*` },
+    { source: '/API/:file([^/]+\\.php)', destination: `${wordpressOrigin}/API/:file` },
+]
 
 const nextConfig = {
     // Gli URL di WordPress finiscono tutti con "/": restano identici per la SEO
@@ -62,12 +69,7 @@ const nextConfig = {
                 // Link brevi di WordPress
                 { source: '/', has: [{ type: 'query', key: 'p', value: '\\d+' }], destination: '/api/shortlink/' },
                 { source: '/', has: [{ type: 'query', key: 'page_id', value: '\\d+' }], destination: '/api/shortlink/' },
-                ...(wordpressMoved
-                    ? wordpressPaths.map((path) => ({
-                          source: `${path}/:path*`,
-                          destination: `${wordpressOrigin}${path}/:path*`,
-                      }))
-                    : []),
+                ...(wordpressMoved ? wordpressRewrites : []),
             ],
             afterFiles: [{ source: '/favicon.ico', destination: '/icon.png' }],
             fallback: [],
