@@ -85,9 +85,19 @@ Decisione (05/11/2026): `cms.mychicmirror.com` esiste già ed è una copia separ
 1. **Backup e copia su `cms`:** backup completo di `www`; export del database con phpMyAdmin e import nel database di `cms`; copia via FTP di `wp-content` e `/API/`. Niente plugin di migrazione: sostituirebbero `www` con `cms` anche nei link interni dei contenuti.
 2. **Configurazione di `cms`:** `WP_HOME` e `WP_SITEURL` in `wp-config.php`, credenziali DB di `cms` anche in `/API/`, costanti `MCM_*`, chiave reCAPTCHA autorizzata per il dominio.
 3. **Prove con lo staging su `cms`:** variabili Vercel `NEXT_PUBLIC_WORDPRESS_API_URL`, `NEXT_PUBLIC_WORDPRESS_SITE_URL`, `BOOKS_*`, `MAIN_IMAGE_COVER_URL`, `DB_*`; controllo URL, anteprima, revalidazione, form, checkout completo, callback dei pagamenti.
-4. **Preparazione del cambio:** TTL DNS bassi, dominio aggiunto su Vercel, `NEXT_PUBLIC_SITE_URL` su `www`, `NEXT_PUBLIC_ALLOW_INDEXING=true`, nuovi `REVALIDATE_SECRET` e `PREVIEW_SECRET`.
-5. **T-0:** blocco contenuti e ordini su `www`, ultimo riallineamento del database, DNS di `@` e `www` su Vercel (compresi i record AAAA; MX e posta non si toccano), `MCM_FRONTEND_URL` su `https://www.mychicmirror.com`, smoke test, sitemap in Search Console.
-6. **Rollback:** DNS di nuovo su Aruba; il WordPress di `www` riparte com'era.
+4. **Preparazione (✅ fatta o da fare prima del T-0):** contenuti da correggere su `cms`, non su `www`, che non verrà più copiato (link ai capitoli, description Yoast), TTL DNS a 300 secondi, `www` e apex aggiunti su Vercel senza toccare i DNS.
+5. **T-0, in quest'ordine:**
+   1. Nessuna nuova copia: `www` e `cms` sono allineati (verificato il 6 novembre 2026: stessi conteggi di articoli, pagine, prodotti, media e commenti). Da qui niente modifiche su `www`; backup del database `Sql1291927_1` per il rollback.
+   2. Verifica finale: se nel frattempo su `www` è arrivato un commento o un ordine, si riporta a mano su `cms`.
+   3. Nuovi segreti `REVALIDATE_SECRET` e `PREVIEW_SECRET`: su Vercel e nel `wp-config.php` di `cms`, con `MCM_FRONTEND_URL` su `https://www.mychicmirror.com`.
+   4. Vercel: `NEXT_PUBLIC_SITE_URL=https://www.mychicmirror.com`, `NEXT_PUBLIC_ALLOW_INDEXING=true`, redeploy senza build cache.
+   5. DNS su Aruba: `@` record A `216.198.79.1`, senza AAAA; `www` senza A né AAAA, con CNAME `79f21e41444972cd.vercel-dns-017.com.`. `cms`, `mx`, `mail`, `smtp`, `imap`, `ftp`, `webmail`, gli MX e l'SPF non si toccano.
+   6. Controlli: certificato SSL, `robots.txt`, `check-urls.mjs`, redirect di `mychicmirror.com` su `www`, form, revalidazione, anteprima, app mobile (`/API/*.php`, `/wp-json/`).
+   7. Search Console: sitemap `https://www.mychicmirror.com/sitemap.xml`.
+6. **Dopo il T-0:** caricare `docs/reviews-from-live.json` da `/admin/reviews-upload` (va su `cms`; se MySQL rifiuta le connessioni da Vercel serve un endpoint PHP), Jetpack.
+7. **Rollback:** tolto il CNAME di `www`, record `@` e `www` di nuovo su `89.46.106.56` e AAAA su `2a00:6d40:4:3::c244:56`. Il WordPress di `www` riparte com'era; ciò che è stato scritto su `cms` dopo il T-0 va riportato a mano.
+
+Le app mobile usano `www/API/*.php` e `www/wp-json/`: con il dominio su Vercel passano dagli inoltri verso `cms`, quindi tutti i file di `/API/` devono usare il database di `cms`.
 
 Con `NEXT_PUBLIC_WORDPRESS_SITE_URL` su `cms.`, `next.config.js` riscrive `/wp-content/*`, `/wp-json/*`, `/wc-api/*` e `/API/*` verso `cms.` e reindirizza `/wp-admin/` e `/wp-login.php`.
 

@@ -16,8 +16,22 @@ const wordpressRewrites = [
     { source: '/wp-content/:path*', destination: `${wordpressOrigin}/wp-content/:path*` },
     { source: '/wp-json/:path*', destination: `${wordpressOrigin}/wp-json/:path*` },
     { source: '/wc-api/:path*', destination: `${wordpressOrigin}/wc-api/:path*` },
-    { source: '/API/:file([^/]+\\.php)', destination: `${wordpressOrigin}/API/:file` },
+    { source: '/API/:file(.+\\.php)', destination: `${wordpressOrigin}/API/:file` },
 ]
+
+// Link rotti nelle pagine dei Racconti di Fragola: portano al capitolo vero
+const fragola = '/category/books/i-racconti-di-fragola'
+const chapterRedirects = [
+    ['/i-racconti-di-fragola-capitolo-1/', `${fragola}/01-capitolo-uno/`],
+    ['/i-racconti-di-fragola-capitolo-ii/', `${fragola}/02-capitolo-due/`],
+    ['/i-racconti-di-fragola-capitolo-iii/', `${fragola}/03-capitolo-tre/`],
+    ['/i-racconti-di-fragola-capitolo-iv/', `${fragola}/04-capitolo-quattro/`],
+    ['/i-racconti-di-fragola-capitolo-v/', `${fragola}/05-capitolo-cinque/`],
+    [`${fragola}/0-epilogo/`, `${fragola}/06-epilogo/`],
+].flatMap(([source, destination]) => [
+    { source, destination, statusCode: 301 },
+    { source: `/en${source}`, destination: `/en${destination}`, statusCode: 301 },
+])
 
 const nextConfig = {
     // Gli URL di WordPress finiscono tutti con "/": restano identici per la SEO
@@ -33,13 +47,22 @@ const nextConfig = {
         if (!allowIndexing) {
             headers.push({ key: 'X-Robots-Tag', value: 'noindex, nofollow' })
         }
-        return [{ source: '/:path*', headers }]
+        return [
+            { source: '/:path*', headers },
+            // Gli indirizzi vercel.app non vanno indicizzati nemmeno dopo il go-live
+            {
+                source: '/:path*',
+                has: [{ type: 'host', value: '.*\\.vercel\\.app' }],
+                headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+            },
+        ]
     },
     async redirects() {
         return [
             // Doppione di /contacts/ (la pagina nel menu)
             { source: '/contatti/', destination: '/contacts/', statusCode: 301 },
             { source: '/en/contatti/', destination: '/en/contacts/', statusCode: 301 },
+            ...chapterRedirects,
             // Archivi del portfolio del tema: l'unica voce è la rassegna stampa
             { source: '/portfolio-item/', destination: '/portfolio-item/press/', statusCode: 301 },
             { source: '/portfolio-category/press/', destination: '/portfolio-item/press/', statusCode: 301 },
