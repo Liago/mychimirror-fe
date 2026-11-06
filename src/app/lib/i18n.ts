@@ -32,6 +32,7 @@ const it = {
 		readMore: "Leggi di più",
 		readAll: "Leggi tutto",
 		loading: "Caricamento",
+		morePosts: "Altri articoli",
 		notFoundTitle: "Pagina non trovata",
 		notFoundText:
 			"La pagina che stai cercando non esiste. Potrebbe essere stata spostata o rimossa.",
@@ -178,6 +179,7 @@ const en: Dict = {
 		readMore: "Read more",
 		readAll: "Read all",
 		loading: "Loading",
+		morePosts: "More posts",
 		notFoundTitle: "Page not found",
 		notFoundText:
 			"The page you are looking for doesn't exist. It may have been moved or removed.",

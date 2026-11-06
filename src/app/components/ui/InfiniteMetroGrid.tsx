@@ -15,7 +15,8 @@ type Props = {
 
 /**
  * Griglia metro con scroll infinito, come la pagina blog del tema:
- * quando la sentinella entra nel viewport carica la pagina successiva.
+ * quando la sentinella entra nel viewport carica la pagina successiva. La
+ * sentinella sta sotto l'indicatore, così chi scorre lo vede prima del caricamento.
  */
 const InfiniteMetroGrid = ({ initial, categoryId, perPage }: Props) => {
 	const { t } = useI18n();
@@ -48,8 +49,7 @@ const InfiniteMetroGrid = ({ initial, categoryId, perPage }: Props) => {
 					setPosts((prev) => [...prev, ...next.posts]);
 					setPage(next.page);
 				});
-			},
-			{ rootMargin: "600px 0px" }
+			}
 		);
 		observer.observe(sentinel);
 		return () => observer.disconnect();
@@ -63,15 +63,36 @@ const InfiniteMetroGrid = ({ initial, categoryId, perPage }: Props) => {
 				))}
 			</div>
 			{hasMore && (
-				<div ref={sentinelRef} className="flex h-24 items-center justify-center">
-					{pending && (
-						<span
-							role="status"
-							aria-label={t.common.loading}
-							className="block h-px w-[50px] animate-pulse bg-separator"
-						/>
-					)}
-				</div>
+				<>
+					<div className="flex h-24 items-center justify-center">
+						{pending ? (
+							<span
+								role="status"
+								aria-label={t.common.loading}
+								className="block h-8 w-8 animate-spin rounded-full border-2 border-fake-black/20 border-t-fake-black motion-reduce:animate-none"
+							/>
+						) : (
+							<p className="flex flex-col items-center gap-1 font-open-sans text-[11px] font-medium uppercase tracking-[0.2em] text-fake-black">
+								{t.common.morePosts}
+								<svg
+									aria-hidden="true"
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									className="animate-bounce motion-reduce:animate-none"
+								>
+									<path d="M5 9l7 7 7-7" />
+								</svg>
+							</p>
+						)}
+					</div>
+					<div ref={sentinelRef} className="h-px" />
+				</>
 			)}
 		</>
 	);
