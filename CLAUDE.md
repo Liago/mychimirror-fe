@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Frontend headless in Next.js per **www.mychicmirror.com** (blog e libri della scrittrice Cristiana Sammarini + piccolo shop WooCommerce). L'obiettivo è sostituire il frontend WordPress (tema Belletrist + Elementor) con questa app, deployata su Vercel, lasciando WordPress come CMS. Il piano di migrazione di riferimento è in `docs/Guida Completa alla Migrazione Headless di mychicmirror.com_ Da WordPress a NextJS su Vercel.md`.
+Frontend headless in Next.js per **www.mychicmirror.com** (blog e libri della scrittrice Cristiana Sammarini + piccolo shop WooCommerce). L'obiettivo è sostituire il frontend WordPress (tema Belletrist + Elementor) con questa app, deployata su Vercel, lasciando WordPress come CMS. Configurazione attuale (DNS, database, Vercel, `wp-config.php`, rollback) in `docs/INFRASTRUTTURA.md`. Il piano di migrazione di riferimento è in `docs/Guida Completa alla Migrazione Headless di mychicmirror.com_ Da WordPress a NextJS su Vercel.md`.
 
 Lingua del progetto: UI e messaggi in italiano; commit in inglese con prefisso conventional (`feat:`, `fix:`, `refactor:`, `chore:`).
 

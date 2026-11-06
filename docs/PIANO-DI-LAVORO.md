@@ -1,6 +1,6 @@
 # Piano di lavoro — mychicmirror.com headless
 
-Stato al 06/11/2026: go-live completato, resta F8. Riferimento tecnico: `Guida Completa alla Migrazione Headless…md` (stessa cartella).
+Stato al 06/11/2026: go-live completato, resta F8. Configurazione attuale in `INFRASTRUTTURA.md`. Riferimento tecnico: `Guida Completa alla Migrazione Headless…md` (stessa cartella).
 
 ## Decisioni prese (30/10/2026)
 - **Shop:** carrello headless con la Store API, checkout su WordPress (`cms.`)
@@ -85,7 +85,7 @@ Online su Vercel dalle 14:47 del 06/11/2026, dopo circa 20 minuti di HTTPS non d
 Decisione (05/11/2026): `cms.mychicmirror.com` esiste già ed è una copia separata di WordPress, ferma a ottobre 2025, con SSL attivo. Si aggiorna quella copia e il WordPress su `www` resta intatto: il rollback è solo DNS e si può provare tutto prima di toccare il dominio.
 
 1. **Backup e copia su `cms`:** backup completo di `www`; export del database con phpMyAdmin e import nel database di `cms`; copia via FTP di `wp-content` e `/API/`. Niente plugin di migrazione: sostituirebbero `www` con `cms` anche nei link interni dei contenuti.
-2. **Configurazione di `cms`:** `WP_HOME` e `WP_SITEURL` in `wp-config.php`, credenziali DB di `cms` anche in `/API/`, costanti `MCM_*`, chiave reCAPTCHA autorizzata per il dominio.
+2. **Configurazione di `cms`:** `WP_HOME` e `WP_SITEURL` in `wp-config.php`, file `/API/` collegati al database dei libri `Sql1291927_2`, costanti `MCM_*`, chiave reCAPTCHA autorizzata per il dominio.
 3. **Prove con lo staging su `cms`:** variabili Vercel `NEXT_PUBLIC_WORDPRESS_API_URL`, `NEXT_PUBLIC_WORDPRESS_SITE_URL`, `BOOKS_*`, `MAIN_IMAGE_COVER_URL`, `DB_*`; controllo URL, anteprima, revalidazione, form, checkout completo, callback dei pagamenti.
 4. **Preparazione (✅ fatta o da fare prima del T-0):** contenuti da correggere su `cms`, non su `www`, che non verrà più copiato (link ai capitoli, description Yoast), TTL DNS a 300 secondi, `www` e apex aggiunti su Vercel senza toccare i DNS.
 5. **T-0, in quest'ordine:**
