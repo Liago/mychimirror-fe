@@ -69,7 +69,7 @@ Fatto:
 Da fare prima del go-live:
 - Prova d'acquisto completa con ordine reale a importo minimo, poi rimborso
 - Invio reale del form contatti dallo staging
-- Caricare `docs/reviews-from-live.json` da `/admin/reviews-upload`
+- Caricare `docs/reviews-from-live.json` dalla pagina "Recensioni libri" del pannello WordPress
 - Decidere il blocco preventivo di reCAPTCHA (il video ora parte solo al clic)
 - Contenuti WordPress: link ai capitoli dismessi in `/i-racconti-di-fragola/` e `/i_racconti_di_fragola/`, description di home e shop in Yoast, costo di spedizione (pagina 6,00€, checkout 3,00€)
 - ⚠️ Il proxy di Aruba può rispondere 429 a raffiche di chiamate dallo stesso IP: chiedere ad Aruba il limite esatto e se si possono escludere gli IP di Vercel
@@ -80,7 +80,7 @@ Da fare prima del go-live:
 - Dopo il deploy: rilanciare `check-urls.mjs` sullo staging
 
 ### F7 — Migrazione infrastruttura e go-live ✅ (06/11/2026)
-Online su Vercel dalle 14:47 del 06/11/2026, dopo circa 20 minuti di HTTPS non disponibile. Due cause: la modifica del record A di `@` su Aruba non era stata pubblicata (risolta eliminando e ricreando il record) e la prima generazione del certificato era fallita. Controlli: 618 URL della sitemap a 200, form, revalidazione, anteprima, commenti e app mobile confermati. Upload recensioni: da Vercel MySQL dà `ETIMEDOUT`, quindi scrive il mu-plugin `mcm-reviews.php`. Non verificato: acquisto completo (shop chiuso).
+Online su Vercel dalle 14:47 del 06/11/2026, dopo circa 20 minuti di HTTPS non disponibile. Due cause: la modifica del record A di `@` su Aruba non era stata pubblicata (risolta eliminando e ricreando il record) e la prima generazione del certificato era fallita. Controlli: 618 URL della sitemap a 200, form, revalidazione, anteprima, commenti e app mobile confermati. Recensioni: da Vercel MySQL dà `ETIMEDOUT` e la tabella sta in `Sql1291927_2`, quindi si gestiscono dalla pagina "Recensioni libri" del pannello WordPress (`mcm-reviews.php`). Non verificato: acquisto completo (shop chiuso).
 
 Decisione (05/11/2026): `cms.mychicmirror.com` esiste già ed è una copia separata di WordPress, ferma a ottobre 2025, con SSL attivo. Si aggiorna quella copia e il WordPress su `www` resta intatto: il rollback è solo DNS e si può provare tutto prima di toccare il dominio.
 
@@ -96,7 +96,7 @@ Decisione (05/11/2026): `cms.mychicmirror.com` esiste già ed è una copia separ
    5. DNS su Aruba: `@` record A `216.198.79.1`, senza AAAA; `www` senza A né AAAA, con CNAME `79f21e41444972cd.vercel-dns-017.com.`. `cms`, `mx`, `mail`, `smtp`, `imap`, `ftp`, `webmail`, gli MX e l'SPF non si toccano.
    6. Controlli: certificato SSL, `robots.txt`, `check-urls.mjs`, redirect di `mychicmirror.com` su `www`, form, revalidazione, anteprima, app mobile (`/API/*.php`, `/wp-json/`).
    7. Search Console: sitemap `https://www.mychicmirror.com/sitemap.xml`.
-6. **Dopo il T-0:** caricare `docs/reviews-from-live.json` da `/admin/reviews-upload` (va su `cms`; se MySQL rifiuta le connessioni da Vercel serve un endpoint PHP), Jetpack.
+6. **Dopo il T-0:** caricare `docs/reviews-from-live.json` dalla pagina "Recensioni libri" del pannello WordPress, Jetpack.
 7. **Rollback:** tolto il CNAME di `www`, record `@` e `www` di nuovo su `89.46.106.56` e AAAA su `2a00:6d40:4:3::c244:56`. Il WordPress di `www` riparte com'era; ciò che è stato scritto su `cms` dopo il T-0 va riportato a mano.
 
 Le app mobile usano `www/API/*.php` e `www/wp-json/`: con il dominio su Vercel passano dagli inoltri verso `cms`, quindi tutti i file di `/API/` devono usare il database di `cms`.
@@ -109,6 +109,6 @@ Con `NEXT_PUBLIC_WORDPRESS_SITE_URL` su `cms.`, `next.config.js` riscrive `/wp-c
 **Totale stimato:** circa 4-5 settimane di sviluppo, più la finestra di go-live.
 
 ## Rischi principali
-1. **MySQL Aruba da Vercel:** l'hosting condiviso di solito non accetta connessioni MySQL dall'esterno, quindi il tool `/admin/reviews-upload` su Vercel potrebbe non funzionare. Alternativa: un endpoint PHP su `cms.` che riceve le recensioni.
+1. **MySQL Aruba da Vercel:** confermato: Aruba non accetta connessioni dall'esterno, quindi le recensioni si gestiscono dal pannello WordPress.
 2. **Cambio dominio di WP:** su `cms.` cambiano gli URL dei media e i cookie di WooCommerce: si prova sulla copia prima del cambio DNS.
 3. **Contenuti Elementor:** l'HTML delle pagine Elementor senza i CSS di Elementor appare rotto, per questo quelle pagine si rifanno in React.

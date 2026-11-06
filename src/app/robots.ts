@@ -17,7 +17,6 @@ export default function robots(): MetadataRoute.Robots {
 				"/cart/",
 				"/checkout/",
 				"/my-account/",
-				"/admin/",
 				"/*?add-to-cart=",
 				"/*?*add-to-cart=",
 			],

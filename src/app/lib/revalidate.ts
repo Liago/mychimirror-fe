@@ -8,6 +8,7 @@ export type RevalidateEvent =
 	| { type: "term"; uri?: string; taxonomy?: string }
 	| { type: "comment"; uri: string }
 	| { type: "product_review"; slug: string; id: number }
+	| { type: "book_review" }
 	| { type: "menu" }
 	| { type: "all" };
 
@@ -41,6 +42,8 @@ export function tagsFor(event: RevalidateEvent): string[] {
 			return [`uri:${event.uri}`, "posts"];
 		case "product_review":
 			return [`reviews:product:${event.id}`, `product:${event.slug}`];
+		case "book_review":
+			return ["reviews"];
 		case "menu":
 			return ["menu"];
 		case "all":
@@ -69,6 +72,8 @@ export function parseEvent(body: unknown): RevalidateEvent | null {
 			return slug && id ? { type: "product_review", slug, id } : null;
 		case "term":
 			return { type: "term", uri, taxonomy: str(b.taxonomy) };
+		case "book_review":
+			return { type: "book_review" };
 		case "menu":
 			return { type: "menu" };
 		case "all":

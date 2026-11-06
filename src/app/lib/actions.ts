@@ -5,7 +5,7 @@ import { updateTag } from "next/cache";
 import { cleanText } from "@/utility/utils";
 
 import { fetchPostList, type PostList } from "./content";
-import { mutateGraphQL, secretsMatch } from "./wordpress";
+import { mutateGraphQL } from "./wordpress";
 
 type CreateCommentInput = {
   postDatabaseId: number;
@@ -72,138 +72,6 @@ export async function createCommentAction(
       err?.message ||
       "Errore durante l'invio del commento.";
     return { ok: false, error: message };
-  }
-}
-
-type ReviewInput = {
-  user: string;
-  review: string;
-  rating: number;
-  link?: string;
-};
-
-type BulkCreateReviewsInput = {
-  password: string;
-  reviewsByBook: Record<string, ReviewInput[]>;
-};
-
-export type BulkCreateReviewsResult =
-  | {
-      ok: true;
-      inserted: number;
-      skipped: number;
-      diagnostics: {
-        database: string | null;
-        totalReviewsAfter: number;
-        insertId: number;
-      };
-    }
-  | { ok: false; error: string };
-
-export async function bulkCreateReviewsAction(
-  input: BulkCreateReviewsInput
-): Promise<BulkCreateReviewsResult> {
-  const expected = process.env.ADMIN_UPLOAD_PASSWORD;
-  if (!expected) {
-    return {
-      ok: false,
-      error:
-        "ADMIN_UPLOAD_PASSWORD non configurata sul server. Aggiungila nel file .env",
-    };
-  }
-  if (!secretsMatch(input.password, expected)) {
-    return { ok: false, error: "Password non valida." };
-  }
-
-  const rows: (ReviewInput & { bookId: number })[] = [];
-  let skipped = 0;
-
-  for (const [bookIdStr, reviews] of Object.entries(input.reviewsByBook ?? {})) {
-    const bookId = Number(bookIdStr);
-    if (!Number.isFinite(bookId) || !Array.isArray(reviews)) {
-      skipped += Array.isArray(reviews) ? reviews.length : 0;
-      continue;
-    }
-    for (const r of reviews) {
-      const user = typeof r?.user === "string" ? r.user.trim() : "";
-      const review = typeof r?.review === "string" ? r.review.trim() : "";
-      const rating =
-        typeof r?.rating === "number" && Number.isFinite(r.rating)
-          ? Math.max(0, Math.min(5, Math.round(r.rating)))
-          : NaN;
-      const link =
-        typeof r?.link === "string" && r.link.trim() ? r.link.trim() : undefined;
-      if (!user || !review || Number.isNaN(rating)) {
-        skipped += 1;
-        continue;
-      }
-      rows.push({ user, review, rating, bookId, link });
-    }
-  }
-
-  if (!rows.length) {
-    return { ok: false, error: "Nessuna recensione valida trovata nel JSON." };
-  }
-
-  const secret = process.env.REVIEWS_API_SECRET;
-  if (!secret) {
-    return { ok: false, error: "REVIEWS_API_SECRET non configurata sul server." };
-  }
-
-  try {
-    // Da Vercel il MySQL di Aruba non è raggiungibile: scrive il mu-plugin mcm-reviews.php
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_WORDPRESS_SITE_URL}/wp-json/mcm/v1/reviews`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-MCM-Secret": secret },
-        body: JSON.stringify({ reviews: rows }),
-        cache: "no-store",
-        signal: AbortSignal.timeout(30_000),
-      }
-    );
-    if (res.status === 404) {
-      return { ok: false, error: "Su WordPress manca il mu-plugin mcm-reviews.php." };
-    }
-    if (res.status === 401 || res.status === 403) {
-      return {
-        ok: false,
-        error: "WordPress ha rifiutato il segreto: controlla MCM_REVIEWS_SECRET e REVIEWS_API_SECRET.",
-      };
-    }
-    if (!res.ok) {
-      return { ok: false, error: `WordPress ha risposto ${res.status}.` };
-    }
-
-    const data = (await res.json()) as {
-      inserted: number;
-      duplicates: number;
-      failed: number;
-      error: string;
-      insertId: number;
-      database: string;
-      total: number;
-    };
-    if (data.inserted) updateTag("reviews");
-    if (!data.inserted && data.failed) {
-      return { ok: false, error: data.error || "Nessuna recensione inserita." };
-    }
-
-    return {
-      ok: true,
-      inserted: data.inserted,
-      skipped: skipped + data.duplicates + data.failed,
-      diagnostics: {
-        database: data.database,
-        totalReviewsAfter: data.total,
-        insertId: data.insertId,
-      },
-    };
-  } catch (err: any) {
-    return {
-      ok: false,
-      error: err?.message || "Errore durante l'invio delle recensioni.",
-    };
   }
 }
 

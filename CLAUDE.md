@@ -39,7 +39,6 @@ src/app/
   [lang]/shop/, product/[slug]/, product-category/[slug]/   # catalogo WooCommerce (Store API)
   [lang]/cart/page.tsx            # pagina carrello (client, usa CartProvider)
   checkout/route.ts, my-account/route.ts   # redirect a WordPress (checkout con Cart-Token)
-  [lang]/admin/reviews-upload/page.tsx   # tool interno (noindex) per caricare recensioni in blocco
   lib/wordpress.ts                # fetchGraphQL / mutateGraphQL / fetchREST / fetchJSON con cache e tag
   lib/content.ts                  # tipi e query dei contenuti: resolveUri, fetchPostList, fetchAdjacentPosts
   lib/data.ts                     # fetchBooks (libri + recensioni dagli endpoint PHP), fetchMainMenu
@@ -56,7 +55,6 @@ src/app/
   lib/shop.ts                     # catalogo: prodotti, categorie, descrizione (REST WP), recensioni, correlati
   lib/cart.ts, lib/cartActions.ts # carrello Store API (Cart-Token in cookie httpOnly) e server action
   components/home/                # sezioni della home: LatestPosts, PressBanner, BookSection, BookPressQuote, RetailerLogos, NewsletterBanner
-  components/admin/               # form del tool recensioni
   components/shop/                # ProductCard/Grid, ProductGallery, AddToCartForm, ProductTabs
   components/cart/                # CartProvider (context), MiniCart (bottone flottante + finestra), CartView, QuantityInput
   components/ui/header/           # Header (server: legge il menu WP) + HeaderNav (client: voce attiva, menu mobile)
@@ -72,7 +70,7 @@ src/app/
 | Post, pagine, commenti, menu | WPGraphQL `NEXT_PUBLIC_WORDPRESS_API_URL` (`https://cms.mychicmirror.com/graphql`) | `lib/data.ts` |
 | Creazione commenti | mutation `createComment` WPGraphQL | `lib/actions.ts` |
 | Libri | `BOOKS_EDITED_DATA` → `/API/getBooks.php` (PHP custom sul server WP) | `fetchBooks` |
-| Recensioni libri | `BOOKS_REVIEWS_DATA` → `/API/getBookReviews.php`; scrittura sulla tabella MySQL `reviews` tramite il mu-plugin `mcm-reviews.php` (MySQL di Aruba non raggiungibile da Vercel) | `fetchBooks`, `bulkCreateReviewsAction` |
+| Recensioni libri | `BOOKS_REVIEWS_DATA` → `/API/getBookReviews.php`; scrittura sulla tabella `reviews` di `Sql1291927_2` dalla pagina "Recensioni libri" del pannello WordPress (mu-plugin `mcm-reviews.php`) | `fetchBooks` |
 | Prodotti, categorie prodotto | WooCommerce Store API `/wp-json/wc/store/v1/products` (pubblica, via `fetchREST`) | `lib/shop.ts` |
 | Carrello | Store API `/cart`, `/cart/add-item`... con header `Cart-Token` (niente nonce) | `lib/cart.ts` |
 | Contenuti editoriali della home | scritti a mano in `lib/editorial.ts` (sul vecchio sito erano statici in Elementor) | `components/home/*` |
@@ -91,7 +89,7 @@ Stato del backend WordPress (verificato su live):
 - Le immagini usano `mediaItemUrl` (originale su `/wp-content/uploads/`), non `sourceUrl` che passa dal CDN Jetpack `i0.wp.com`.
 - Nuove pagine WordPress con layout speciale (Elementor, plugin): aggiungerle a `CUSTOM_PAGES` in `[...uri]/page.tsx` con una vista in `components/views/`.
 - I testi che arrivano dal DB custom (libri, recensioni) passano da `cleanText`: contengono caratteri Windows-1252 ed entità HTML.
-- Libri in home: tutti quelli con `visible = 1`, dal più vecchio. Le recensioni della vecchia home sono in `docs/reviews-from-live.json`, nel formato del tool `/admin/reviews-upload`.
+- Libri in home: tutti quelli con `visible = 1`, dal più vecchio. Le recensioni della vecchia home sono in `docs/reviews-from-live.json`, nel formato del caricamento JSON della pagina WordPress "Recensioni libri".
 - Next 16: `params`/`searchParams` delle pagine sono `Promise` e vanno attesi.
 - Mutazioni tramite server actions in `lib/actions.ts` che ritornano un risultato discriminato `{ ok: true, ... } | { ok: false, error }` con messaggi in italiano; i client component usano `useTransition`.
 - HTML da WordPress reso con il componente `WPContent` (classe `.wp-content`, stili dei blocchi Gutenberg in `globals.css`).
@@ -118,7 +116,7 @@ Stato del backend WordPress (verificato su live):
 - `.env` non è tracciato (contiene credenziali): le variabili sono documentate in `.env.example`.
 - **Deploy**: Vercel, progetto collegato al repo GitHub (push su `main` → deploy, quindi in produzione). Go-live fatto il 06/11/2026: `www.mychicmirror.com` è su Vercel, `mychicmirror.com` fa redirect su `www`, WordPress e le sue API stanno su `cms.mychicmirror.com`. Staging: https://mychimirror-fe-three.vercel.app (sempre noindex). Finché `NEXT_PUBLIC_ALLOW_INDEXING` non è `"true"` ogni risposta ha `X-Robots-Tag: noindex` e `robots.txt` blocca tutto: si attiva solo al go-live sul dominio vero.
 - **Cache**: le fetch verso WordPress durano 24h (`DEFAULT_REVALIDATE`) perché WordPress avvisa a ogni modifica via `/api/revalidate` (mu-plugin `mcm-frontend-sync.php`); libri e recensioni dal DB custom restano a 1h. **Se aggiungi un tag di cache nuovo, aggiungilo anche a `tagsFor` in `lib/revalidate.ts`**, altrimenti quel dato non si aggiorna fino a 24h.
-- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout), `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare) `mcm-reviews.php` (caricamento recensioni; richiede `MCM_REVIEWS_SECRET` in `wp-config.php`, uguale a `REVIEWS_API_SECRET` su Vercel) e `mcm-frontend-sync.php` (revalidazione on-demand e link di anteprima; richiede le costanti `MCM_FRONTEND_URL`, `MCM_REVALIDATE_SECRET`, `MCM_PREVIEW_SECRET` in `wp-config.php`).
+- **mu-plugin da installare su WordPress** (`wordpress/mu-plugins/` → `wp-content/mu-plugins/`): `mcm-cart-handoff.php` (checkout), `mcm-store-api.php` (aggiunge peso e dimensioni alla Store API in `extensions.mcm`; senza, la scheda "Informazioni aggiuntive" non compare) `mcm-reviews.php` (pagina "Recensioni libri" del pannello; richiede `MCM_REVIEWS_DB_NAME`, `MCM_REVIEWS_DB_USER`, `MCM_REVIEWS_DB_PASSWORD` in `wp-config.php`, perché i libri stanno in `Sql1291927_2` e non nel database di WordPress) e `mcm-frontend-sync.php` (revalidazione on-demand e link di anteprima; richiede le costanti `MCM_FRONTEND_URL`, `MCM_REVALIDATE_SECRET`, `MCM_PREVIEW_SECRET` in `wp-config.php`).
 - Pagina prodotto: la descrizione viene dalla REST di WordPress (`/wp/v2/product`) togliendo i `<style>`, perché la Store API lascia il CSS come testo. Le recensioni si leggono dalla Store API e si inviano a `wp-comments-post.php` (`submitProductReviewAction`).
 - **Checkout**: `/checkout/` reindirizza a `NEXT_PUBLIC_WORDPRESS_SITE_URL/checkout/?mcm_cart=<Cart-Token>`. Il carrello viene ripreso solo se su WordPress è installato `wordpress/mu-plugins/mcm-cart-handoff.php` (in `wp-content/mu-plugins/`).
 - Shop: i libri sono "Esauriti" su WooCommerce (si comprano dai link esterni nella descrizione); il fazzoletto è l'unico prodotto acquistabile ed è nascosto dal catalogo (`catalog_visibility: hidden`), quindi si raggiunge solo dalla sua pagina.
