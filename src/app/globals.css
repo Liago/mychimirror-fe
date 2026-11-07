@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* L'header resta fisso in alto (sticky): le ancore non devono finirci sotto */
+html {
+  scroll-padding-top: 70px;
+}
+
+@media only screen and (min-width: 1025px) {
+  html {
+    scroll-padding-top: 100px;
+  }
+}
+
 /* Base tipografica del tema WordPress (Belletrist) */
 body {
   @apply bg-white font-cormorant text-[19px] leading-[25px] text-body-text;

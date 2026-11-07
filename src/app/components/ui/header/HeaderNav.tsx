@@ -39,7 +39,7 @@ const HeaderNav = ({ menuItems }: Props) => {
 
 	return (
 		<>
-			<header className="relative hidden h-[100px] bg-white desk:block">
+			<header className="sticky top-0 z-40 hidden h-[100px] bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.06)] desk:block">
 				<div className="flex h-full items-center justify-between px-10">
 					<Link href={href("/")} rel="home" className="shrink-0">
 						<Image
@@ -71,7 +71,7 @@ const HeaderNav = ({ menuItems }: Props) => {
 				</div>
 			</header>
 
-			<header className="relative z-40 h-[70px] bg-mobile-header desk:hidden">
+			<header className="sticky top-0 z-40 h-[70px] bg-mobile-header desk:hidden">
 				<div className="flex h-full items-center justify-between pl-6 pr-[34px]">
 					<Link href={href("/")} rel="home" onClick={() => setIsMenuOpen(false)}>
 						<Image
@@ -103,7 +103,7 @@ const HeaderNav = ({ menuItems }: Props) => {
 					<nav
 						id="mobile-menu"
 						aria-label={t.nav.mainMenu}
-						className="absolute inset-x-0 top-full bg-mobile-menu"
+						className="absolute inset-x-0 top-full max-h-[calc(100dvh-70px)] overflow-y-auto bg-mobile-menu"
 					>
 						<ul className="qodef-content-grid py-[34px]">
 							{menuItems.map((item) => (
