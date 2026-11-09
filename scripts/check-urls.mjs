@@ -25,6 +25,7 @@ const EXPECTED = {
 	"/i-racconti-di-fragola-capitolo-v/": 301,
 	"/contatti/": 301,
 	"/contact/": 301,
+	"/delete-account/": 301,
 	// Checkout e area clienti restano su WordPress
 	"/checkout/": 307,
 	"/my-account/": 307,

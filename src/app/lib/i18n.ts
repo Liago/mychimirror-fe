@@ -154,6 +154,38 @@ const it = {
 		sending: "Invio...",
 	},
 	press: { date: "Data:", category: "Categoria:" },
+	deleteAccount: {
+		title: "Eliminazione account",
+		metaTitle: "Eliminazione dell'account dell'app MyChicMirror2",
+		metaDescription:
+			"Come eliminare l'account dell'app MyChicMirror2 di Andrea Zampierolo e i dati collegati: dall'app o con il modulo di richiesta.",
+		tagline: "App MyChicMirror2",
+		intro: (app: string, developer: string) =>
+			`Questa pagina spiega come chiedere l'eliminazione dell'account creato nell'app ${app} per Android (sviluppatore: ${developer}) e dei dati collegati.`,
+		inAppTitle: "Dall'app",
+		inAppSteps: [
+			"Apri l'app MyChicMirror2 e accedi con il tuo account.",
+			"Vai nella scheda «Profilo».",
+			"Tocca «Cancella il tuo account» e conferma.",
+		],
+		inAppNote: "L'account e i dati collegati vengono eliminati subito.",
+		formTitle: "Senza l'app",
+		formText:
+			"Se non hai più l'app installata, compila il modulo con l'indirizzo email con cui ti sei registrato. Eliminiamo l'account entro 30 giorni e ti confermiamo l'eliminazione via email.",
+		formSubject: "Richiesta di eliminazione dell'account dell'app MyChicMirror2",
+		formNote: "Note (facoltative)",
+		formSubmit: "Richiedi l'eliminazione",
+		formSent: "Richiesta inviata. Ti confermeremo l'eliminazione via email.",
+		dataTitle: "Quali dati vengono eliminati",
+		deletedData: [
+			"nome, indirizzo email e password dell'account",
+			"avatar e preferenze sulle notifiche",
+			"identificativo del dispositivo per le notifiche push",
+			"voti dati ai libri",
+		],
+		retainedData:
+			"I commenti pubblicati sugli articoli restano visibili con il nome scelto al momento dell'invio: se vuoi rimuovere anche quelli, indicalo nelle note del modulo. Dopo l'eliminazione non conserviamo altri dati dell'account.",
+	},
 	preview: { bar: "Anteprima: non pubblicato", exit: "Esci dall'anteprima" },
 };
 
@@ -303,6 +335,38 @@ const en: Dict = {
 		sending: "Sending...",
 	},
 	press: { date: "Date:", category: "Category:" },
+	deleteAccount: {
+		title: "Account deletion",
+		metaTitle: "Delete your MyChicMirror2 app account",
+		metaDescription:
+			"How to delete your account in the MyChicMirror2 app by Andrea Zampierolo and the related data: from the app or with the request form.",
+		tagline: "MyChicMirror2 app",
+		intro: (app, developer) =>
+			`This page explains how to request the deletion of the account created in the ${app} app for Android (developer: ${developer}) and of the related data.`,
+		inAppTitle: "From the app",
+		inAppSteps: [
+			"Open the MyChicMirror2 app and sign in with your account.",
+			"Go to the “Personal” tab.",
+			"Tap “Delete Account” and confirm.",
+		],
+		inAppNote: "Your account and the related data are deleted immediately.",
+		formTitle: "Without the app",
+		formText:
+			"If the app is no longer installed, fill in the form with the email address you signed up with. We delete the account within 30 days and confirm the deletion by email.",
+		formSubject: "Account deletion request for the MyChicMirror2 app",
+		formNote: "Notes (optional)",
+		formSubmit: "Request deletion",
+		formSent: "Request sent. We will confirm the deletion by email.",
+		dataTitle: "What data is deleted",
+		deletedData: [
+			"account name, email address and password",
+			"avatar and notification preferences",
+			"device identifier for push notifications",
+			"book ratings",
+		],
+		retainedData:
+			"Comments posted on articles stay visible with the name chosen when they were sent: if you want them removed too, say so in the form notes. After deletion we keep no other account data.",
+	},
 	preview: { bar: "Preview: not published", exit: "Exit preview" },
 };
 

@@ -23,7 +23,15 @@ async function getRecaptchaToken(): Promise<string | undefined> {
 	return grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "contactform" });
 }
 
-const ContactForm = () => {
+type Props = {
+	/** Testo messo in testa al messaggio (es. il motivo della richiesta) */
+	subject?: string;
+	messagePlaceholder?: string;
+	submitLabel?: string;
+	sentMessage?: string;
+};
+
+const ContactForm = ({ subject, messagePlaceholder, submitLabel, sentMessage }: Props) => {
 	const { t } = useI18n();
 	const [email, setEmail] = useState("");
 	const [name, setName] = useState("");
@@ -43,11 +51,11 @@ const ContactForm = () => {
 			const result = await submitContactAction({
 				email,
 				name,
-				message,
+				message: subject ? `${subject}\n\n${message}`.trim() : message,
 				recaptchaToken,
 			});
 			if (result.ok) {
-				setFeedback({ type: "success", message: t.contact.sent });
+				setFeedback({ type: "success", message: sentMessage ?? t.contact.sent });
 				setEmail("");
 				setName("");
 				setMessage("");
@@ -105,8 +113,8 @@ const ContactForm = () => {
 				<textarea
 					name="your-message"
 					rows={7}
-					placeholder={t.contact.message}
-					aria-label={t.contact.message}
+					placeholder={messagePlaceholder ?? t.contact.message}
+					aria-label={messagePlaceholder ?? t.contact.message}
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
 					className={inputClassName}
@@ -126,7 +134,7 @@ const ContactForm = () => {
 
 				<div className="mt-[10px]">
 					<Button type="submit" variant="outlined" disabled={pending}>
-						{pending ? t.contact.sending : t.contact.send}
+						{pending ? t.contact.sending : (submitLabel ?? t.contact.send)}
 					</Button>
 				</div>
 			</form>

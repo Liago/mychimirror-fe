@@ -62,10 +62,12 @@ const nextConfig = {
             // Doppione di /contacts/ (la pagina nel menu)
             { source: '/contatti/', destination: '/contacts/', statusCode: 301 },
             { source: '/en/contatti/', destination: '/en/contacts/', statusCode: 301 },
-            // Indirizzo dato a Google Play per la cancellazione dell'account: WordPress
-            // lo portava su /contacts/ indovinando la pagina, l'app no
-            { source: '/contact/', destination: '/contacts/', statusCode: 301 },
-            { source: '/en/contact/', destination: '/en/contacts/', statusCode: 301 },
+            // Vecchio link "elimina account" dato a Google Play (Sicurezza dei dati)
+            // e alias inglese: portano alla pagina dedicata dell'app MyChicMirror2
+            { source: '/contact/', destination: '/elimina-account/', statusCode: 301 },
+            { source: '/en/contact/', destination: '/en/elimina-account/', statusCode: 301 },
+            { source: '/delete-account/', destination: '/elimina-account/', statusCode: 301 },
+            { source: '/en/delete-account/', destination: '/en/elimina-account/', statusCode: 301 },
             ...chapterRedirects,
             // Archivi del portfolio del tema: l'unica voce è la rassegna stampa
             { source: '/portfolio-item/', destination: '/portfolio-item/press/', statusCode: 301 },
