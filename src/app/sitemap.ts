@@ -12,6 +12,9 @@ export const revalidate = 3600;
 
 type Entry = { link: string; modified_gmt?: string; count?: number };
 
+// Pagina per l'eliminazione dell'account dell'app (non è su WordPress)
+const DELETE_ACCOUNT_PATH = "/elimina-account/";
+
 // Pagine WooCommerce che non devono essere indicizzate
 const EXCLUDED = new Set(["/cart/", "/checkout/", "/my-account/"]);
 
@@ -63,9 +66,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			alternates: { languages: languageAlternates("/") },
 		},
 		{ url: `${SITE_URL}/portfolio-item/press/`, changeFrequency: "yearly" },
+		...[DELETE_ACCOUNT_PATH, localePath("en", DELETE_ACCOUNT_PATH)].map((path) => ({
+			url: `${SITE_URL}${path}`,
+			changeFrequency: "yearly" as const,
+			alternates: { languages: languageAlternates(DELETE_ACCOUNT_PATH) },
+		})),
 	];
 
-	const seen = new Set(["/", "/portfolio-item/press/"]);
+	const seen = new Set(["/", "/portfolio-item/press/", DELETE_ACCOUNT_PATH]);
 	const add = (path: string, lastModified?: string, translated = false) => {
 		if (seen.has(path) || RETIRED_PAGES.has(path) || EXCLUDED.has(path)) return;
 		seen.add(path);
