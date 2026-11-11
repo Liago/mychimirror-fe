@@ -23,7 +23,7 @@ Tutti su MySQL con host `89.46.111.80`, raggiungibile solo dall'interno di Aruba
 | Database | Contenuto | Usato da |
 |---|---|---|
 | `Sql1291927_5` | WordPress attuale, prefisso `wp_` | `cms` |
-| `Sql1291927_2` | Libri e recensioni, tabella `reviews` | `/API/*.php`, mu-plugin `mcm-reviews.php` |
+| `Sql1291927_2` | Libri (`books`), store (`shops`), recensioni (`reviews`) | `/API/*.php`, mu-plugin `mcm-books.php` e `mcm-reviews.php` |
 | `Sql1291927_1` | WordPress del vecchio sito | Solo rollback, non riceve più aggiornamenti |
 
 Backup: `Sql1291927_1` è stato salvato il 05/11/2026.
@@ -82,7 +82,8 @@ Mu-plugin, da `wordpress/mu-plugins/` a `wp-content/mu-plugins/`:
 | `mcm-frontend-sync.php` | Avvisa il sito delle modifiche, apre le anteprime, noindex su `cms` |
 | `mcm-cart-handoff.php` | Riprende il carrello al checkout |
 | `mcm-store-api.php` | Aggiunge peso e dimensioni ai prodotti |
-| `mcm-reviews.php` | Pagina "Recensioni libri" del pannello |
+| `mcm-books.php` | Pagina "Libri" del pannello: libri, sinossi, store |
+| `mcm-reviews.php` | Pagina "Recensioni libri" del pannello e connessione a `Sql1291927_2` |
 
 Costanti in `wp-config.php`, oltre a quelle di WordPress:
 
@@ -109,7 +110,7 @@ Altre configurazioni:
 |---|---|---|
 | Articoli, pagine, prodotti | Pannello di `cms` | Subito |
 | Recensioni dei libri | `cms` → Recensioni libri, con form, file JSON, modifica ed eliminazione | Subito |
-| Copertine dei libri | phpMyAdmin, `Sql1291927_2`, tabella libri, campo `coverArt` (la home usa questo) | Entro 1 ora |
+| Libri, copertine, sinossi dell'app, trama del sito, store | `cms` → Libri | Subito sul sito; nell'app al prossimo caricamento della pagina libri |
 | Testi di home e rassegna stampa | Codice, `src/app/lib/editorial.ts` | Dopo il deploy |
 | Controllo degli URL | `node scripts/check-urls.mjs https://www.mychicmirror.com` (`--en` per l'inglese) | Non cambia nulla |
 
