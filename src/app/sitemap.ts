@@ -15,8 +15,9 @@ type Entry = { link: string; modified_gmt?: string; count?: number };
 // Pagina per l'eliminazione dell'account dell'app (non è su WordPress)
 const DELETE_ACCOUNT_PATH = "/elimina-account/";
 
-// Pagine WooCommerce che non devono essere indicizzate
-const EXCLUDED = new Set(["/cart/", "/checkout/", "/my-account/"]);
+// Pagine WooCommerce che non devono essere indicizzate e /contatti/, che fa
+// redirect su /contacts/ (next.config.js): in sitemap vanno solo pagine che rispondono 200
+const EXCLUDED = new Set(["/cart/", "/checkout/", "/my-account/", "/contatti/"]);
 
 /** Tutti gli elementi di una collezione REST, pagina per pagina. */
 async function fetchAll(path: string, fields: string): Promise<Entry[]> {
@@ -33,7 +34,10 @@ async function fetchAll(path: string, fields: string): Promise<Entry[]> {
 	return all;
 }
 
-const toPath = (link: string) => new URL(link).pathname;
+// Codifica in maiuscolo (%F0, non %f0), come nel canonical delle pagine: per
+// Google due scritture diverse sono due indirizzi diversi
+const toPath = (link: string) =>
+	new URL(link).pathname.replace(/%[0-9a-f]{2}/gi, (code) => code.toUpperCase());
 
 // Pagine con la versione inglese completa, oltre agli articoli
 const isTranslatedPage = (path: string) =>
