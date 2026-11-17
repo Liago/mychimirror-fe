@@ -105,6 +105,16 @@ const nextConfig = {
         }
     },
     images: {
+        // Vercel conta ogni trasformazione (combinazione url + larghezza + formato) e la rifà
+        // quando scade la cache. Le immagini di WordPress non mandano Cache-Control, quindi
+        // valeva il default di Next (4 ore): ogni immagine visitata (anche dai crawler) veniva
+        // ritrasformata più volte al giorno. Un file in /wp-content/uploads/ non cambia senza
+        // cambiare nome: 31 giorni.
+        minimumCacheTTL: 2678400,
+        // Meno larghezze = meno varianti per immagine. Coprono le misure usate nei `sizes`
+        // (150-600px, 1120px, 100vw) anche a densità 2x; niente 2048/3840, inutili qui.
+        deviceSizes: [640, 828, 1080, 1920],
+        imageSizes: [160, 384],
         remotePatterns: [
           // Copertina del video in home
           { protocol: 'https', hostname: 'i.ytimg.com', port: '', pathname: '/vi/**' },
