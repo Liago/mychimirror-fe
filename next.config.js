@@ -105,6 +105,9 @@ const nextConfig = {
         }
     },
     images: {
+        // Le immagini di WordPress passano dalla CDN di Jetpack, non da Vercel: vedi il file
+        loader: 'custom',
+        loaderFile: './src/app/lib/imageLoader.ts',
         // Vercel conta ogni trasformazione (combinazione url + larghezza + formato) e la rifà
         // quando scade la cache. Le immagini di WordPress non mandano Cache-Control, quindi
         // valeva il default di Next (4 ore): ogni immagine visitata (anche dai crawler) veniva
